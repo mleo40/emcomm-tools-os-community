@@ -1,10 +1,15 @@
-# ETC Regression Tests 
+# EmComm Tools  Regression Tests 
 
-- **Build**: ETC R6 Build 12
-- **Date**: 27 March 2026
+- **Build**: ETC R7 Build 15
+- **Date**: 8 August 2026
+
+## First Login
+
+* [ ] User configuration presented
 
 ## Desktop/Launcher Icons
 
+* [ ] EmComm Tools icon (et-user-app)
 * [ ] JS8Call icon
 * [ ] fldigi icon
 * [ ] et-predict
@@ -82,6 +87,8 @@
   * [ ] RMS station listed
   * [ ] Select RMS gateway => VFO updated
   * [ ] Connect
+* [ ] wwv
+* [ ] reticulum
 
 ## Bluetooth TNC
 
@@ -99,12 +106,6 @@
 * [ ] VARA restore
 * [ ] et-mode VARA FM (Winlink)
 * [ ] et-mode VARA HF (Winlink)
-
-## SIGINT
-
-* [ ] Artemis
-  * [ ] Available via application search
-  * [ ] Signal database renders
 
 ## Security
 
@@ -140,3 +141,26 @@
 * [ ] `offline` folder on Desktop
 * [ ] Check `nets` folder for `amrron` and `ghostnet`
 * [ ] Test gpg signature verifcation (see gpg crypto doc)
+
+## LoRa
+
+* [ ] LoRa listed in Conky
+* [ ] Heltec v4 PnP (/dev/et-lora)
+  * [ ] Offline firmware: rnodeconf --autoinstall --nocheck --fw-version 1.86 
+* [ ] et-reticulum
+  * [ ] rnode blueprint
+  * [ ] packet radio blueprint
+  * [ ] transport blueprint
+  * [ ] modem73 blueprint
+  * [ ] local network blueprint
+  * [ ] internet blueprint
+  * [ ] All permutations of radios and LoRa connected/disconnected
+
+## Modems
+
+* [ ] modem73
+* [ ] mercury
+
+## Email
+
+* [ ] Thunderbird installed

@@ -2,7 +2,7 @@
 #
 # Author  : Gaston Gonzalez
 # Date    : 16 March 2024
-# Updated : 2 May 2026
+# Updated : 9 August 2026
 # Purpose : Main installer for EmComm Tools Community (ETC)
 
 . ./env.sh
@@ -31,7 +31,7 @@ exitIfNotRoot
 
 ./install-udev.sh
 ./install-gps.sh 
-./install-navit.sh
+#./install-navit.sh
 ./install-cat.sh
 
 ./install-conky.sh
@@ -53,11 +53,11 @@ exitIfNotRoot
 ./install-audio-tools.sh
 
 # Offline KBs (Cyberdeck)
-./install-wikipedia.sh
+#./install-wikipedia.sh
 
 # Add user-specific data
 ./download-osm-maps.sh
-[ ! -z "${ET_EXPERT}" ] && ./download-wikipedia.sh
+#[ ! -z "${ET_EXPERT}" ] && ./download-wikipedia.sh
 
 ./install-wine.sh
 
@@ -97,12 +97,11 @@ exitIfNotRoot
 ./install-et-portaudio.sh
 
 # Instal SIGINT tools
-./install-artemis.sh
 ./install-minimodem.sh
 
 # Install security tools
 ./install-gpa.sh
-./install-pfte.sh
+#./install-pfte.sh
 
 # Install ISO tools
 ./install-ventoy.sh
@@ -113,5 +112,27 @@ exitIfNotRoot
 # Install WSJT-X (FT8)
 ./install-wsjtx.sh
 
+# Install simple WWV util
+./install-et-wwv.sh
+
 # Security Patches
 ./patch-copy-fail.sh
+
+# Install Reticulum and related applications
+./install-reticulum.sh
+./install-meshchat.sh
+./install-modem73.sh
+./install-mercury.sh
+./install-offline-rnode-firmware.sh
+
+# Debrand Ubuntu
+./debrand.sh
+
+# Email
+./install-thunderbird.sh
+
+# EmComm Tools PnP GUI apps
+./install-et-user-app.sh
+
+# User customizations
+./install-custom.sh

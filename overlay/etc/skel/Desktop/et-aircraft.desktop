@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=et-aircraft
+Comment=dump1090 ADB-S tracker for EmComm Tools
+Exec=/opt/emcomm-tools/bin/et-aircraft
+Icon=et-aircraft-icon-black-192
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+Categories=HamRadio;
+StartupNotify=true

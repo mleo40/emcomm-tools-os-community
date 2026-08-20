@@ -42,8 +42,11 @@ ln -v -s ${INSTALL_DIR} ${LINK_PATH}
 
 stow -v -d /opt ${APP} -t /usr/local
 
-cd ${CWD}
+cd ${CWD_DIR}
 
 # Use wrapper script as launcher executable
 sed -i 's|^Exec.*|Exec=/opt/emcomm-tools/bin/et-fldigi start|' /opt/fldigi/share/applications/fldigi.desktop
+
+cp -v /opt/fldigi/share/applications/fldigi.desktop /etc/skel/Desktop/
+chmod -v 755 /etc/skel/Desktop/fldigi.desktop
 
