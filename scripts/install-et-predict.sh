@@ -24,4 +24,8 @@ if [[ ! -e ${ET_DIST_DIR}/${DOWNLOAD_FILE} ]]; then
   mv ${DOWNLOAD_FILE} ${ET_DIST_DIR}
 fi
 
-DEBIAN_FRONTEND=noninteractive dpkg -i "${ET_DIST_DIR}/${DOWNLOAD_FILE}" 
+DEBIAN_FRONTEND=noninteractive dpkg -i "${ET_DIST_DIR}/${DOWNLOAD_FILE}"
+
+[[ -e /usr/share/applications/et-predict-app.desktop ]] && \
+  cp -v /usr/share/applications/et-predict-app.desktop /etc/skel/Desktop/ && \
+  chmod -v 755 /etc/skel/Desktop/et-predict-app.desktop 

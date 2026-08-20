@@ -42,7 +42,10 @@ make install
 ln -v -s ${INSTALL_DIR} ${LINK_PATH}
 
 # Use wrapper script as launcher executable
-sed -i 's|^Exec.*|Exec=/opt/emcomm-tools/bin/et-flamp start|' /opt/flamp/share/applications/flamp.desktop 
+sed -i 's|^Exec.*|Exec=/opt/emcomm-tools/bin/et-flamp start|' /opt/flamp/share/applications/flamp.desktop
+
+cp -v /opt/flamp/share/applications/flamp.desktop /etc/skel/Desktop/
+chmod -v 755 /etc/skel/Desktop/flamp.desktop
 
 stow -v -d /opt ${APP} -t /usr/local
 

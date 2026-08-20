@@ -48,6 +48,9 @@ ln -v -s ${INSTALL_DIR} ${LINK_PATH}
 sed -i 's|^Exec.*|Exec=/opt/emcomm-tools/bin/et-flmsg start|' /opt/flmsg/share/applications/flmsg.desktop
 cp -v /opt/flmsg/share/applications/flmsg.desktop /usr/share/applications/flmsg.desktop
 
+cp -v /opt/flmsg/share/applications/flmsg.desktop /etc/skel/Desktop/
+chmod -v 755 /etc/skel/Desktop/flmsg.desktop
+
 stow -v -d /opt ${APP} -t /usr/local
 
 cd ${CWD_DIR}

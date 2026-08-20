@@ -31,7 +31,7 @@ exitIfNotRoot
 
 ./install-udev.sh
 ./install-gps.sh 
-./install-navit.sh
+#./install-navit.sh
 ./install-cat.sh
 
 ./install-conky.sh
@@ -53,11 +53,11 @@ exitIfNotRoot
 ./install-audio-tools.sh
 
 # Offline KBs (Cyberdeck)
-./install-wikipedia.sh
+#./install-wikipedia.sh
 
 # Add user-specific data
 ./download-osm-maps.sh
-[ ! -z "${ET_EXPERT}" ] && ./download-wikipedia.sh
+#[ ! -z "${ET_EXPERT}" ] && ./download-wikipedia.sh
 
 ./install-wine.sh
 
@@ -101,7 +101,7 @@ exitIfNotRoot
 
 # Install security tools
 ./install-gpa.sh
-./install-pfte.sh
+#./install-pfte.sh
 
 # Install ISO tools
 ./install-ventoy.sh
@@ -133,3 +133,6 @@ exitIfNotRoot
 
 # EmComm Tools PnP GUI apps
 ./install-et-user-app.sh
+
+# User customizations
+./install-custom.sh

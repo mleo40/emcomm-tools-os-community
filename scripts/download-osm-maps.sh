@@ -53,11 +53,6 @@ if [ $exit_status -eq 0 ]; then
 
   
   if [ -e ${download_file} ]; then
-    navit_osm_bin_file=$(echo ${download_file} | sed 's|pbf|bin|') 
-    navit_osm_bin_file_path="/etc/skel/.navit/maps/${navit_osm_bin_file}" 
-    et-log "Generating OSM map for Navit: ${navit_osm_bin_file_path}"
-    maptool --protobuf -i ${download_file} ${navit_osm_bin_file_path}
-
     et-log "Moving OSM .pbf to  ${PBF_MAP_DIR}"
     mv -v ${download_file} ${PBF_MAP_DIR}
   fi
