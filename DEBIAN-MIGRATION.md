@@ -90,6 +90,9 @@ All script paths are under `scripts/` unless shown otherwise.
     unknown name makes the whole purge fail
   - add `firefox-esr`: r7 had no Firefox (Ubuntu's is a snap, removed with
     `snapd`), and nothing in ETC uses it
+  - add `gnome-initial-setup`: Debian's first-login wizard. ETC has its own
+    first-login setup, and location services stay off through the settings
+    override
   - first mark the GNOME apps as manually installed: Debian's `gnome`
     metapackage hard-depends on LibreOffice, so the purge removes it and
     `apt autoremove` would otherwise strip the desktop apps too
