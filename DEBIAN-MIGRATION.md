@@ -4,39 +4,145 @@ Branch `feature/debian-base`, from tag `emcomm-tools-os-community-20261027-r7-bu
 
 ## Flow
 
-1. Install Debian 12 (bookworm) with the GNOME desktop. Internet required.
-   Leave the root password **empty**, so the installer gives the first user
-   `sudo`.
-2. `cd scripts && sudo ./install.sh`. The last step asks
-   *"Install optional encryption tools? [y/N]"* (default No).
-3. Optional: `sudo ./build-iso.sh` builds a live ISO from the running system,
-   either clean (to deploy for others) or personal (the user's own data,
-   portable). The ISO contains whatever software is installed, including the
-   encryption tools if they were chosen.
+An internet connection is needed for steps 1–3.
 
-## Package and behaviour changes
+1. **Install Debian 12 (bookworm), amd64.**
+   - Media: the standard Debian 12 installer (netinst or DVD).
+   - Software selection: **GNOME** desktop.
+   - Leave the **root password empty**, so the installer gives the first user
+     `sudo`.
+   - Reboot into the new system and log in as that user.
 
-| File | Change |
-|---|---|
-| `overlay/etc/apt/sources.list` | `deb.debian.org` bookworm, bookworm-updates, bookworm-security; `main contrib non-free non-free-firmware` |
-| `install-dev-tools.sh` | Remove the Cubic/PPA block |
-| `install-ubuntu-image-tools-only.sh` | Delete |
-| `install-base.sh` | `openjdk-20-jdk` → `openjdk-17-jdk` (see Java note); move `steghide` and `gpg` to `install-crypto.sh` |
-| `install-python.sh` | `python2 python-setuptools` → `python3-setuptools python-is-python3`; remove the `update-alternatives` line that points `python` at python2 |
-| `install-mbutil.sh` | Install with python3 |
-| `install-wsjtx.sh` | Remove `libqcustomplot2.0` (the WSJT-X 2.7.0 `.deb` doesn't depend on it, and bookworm doesn't have it) |
-| `install-sdrpp.sh` | `sdrpp_ubuntu_jammy_amd64.deb` → `sdrpp_debian_bookworm_amd64.deb` |
-| `install-veracrypt.sh` | `Ubuntu-22.04` → `Debian-12` `.deb` |
-| `remove-packages.sh` | Remove `update-manager` and `update-notifier` from the list (they aren't in Debian, and an unknown name makes the whole purge fail); add `firefox-esr` (r7 had no Firefox, because Ubuntu's Firefox is a snap that gets purged with `snapd`) |
-| `configure-user.sh` | Also apply the user setup to the **existing** user (`$SUDO_USER`), who now exists before `install.sh` runs: copy `/etc/skel` into their home without overwriting, chown it, set the primary group to `et-data` (GID 1981, as `USERS_GID` does for new users), and add the `EXTRA_GROUPS` from `adduser.conf` (`dialout`, `bluetooth` and the rest). Without this, the user has no radio/serial access and none of ETC's home-folder files, including the Reticulum installs in `/etc/skel/.local` |
-| `overlay/etc/crontab` | Remove the `@reboot` line that copies `sources.list` from `/root/emcomm-tools-os-community/…`. That path only existed in the Cubic build chroot; `update-apt.sh` already installs `sources.list` |
-| `debrand.sh` | Replace the Ubiquity slideshow install with the Calamares branding install (see Branding); remove the kernel reinstall/`update-initramfs` block |
-| `install-branding.sh` | Remove the `ubuntu-logo.png`, `warty-final-ubuntu.png` and Ubiquity pixmap steps; keep the spinner and watermark copy; install `plymouth`; add `plymouth-set-default-theme -R spinner`; add `splash` to `GRUB_CMDLINE_LINUX_DEFAULT` in `/etc/default/grub` and run `update-grub` (Debian's default is `quiet` only) |
-| `90_ubuntu-settings.gschema.override` | Rename to `90_emcomm-tools.gschema.override`; remove the `apps/update-manager` and `com/ubuntu/update-notifier` sections |
-| `configure-gnome.sh` | Use the renamed override; install `yaru-theme-gtk yaru-theme-icon yaru-theme-gnome-shell`. Also install and enable the three GNOME extensions Ubuntu ships built in: `gnome-shell-extension-dashtodock` (the always-visible dock that shows the `favorite-apps` launchers), `gnome-shell-extension-desktop-icons-ng` (shows `~/Desktop/offline` on the desktop) and `gnome-shell-extension-appindicator` (tray icons). Enable them through `org.gnome.shell enabled-extensions` in the override, with dash-to-dock set to Ubuntu's layout (left side, fixed, full height). Vanilla Debian GNOME has none of these, so the launchers that `REGRESSION.md` checks would only appear in the Activities overview |
-| `install.sh` | Remove `install-gpa.sh`, `install-pfte.sh` and the VeraCrypt line; add the encryption prompt as the last step |
-| `install-offline-lib.json` | Move the AmRRON `.asc` key and GPG guide entries to `install-crypto.sh` |
-| `README.md`, `RELEASES.md` | Document the flow above |
+2. **Download EmComm Tools.**
+   ```bash
+   sudo apt update && sudo apt install -y git
+   git clone -b feature/debian-base https://github.com/mleo40/emcomm-tools-os-community.git
+   cd emcomm-tools-os-community/scripts
+   ```
+   Once this is merged, clone the release branch or tag instead.
+
+3. **Install EmComm Tools.**
+   ```bash
+   sudo ./install.sh
+   ```
+   - Run it with `sudo` from your own account, not as root: it sets up the
+     calling user (groups, home files).
+   - Run it from `scripts/`, because the scripts use relative `../overlay` paths.
+   - It takes a long time (source builds, map downloads). Progress is logged
+     to `/tmp/et/et.log`.
+   - Last step: *"Install optional encryption tools? [y/N]"* (default No).
+     `ET_CRYPTO=yes|no` answers it in advance.
+
+4. **Reboot.** That applies the new groups, `PATH`, boot splash and GNOME
+   extensions. At the first login, ETC's user setup (callsign, grid and so on)
+   opens.
+
+5. **Optional: build an ISO.**
+   ```bash
+   sudo ./build-iso.sh
+   ```
+   It offers two kinds of ISO:
+
+   - **Clean, shareable ISO:** build it right away, from a fresh install.
+     Your accounts, home folder, Wi-Fi passwords, SSH keys, logs and other
+     personal identifiers are removed. What's left is the stock EmComm Tools
+     system, which you can hand to anyone. It boots as a live system, runs the
+     first-login setup for whoever uses it, and can install itself to disk.
+   - **Personal, portable ISO:** first set the system up the way you want it
+     (callsign, radio and app settings, Winlink account, maps, messages,
+     files), then build. The ISO is a copy of *your* system, with your account
+     and data included, so you can carry it on a USB stick and boot your own
+     setup on any machine. Because it contains your credentials and private
+     data, treat the file like a password: don't share it. You can protect it
+     with a passphrase (optional, default No).
+
+   Either kind contains whatever software is installed, including the
+   encryption tools if they were chosen. The output goes to `/home/eggs/`.
+   Write it to a USB stick, for example with Ventoy; Ventoy's persistence
+   option keeps your changes between boots.
+
+## Changes
+
+All script paths are under `scripts/` unless shown otherwise.
+
+### Apt sources
+- **`overlay/etc/apt/sources.list`**: point at Debian 12 (`deb.debian.org`
+  bookworm, bookworm-updates, bookworm-security) with
+  `main contrib non-free non-free-firmware`.
+- **`overlay/etc/crontab`**: remove the `@reboot` line that copies
+  `sources.list` from `/root/emcomm-tools-os-community/`. That path doesn't
+  exist outside the Cubic build.
+
+### Package swaps
+- **`install-base.sh`**: `openjdk-20-jdk` → `openjdk-17-jdk` (see Java note).
+- **`install-python.sh`**: `python2 python-setuptools` →
+  `python3-setuptools python-is-python3`; remove the `update-alternatives`
+  line that points `python` at python2.
+- **`install-mbutil.sh`**: install with python3.
+- **`install-wsjtx.sh`**: remove `libqcustomplot2.0` (not in bookworm, and not
+  needed by the WSJT-X `.deb`).
+- **`install-sdrpp.sh`**: download `sdrpp_debian_bookworm_amd64.deb` instead of
+  `sdrpp_ubuntu_jammy_amd64.deb`.
+- **`install-veracrypt.sh`**: download the `Debian-12` `.deb` instead of
+  `Ubuntu-22.04`.
+- **`remove-packages.sh`**:
+  - drop `update-manager` and `update-notifier`: they aren't in Debian, and one
+    unknown name makes the whole purge fail
+  - add `firefox-esr`: r7 had no Firefox
+
+### Removing Cubic and Ubuntu leftovers
+- **`install-dev-tools.sh`**: remove the Cubic/PPA block.
+- **`install-ubuntu-image-tools-only.sh`**: delete.
+- **`debrand.sh`**:
+  - install the Calamares branding instead of the Ubiquity slideshow (see Branding)
+  - remove the kernel reinstall and `update-initramfs` block
+- **`install-branding.sh`**:
+  - remove the `ubuntu-logo.png`, `warty-final-ubuntu.png` and Ubiquity
+    pixmap steps
+  - install `plymouth` and run `plymouth-set-default-theme -R spinner`
+  - add `splash` to `GRUB_CMDLINE_LINUX_DEFAULT` and run `update-grub`
+
+### Desktop (GNOME)
+- **`overlay/usr/share/glib-2.0/schemas/90_ubuntu-settings.gschema.override`**:
+  rename to `90_emcomm-tools.gschema.override`; remove the
+  `apps/update-manager` and `com/ubuntu/update-notifier` sections.
+- **`configure-gnome.sh`**:
+  - use the renamed override
+  - install the Yaru theme: `yaru-theme-gtk yaru-theme-icon yaru-theme-gnome-shell`
+  - install and enable the extensions Ubuntu builds in, so the desktop looks
+    the same:
+
+    | Extension | Gives |
+    |---|---|
+    | `gnome-shell-extension-dashtodock` | The always-visible dock with the ETC launchers (left side, fixed, full height) |
+    | `gnome-shell-extension-desktop-icons-ng` | Icons on the desktop, including `~/Desktop/offline` |
+    | `gnome-shell-extension-appindicator` | Tray icons |
+
+### User setup
+- **`configure-user.sh`**: the first user now exists *before* `install.sh`
+  runs, so also set up that user (`$SUDO_USER`):
+  - copy `/etc/skel` into their home without overwriting, and chown it
+  - set their primary group to `et-data` (GID 1981)
+  - add them to the `EXTRA_GROUPS` from `adduser.conf` (`dialout`,
+    `bluetooth` and the rest)
+
+  Without this, the user has no radio/serial access and is missing ETC's home
+  files, including Reticulum.
+- **New `overlay/etc/profile.d/emcomm-tools.sh`** (installed by
+  `install-base.sh`): adds `/opt/emcomm-tools/bin:/usr/local/sbin:/usr/sbin:/sbin`
+  to `PATH`. Debian's `/etc/profile` resets `PATH` and drops what
+  `/etc/environment` sets (Ubuntu's doesn't), so the `et-*` commands wouldn't
+  be found. No other `PATH` change is needed.
+
+### Encryption opt-in
+- **`install.sh`**: remove `install-gpa.sh`, `install-pfte.sh` and the
+  VeraCrypt line; add the encryption prompt as the last step.
+- **`install-base.sh`**: move `steghide` and `gpg` to `install-crypto.sh`.
+- **`install-offline-lib.json`**: move the AmRRON `.asc` key and GPG guide
+  entries to `install-crypto.sh`.
+
+### Docs
+- **`README.md`**, **`RELEASES.md`**: document the new flow.
 
 **Java note:** Debian 12 has no OpenJDK 20, so the build uses Debian's
 OpenJDK 17, which gets security updates. Only two apps use Java, and the
@@ -166,6 +272,7 @@ branding may have to go through eggs' theme option rather than
 
 - `scripts/install-crypto.sh`
 - `scripts/build-iso.sh`
+- `overlay/etc/profile.d/emcomm-tools.sh`
 - Calamares branding: `branding.desc`, `show.qml` (screenshots moved, not new)
 
 ## Order of work
@@ -193,6 +300,8 @@ branding may have to go through eggs' theme option rather than
   Fallbacks: Debian's own `js8call` 2.2.0 and `wsjtx` packages.
 - The existing user (first-boot account) gets dialout and et-data access and
   the `/etc/skel` files after `install.sh`, after logging out and back in.
+- In a new terminal after logging in, `echo $PATH` includes
+  `/opt/emcomm-tools/bin` and `which et-radio` finds it.
 - Desktop parity: the dock shows the `favorite-apps` launchers, and
   `~/Desktop/offline` is visible on the desktop.
 - wine 8.0: the VARA/Winlink add-on under `overlay/etc/skel/add-ons/wine` still
