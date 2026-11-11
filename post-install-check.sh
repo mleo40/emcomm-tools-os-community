@@ -132,6 +132,8 @@ fi
 check     "Yaru-dark theme files present"              test -d /usr/share/themes/Yaru-dark
 [[ "$(gs org.gnome.desktop.wm.preferences button-layout)" == *"minimize,maximize,close"* ]] && pass "minimize/maximize/close buttons" || fail "minimize/maximize/close buttons"
 [[ "$(gs org.gnome.desktop.background picture-uri)" == *"emcomm-tools-wallpaper"* ]] && pass "ETC wallpaper set" || fail "ETC wallpaper set"
+[[ "$(gs org.gnome.desktop.background picture-uri-dark)" == *"emcomm-tools-wallpaper"* ]] && pass "ETC wallpaper set for dark style" || fail "ETC wallpaper set for dark style" "GNOME uses picture-uri-dark when the dark style is on"
+[[ "$(gs org.gnome.software allow-updates)" == "false" && "$(gs org.gnome.software download-updates)" == "false" ]] && pass "GNOME Software update checks off" || fail "GNOME Software update checks off"
 check     "wallpaper file present"                     test -f /usr/share/backgrounds/emcomm-tools-wallpaper.png
 
 # ---------------------------------------------------------------------------
@@ -165,8 +167,14 @@ else
   fail "et-system-info release" "got '${REL}'; expected /etc/emcomm-tools/release (install-release.sh)"
 fi
 
-check     "et-build-iso on PATH and links to build-iso.sh" bash -c '[[ -x "$(readlink -f "$(command -v et-build-iso)")" && "$(readlink -f "$(command -v et-build-iso)")" == */scripts/build-iso.sh ]]'
-check     "et-build-iso in /usr/local/bin (on sudo's PATH)" test -L /usr/local/bin/et-build-iso
+LINK=/usr/local/bin/et-build-iso
+if [[ -L "${LINK}" && -x "$(readlink -f "${LINK}")" && "$(readlink -f "${LINK}")" == */scripts/build-iso.sh ]]; then
+  pass "et-build-iso in /usr/local/bin -> $(readlink -f "${LINK}")"
+elif [[ -L "${LINK}" ]]; then
+  fail "et-build-iso link is broken" "points to $(readlink "${LINK}"); was the repository clone moved or deleted?"
+else
+  warn "et-build-iso not installed" "normal on systems installed from an ISO (no repository clone)"
+fi
 
 section "Encryption opt-in"
 check     "crypto add-on staged"                       test -x "${ADDON}"

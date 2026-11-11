@@ -30,3 +30,4 @@ if ! grep -q '^GRUB_CMDLINE_LINUX_DEFAULT=.*splash' /etc/default/grub; then
 fi
 
 gsettings set org.gnome.desktop.background picture-uri file:////usr/share/backgrounds/emcomm-tools-wallpaper.png
+gsettings set org.gnome.desktop.background picture-uri-dark file:////usr/share/backgrounds/emcomm-tools-wallpaper.png

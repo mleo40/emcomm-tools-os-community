@@ -265,6 +265,10 @@ et-build-iso
 - **Personal**: a portable copy of your own system, including your data,
   optionally encrypted with a passphrase. Do not share it.
 
+> **Secure Boot:** turn Secure Boot off in the computer's firmware settings to
+> boot the ISO. penguins-eggs puts an unsigned bootloader on it, which Secure
+> Boot refuses ("Access Denied").
+
 The ISO is written to `/home/eggs/`. `et-build-iso` runs
 `scripts/build-iso.sh` from your clone of the repository, so keep
 `~/emcomm-tools-os-community` in place.

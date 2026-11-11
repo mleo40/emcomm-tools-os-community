@@ -24,7 +24,7 @@ Presentation
 
     Slide {
         Text {
-            id: title
+            id: title1
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Welcome to EmComm Tools R7"
@@ -32,16 +32,16 @@ Presentation
             font.bold: true
         }
         Image {
-            id: image
+            id: image1
             source: "background.png"
-            anchors.top: title.bottom
+            anchors.top: title1.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(parent.width * 0.6, sourceSize.width)
             fillMode: Image.PreserveAspectFit
         }
         Text {
-            anchors.top: image.bottom
+            anchors.top: image1.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width * 0.85
@@ -54,7 +54,7 @@ Presentation
 
     Slide {
         Text {
-            id: title
+            id: title2
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Global User Configuration"
@@ -62,16 +62,16 @@ Presentation
             font.bold: true
         }
         Image {
-            id: image
+            id: image2
             source: "screenshots/et-user.png"
-            anchors.top: title.bottom
+            anchors.top: title2.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(parent.width * 0.6, sourceSize.width)
             fillMode: Image.PreserveAspectFit
         }
         Text {
-            anchors.top: image.bottom
+            anchors.top: image2.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width * 0.85
@@ -84,7 +84,7 @@ Presentation
 
     Slide {
         Text {
-            id: title
+            id: title3
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Radio Plug-and-Play"
@@ -92,16 +92,16 @@ Presentation
             font.bold: true
         }
         Image {
-            id: image
+            id: image3
             source: "screenshots/et-radio.png"
-            anchors.top: title.bottom
+            anchors.top: title3.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(parent.width * 0.6, sourceSize.width)
             fillMode: Image.PreserveAspectFit
         }
         Text {
-            anchors.top: image.bottom
+            anchors.top: image3.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width * 0.85
@@ -114,7 +114,7 @@ Presentation
 
     Slide {
         Text {
-            id: title
+            id: title4
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Zero Configuration"
@@ -122,16 +122,16 @@ Presentation
             font.bold: true
         }
         Image {
-            id: image
+            id: image4
             source: "screenshots/et-mode.png"
-            anchors.top: title.bottom
+            anchors.top: title4.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(parent.width * 0.6, sourceSize.width)
             fillMode: Image.PreserveAspectFit
         }
         Text {
-            anchors.top: image.bottom
+            anchors.top: image4.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width * 0.85
@@ -144,7 +144,7 @@ Presentation
 
     Slide {
         Text {
-            id: title
+            id: title5
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Offline HF Prediction"
@@ -152,16 +152,16 @@ Presentation
             font.bold: true
         }
         Image {
-            id: image
+            id: image5
             source: "screenshots/et-predict.png"
-            anchors.top: title.bottom
+            anchors.top: title5.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(parent.width * 0.6, sourceSize.width)
             fillMode: Image.PreserveAspectFit
         }
         Text {
-            anchors.top: image.bottom
+            anchors.top: image5.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width * 0.85
@@ -174,7 +174,7 @@ Presentation
 
     Slide {
         Text {
-            id: title
+            id: title6
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Radio Email"
@@ -182,16 +182,16 @@ Presentation
             font.bold: true
         }
         Image {
-            id: image
+            id: image6
             source: "screenshots/et-mail.png"
-            anchors.top: title.bottom
+            anchors.top: title6.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(parent.width * 0.6, sourceSize.width)
             fillMode: Image.PreserveAspectFit
         }
         Text {
-            anchors.top: image.bottom
+            anchors.top: image6.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width * 0.85
@@ -204,7 +204,7 @@ Presentation
 
     Slide {
         Text {
-            id: title
+            id: title7
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Offline Aircraft Tracking"
@@ -212,16 +212,16 @@ Presentation
             font.bold: true
         }
         Image {
-            id: image
+            id: image7
             source: "screenshots/et-aircraft.png"
-            anchors.top: title.bottom
+            anchors.top: title7.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(parent.width * 0.6, sourceSize.width)
             fillMode: Image.PreserveAspectFit
         }
         Text {
-            anchors.top: image.bottom
+            anchors.top: image7.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width * 0.85
@@ -234,7 +234,7 @@ Presentation
 
     Slide {
         Text {
-            id: title
+            id: title8
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Reticulum"
@@ -242,16 +242,16 @@ Presentation
             font.bold: true
         }
         Image {
-            id: image
+            id: image8
             source: "screenshots/et-reticulum.png"
-            anchors.top: title.bottom
+            anchors.top: title8.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(parent.width * 0.6, sourceSize.width)
             fillMode: Image.PreserveAspectFit
         }
         Text {
-            anchors.top: image.bottom
+            anchors.top: image8.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width * 0.85

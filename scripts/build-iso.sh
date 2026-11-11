@@ -10,7 +10,8 @@
 #
 # Two kinds of ISO:
 #   1) Clean    - shareable; accounts, /home, Wi-Fi, SSH host keys and logs
-#                 are left out. Live user is created from /etc/skel.
+#                 are left out. Live user is created from /etc/skel. The
+#                 et-build-iso link is left out too (it points into /home).
 #   2) Personal - a portable copy of YOUR system, including your account and
 #                 data. Optionally encrypted with a passphrase (LUKS).
 #
@@ -52,7 +53,8 @@ echo "  2) Personal system: your accounts, settings and files, portable to any m
 read -r -p "Choice [1/2]: " CHOICE
 [[ "${CHOICE}" == "2" ]] && MODE=personal || MODE=clean
 
-EGGS_FLAGS=()
+# --anonymous: opt out of eggs' "anonymous census" telemetry (on by default).
+EGGS_FLAGS=(--anonymous)
 if [[ "${MODE}" == "personal" ]]; then
   echo
   echo "WARNING: a personal ISO contains your private data: Winlink/Pat"
@@ -95,6 +97,18 @@ if [[ "${INSTALLED_EGGS}" != "${EGGS_VERSION}-1" ]]; then
   rm -rf "${TMP_DIR}"
 fi
 
+# The live session's "Install System" desktop launcher: eggs marks it trusted
+# with 'yes', but GNOME's desktop icons extension (ding) only accepts 'true' and
+# otherwise shows the launcher as broken (red X, file name instead of name).
+TRUST_SCRIPT="${EGGS_DIR}/scripts/trust-desktop.sh"
+if [[ -f "${TRUST_SCRIPT}" ]]; then
+  sed -i 's/metadata::trusted yes/metadata::trusted true/' "${TRUST_SCRIPT}"
+  grep -q 'metadata::trusted true' "${TRUST_SCRIPT}" \
+    || et-log "WARNING: could not fix the live installer launcher in ${TRUST_SCRIPT}"
+else
+  et-log "WARNING: ${TRUST_SCRIPT} not found; check the live installer launcher"
+fi
+
 # ---------------------------------------------------------------------------
 # Branding and installer settings
 # ---------------------------------------------------------------------------
@@ -102,6 +116,11 @@ et-log "Installing EmComm Tools branding for the live ISO and Calamares..."
 mkdir -p "${EGGS_DIR}/branding/calamares/branding" "${EGGS_DIR}/branding/livecd" \
          "${EGGS_DIR}/branding/calamares/modules"
 cp -v -r "${BRANDING_SRC}/." "${EGGS_DIR}/branding/calamares/branding/"
+# eggs installs these files into its own branding folder, named 'eggs', and sets
+# 'branding: eggs'. Calamares stops with a fatal error unless componentName
+# matches that folder name.
+sed -i 's/^componentName:.*/componentName:  eggs/' \
+  "${EGGS_DIR}/branding/calamares/branding/branding.desc"
 convert ../logos/emcomm-tools-wallpaper.png -resize 640x480! \
   "${EGGS_DIR}/branding/livecd/splash.png"
 
@@ -136,6 +155,43 @@ WantedBy=multi-user.target
 EOF
 systemctl enable et-ssh-keygen.service
 
+# Users created by Calamares get et-data only as an extra group: Calamares runs
+# 'useradd -U', which always creates a personal primary group. ETC expects
+# et-data as the primary group (USERS_GID in /etc/adduser.conf) so files are
+# shared. At boot, give et-data members et-data as their primary group and move
+# their home's files from the personal group to et-data. Does nothing once set.
+cat > /usr/local/sbin/et-fix-primary-group <<EOF
+#!/bin/bash
+# Installed by build-iso.sh. See et-fix-primary-group.service.
+ET_GROUP=${ET_GROUP}
+EOF
+cat >> /usr/local/sbin/et-fix-primary-group <<'EOF'
+ET_GID=$(getent group "${ET_GROUP}" | cut -d: -f3)
+[[ -n "${ET_GID}" ]] || exit 0
+getent passwd | while IFS=: read -r USER _ USER_UID USER_GID _ HOME_DIR _; do
+  (( USER_UID >= 1000 && USER_UID < 60000 )) || continue
+  [[ "${USER_GID}" == "${ET_GID}" ]] && continue
+  id -nG "${USER}" | tr ' ' '\n' | grep -qx "${ET_GROUP}" || continue
+  usermod -g "${ET_GROUP}" "${USER}"
+  [[ -d "${HOME_DIR}" ]] && find "${HOME_DIR}" -xdev -gid "${USER_GID}" -exec chgrp -h "${ET_GROUP}" {} +
+  logger -t et-fix-primary-group "Set primary group of ${USER} to ${ET_GROUP}"
+done
+EOF
+chmod 755 /usr/local/sbin/et-fix-primary-group
+cat > /etc/systemd/system/et-fix-primary-group.service <<'EOF'
+[Unit]
+Description=Give EmComm Tools users et-data as their primary group
+Before=display-manager.service systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/et-fix-primary-group
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl enable et-fix-primary-group.service
+
 # ---------------------------------------------------------------------------
 # What to leave out of the ISO
 # ---------------------------------------------------------------------------
@@ -151,6 +207,7 @@ var/log/*.gz
 var/log/*.[0-9]
 var/log/journal/*
 tmp/et/*
+usr/local/bin/et-build-iso
 ${EXCLUDE_END}
 EOF
 fi

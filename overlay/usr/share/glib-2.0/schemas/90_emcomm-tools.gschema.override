@@ -1,5 +1,6 @@
 [org.gnome.desktop.background]
 picture-uri = 'file:///usr/share/backgrounds/emcomm-tools-wallpaper.png'
+picture-uri-dark = 'file:///usr/share/backgrounds/emcomm-tools-wallpaper.png'
 show-desktop-icons = false
 
 [org.gnome.desktop.screensaver]
@@ -44,3 +45,8 @@ extend-height = true
 
 [org.gnome.desktop.wm.preferences]
 button-layout = 'appmenu:minimize,maximize,close'
+
+[org.gnome.software]
+allow-updates = false
+download-updates = false
+download-updates-notify = false

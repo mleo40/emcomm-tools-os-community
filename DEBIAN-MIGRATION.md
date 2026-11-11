@@ -319,6 +319,10 @@ branding may have to go through eggs' theme option rather than
 
 ## To check
 
+- Secure Boot: eggs v26.10.30 always puts its own unsigned GRUB on the ISO
+  (`bootloader-copy.sh`), so the ISO only boots with Secure Boot off. To
+  support it, ship Debian's signed `shimx64.efi` as `BOOTX64.EFI` with
+  `gcdx64.efi.signed` as `grubx64.efi` and a `.disk/info` marker.
 - Prebuilt `.deb`s: the dependencies of all of them resolve on bookworm
   (checked 10 Nov 2026). They are WSJT-X 2.7.0, JS8Call 2.2.0 (ETC's 20.04
   build), SDR++ `sdrpp_debian_bookworm_amd64.deb` (nightly 1.3.2, unpinned as in
