@@ -42,6 +42,22 @@ et-log "Groups for '${ET_USER}': $(id -nG "${ET_USER}")"
 
 et-log "Copying /etc/skel into ${ET_USER_HOME} (existing files are kept)..."
 cp -a -n /etc/skel/. "${ET_USER_HOME}/"
+
+# The Debian installer gave this user Debian's stock shell files, which the
+# copy above keeps. ETC's versions are required: ETC's .bashrc sources
+# .bash_profile (umask 002 for et-data sharing, PATH, WINE variables, aliases).
+# Replace them, keeping a backup of the user's copy.
+for DOTFILE in .bashrc .bash_profile .inputrc; do
+  SRC="/etc/skel/${DOTFILE}"
+  DST="${ET_USER_HOME}/${DOTFILE}"
+  [[ -f "${SRC}" ]] || continue
+  if [[ -f "${DST}" ]] && ! cmp -s "${SRC}" "${DST}"; then
+    et-log "Replacing ${DST} with the EmComm Tools version (backup: ${DOTFILE}.pre-emcomm-tools)..."
+    cp -a "${DST}" "${DST}.pre-emcomm-tools"
+    cp -a "${SRC}" "${DST}"
+  fi
+done
+
 chown -R "${ET_USER}:${ET_GROUP}" "${ET_USER_HOME}"
 
 et-log "Existing user setup done. Log out and back in (or reboot) to apply it."

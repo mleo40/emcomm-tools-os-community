@@ -53,7 +53,10 @@ check     "apt sources point at bookworm"              grep -rqs 'bookworm' /etc
 check_not "no Ubuntu apt sources left"                 grep -rqs 'ubuntu.com' /etc/apt/sources.list /etc/apt/sources.list.d
 check_not "no Cubic @reboot line in /etc/crontab"      grep -q 'emcomm-tools-os-community/overlay' /etc/crontab
 check     "dpkg has no half-installed packages"        bash -c '[[ -z "$(dpkg --audit)" ]]'
-check     "apt dependency check is clean"              apt-get check
+# Debug::NoLocking lets a normal user run the check (no lock needed to read).
+APT_CHECK=$(apt-get -o Debug::NoLocking=true check 2>&1)
+if [[ $? -eq 0 ]]; then pass "apt dependency check is clean"
+else fail "apt dependency check is clean" "$(tail -3 <<<"${APT_CHECK}" | tr '\n' ' ')"; fi
 
 # ---------------------------------------------------------------------------
 section "Package swaps"
@@ -90,7 +93,9 @@ check     "~/.bash_profile from /etc/skel"             test -f "${HOME}/.bash_pr
 check     "~/Desktop/offline present"                  test -d "${HOME}/Desktop/offline"
 check     "Reticulum (rnsd) in ~/.local/bin"           test -x "${HOME}/.local/bin/rnsd"
 check     "NomadNet in ~/.local/bin"                   test -x "${HOME}/.local/bin/nomadnet"
-[[ "$(umask)" == "0002" ]] && pass "umask is 0002" || warn "umask is $(umask)" "expected 0002 from ~/.bash_profile (check in a new terminal)"
+NEW_UMASK=$(bash -ic umask 2>/dev/null | tail -1)
+[[ "${NEW_UMASK}" == "0002" ]] && pass "umask is 0002 in a new terminal" || fail "umask is 0002 in a new terminal" "got ${NEW_UMASK}; ~/.bashrc must source ~/.bash_profile (ETC's .bashrc)"
+check     "~/.bashrc is the EmComm Tools version"      cmp -s /etc/skel/.bashrc "${HOME}/.bashrc"
 check     "et-api user service file present"           test -f "${HOME}/.config/systemd/user/et-service-et-api.service"
 
 # ---------------------------------------------------------------------------

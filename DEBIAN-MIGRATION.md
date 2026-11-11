@@ -135,6 +135,9 @@ All script paths are under `scripts/` unless shown otherwise.
   script has added to `/etc/skel`). The first user now exists *before*
   `install.sh` runs, so it sets up that user (`$SUDO_USER`):
   - copy `/etc/skel` into their home without overwriting, and chown it
+  - replace Debian's stock `.bashrc` (and `.bash_profile`, `.inputrc` if
+    present) with ETC's, keeping a `*.pre-emcomm-tools` backup. ETC's `.bashrc`
+    sources `.bash_profile`, which sets `umask 002`, the WINE variables and aliases
   - set their primary group to `et-data` (GID 1981)
   - add them to the `EXTRA_GROUPS` from `adduser.conf` (`dialout`,
     `bluetooth` and the rest)
