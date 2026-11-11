@@ -4,11 +4,15 @@ Branch `feature/debian-base`, from tag `emcomm-tools-os-community-20261027-r7-bu
 
 ## Flow
 
-An internet connection is needed for steps 1–3.
+An internet connection is needed for steps 1–3. Disk: 40 GB minimum to
+install (about 20 GB used after `install.sh`), 64 GB to also build ISOs.
+
+Step-by-step guide with screenshots: [docs/install-guide/README.md](docs/install-guide/README.md).
 
 1. **Install Debian 12 (bookworm), amd64.**
    - Media: the standard Debian 12 installer (netinst or DVD).
    - Software selection: **GNOME** desktop.
+   - Some usernames are reserved by Debian (for example `operator`).
    - Leave the **root password empty**, so the installer gives the first user
      `sudo`.
    - Reboot into the new system and log in as that user.
@@ -29,7 +33,11 @@ An internet connection is needed for steps 1–3.
      calling user (groups, home files).
    - Run it from `scripts/`, because the scripts use relative `../overlay` paths.
    - It takes a long time (source builds, map downloads). Progress is logged
-     to `/tmp/et/et.log`.
+     to `/tmp/et/et.log`; `/tmp` is cleared at boot, so copy it before
+     rebooting.
+   - It stops three times for input, as in r7: the OSM state map, the ETC map
+     country, and the encryption prompt. Run it in a terminal, not piped
+     through `tee`: the OSM map menu then can't read the arrow keys.
    - Last step: *"Install optional encryption tools? [y/N]"* (default No).
      `ET_CRYPTO=yes|no` answers it in advance.
 
@@ -57,9 +65,10 @@ An internet connection is needed for steps 1–3.
      with a passphrase (optional, default No).
 
    Either kind contains whatever software is installed, including the
-   encryption tools if they were chosen. The output goes to `/home/eggs/`.
-   Write it to a USB stick, for example with Ventoy; Ventoy's persistence
-   option keeps your changes between boots.
+   encryption tools if they were chosen. The output goes to `/home/eggs/`
+   (about 6 GB). Write it to a USB stick, for example with Ventoy; Ventoy's
+   persistence option keeps your changes between boots. Secure Boot must be
+   off to boot it (see To check).
 
 ## Changes
 
@@ -109,6 +118,14 @@ All script paths are under `scripts/` unless shown otherwise.
   - run `plymouth-set-default-theme -R bgrt` (r7's theme; Debian defaults to
     its own desktop-base theme)
   - add `splash` to `GRUB_CMDLINE_LINUX_DEFAULT` and run `update-grub`
+  - also set `picture-uri-dark` (see Desktop)
+- **New `install-release.sh`** (run early by `install.sh`): writes the release
+  name to `/etc/emcomm-tools/release`, from the last ETC tag plus `debian12`
+  (e.g. `ETC-r7-build34-debian12`). Cubic wrote it into `/etc/lsb-release`,
+  which Debian doesn't have.
+- **`overlay/opt/emcomm-tools/bin/et-system-info`**: `release` reads
+  `/etc/emcomm-tools/release` (falls back to `/etc/lsb-release`). Used by the
+  conky panel and as JS8Call's `MyInfo`.
 
 ### Desktop (GNOME)
 - **`overlay/usr/share/glib-2.0/schemas/90_ubuntu-settings.gschema.override`**:
@@ -116,6 +133,13 @@ All script paths are under `scripts/` unless shown otherwise.
   `apps/update-manager` and `com/ubuntu/update-notifier` sections; enable the
   three extensions below and set the dock layout; add Ubuntu's
   minimize/maximize/close window buttons (GNOME's default is close only).
+  Also:
+  - `picture-uri-dark`: ETC turns on the dark style, and GNOME 43 then uses
+    this key, so without it the desktop shows Debian's Adwaita wallpaper
+  - `[org.gnome.software]` `allow-updates`, `download-updates` and
+    `download-updates-notify` false: no update checks or "Software Updates
+    Ready" notifications (r7 turned off Ubuntu's update-notifier). GNOME
+    Software stays installed, because `gnome-core` depends on it.
 - **`configure-gnome.sh`**:
   - use the renamed override
   - install the Yaru theme: `yaru-theme-gtk yaru-theme-icon yaru-theme-gnome-shell`
@@ -157,8 +181,17 @@ All script paths are under `scripts/` unless shown otherwise.
 - **`install-offline-lib.json`**: move the AmRRON `.asc` key and GPG guide
   entries to `install-crypto.sh`.
 
-### Docs
+### ISO build command
+- **`install.sh`**: links `/usr/local/bin/et-build-iso` to `build-iso.sh` in the
+  clone (see ISO build).
+
+### Docs and checks
 - **`README.md`**, **`RELEASES.md`**: document the new flow.
+- **New `docs/install-guide/`**: illustrated install guide.
+- **New `post-install-check.sh`** (repo root): checks an installed system
+  (packages, groups, `PATH`, desktop, branding, services, encryption choice,
+  install log) and runs `tests/run-test-suite.sh`. Report in
+  `~/etc-post-install-report.txt`.
 
 **Java note:** Debian 12 has no OpenJDK 20, so the build uses Debian's
 OpenJDK 17, which gets security updates. Only two apps use Java, and the
@@ -235,14 +268,14 @@ sudo's PATH); it asks for sudo itself. It asks which ISO to build:
 
 | | 1. Clean | 2. Personal |
 |---|---|---|
-| eggs command | `eggs remaster` | `eggs remaster --clone`, or `--crypted` if encryption is chosen |
+| eggs command | `eggs remaster --anonymous` | `eggs remaster --anonymous --clone`, or `--crypted` if encryption is chosen |
 | User accounts and `/home` | excluded; live user created from `/etc/skel`, first-login setup runs | included; boots as the user's own account |
 | Wi-Fi connections, SSH host keys | removed | kept |
 | Apt caches, `/tmp/et`, logs | removed | removed |
 | machine-id | reset | reset |
-| Live username and password | eggs' default for now (shown when eggs runs); setting ETC's own is still to do, once eggs' `custom.yaml` keys are confirmed in the VM | the user's own |
-| Groups for users Calamares creates | `et-data`, `adduser.conf`'s `EXTRA_GROUPS` and `sudo`, as supplementary groups, through an eggs Calamares override (`/etc/penguins-eggs.d/branding/calamares/modules/users.conf`). Calamares uses `useradd`, which ignores `adduser.conf` | unchanged from the source system |
-| How things are left out | a marked block in eggs' `custom.exclude.list`: Wi-Fi connections, SSH host keys, logs, `/tmp/et`. A new `et-ssh-keygen.service` creates SSH host keys on first boot when they're missing | the marked block is removed |
+| Live username and password | eggs' default, `live` / `evolution`; setting ETC's own is still to do | the user's own |
+| Groups for users Calamares creates | `et-data`, `adduser.conf`'s `EXTRA_GROUPS` and `sudo` through an eggs Calamares override (`/etc/penguins-eggs.d/branding/calamares/modules/users.conf`). Calamares runs `useradd -U`, which ignores `adduser.conf` and makes a personal primary group, so a new `et-fix-primary-group.service` makes `et-data` the primary group at boot for any `et-data` member (and moves their home's files to `et-data`) | unchanged from the source system |
+| How things are left out | a marked block in eggs' `custom.exclude.list`: Wi-Fi connections, SSH host keys, logs, `/tmp/et`, the `et-build-iso` link (it points into `/home`). A new `et-ssh-keygen.service` creates SSH host keys on first boot when they're missing | the marked block is removed |
 | File name | `emcomm-tools-os-community-<date>[-crypto].iso` | `emcomm-tools-personal-<hostname>-<date>.iso` |
 
 Option 2 only:
@@ -261,11 +294,22 @@ Both kinds:
    `calamares`, `cryptsetup` and `cryptsetup-initramfs`. Debian's GNOME install
    doesn't include `cryptsetup`, and both the Calamares encryption checkbox and
    `--crypted` need it.
-2. Clean up as in the table, then run `eggs remaster` with the right flags.
+2. Work around eggs v26.10.30 on GNOME:
+   - `trust-desktop.sh` marks the live "Install System" launcher trusted with
+     `yes`; the desktop icons extension only accepts `true` and shows the
+     launcher as broken. `build-iso.sh` changes it to `true`.
+   - eggs copies the Calamares branding into its own `eggs` folder and sets
+     `branding: eggs`; Calamares stops with a fatal error unless
+     `componentName` matches. `build-iso.sh` sets `componentName: eggs` in the
+     copy it gives eggs (the repo's stays `emcomm-tools`).
+   - `--anonymous` opts out of eggs' "anonymous census" telemetry, which is on
+     by default.
+3. Clean up as in the table, then run `eggs remaster` with the right flags.
    The output goes to `/home/eggs/`.
-3. The ISO boots to a live GNOME session with an "Install" launcher for
-   Calamares. Changes are lost on reboot unless the stick uses Ventoy
-   persistence. Expect several GB (more with `ET_EXPERT`), so target USB.
+4. The ISO boots to a live GNOME session with an "Install System" launcher
+   for Calamares. Changes are lost on reboot unless the stick uses Ventoy
+   persistence. The clean ISO from the test VM was 6.0 GiB (more with
+   `ET_EXPERT`), so target USB. The build needs about 20 GB free.
 
 ## Branding
 
@@ -276,8 +320,9 @@ Same EmComm Tools branding as r7, moved from Ubuntu's mechanisms to Debian's:
 | Boot splash | Plymouth `bgrt` theme (Ubuntu's default), which draws the ETC throbber, animation and watermark PNGs that r7 copies into `themes/spinner/` | Same files, same theme: Debian's `bgrt` also reads `themes/spinner/`. Set it with `plymouth-set-default-theme -R bgrt`; `splash` on the kernel command line |
 | Installer slideshow | 8 HTML slides in `overlay/usr/share/ubiquity-slideshow/slides/` (welcome, et-user, et-radio, et-mode, et-predict, et-mail, et-aircraft, et-reticulum) | The same 8 slides ported to a Calamares QML slideshow. Each slide is a title, 2–3 lines of text and the existing screenshot, so the port keeps the content one-for-one |
 | Installer logo and name | `ubuntu_installed.png` | Calamares `branding.desc`: product name "EmComm Tools OS Community", logo `logos/et-spinner/et-512x512-icon.png` |
-| Wallpaper | gschema override plus `warty-final-ubuntu.png` copy | gschema override only |
+| Wallpaper | gschema override plus `warty-final-ubuntu.png` copy | gschema override only, with `picture-uri-dark` added |
 | Live ISO boot menu | Ubuntu's | eggs theme: ETC name and background |
+| Login screen (GDM) logo | Ubuntu's | Debian 12 logo (not changed yet) |
 
 Files:
 
@@ -288,71 +333,92 @@ Files:
 - Delete `overlay/usr/share/ubiquity-slideshow/` and
   `overlay/usr/share/ubiquity/pixmaps/ubuntu_installed.png`
 
-Check: eggs generates its own Calamares config, so the `emcomm-tools`
-branding may have to go through eggs' theme option rather than
-`/etc/calamares/settings.conf`. Confirm on the pinned eggs version.
+eggs generates its own Calamares config and takes the branding from
+`/etc/penguins-eggs.d/branding/calamares/branding/`, where `build-iso.sh`
+copies it (see ISO build). Every slide in `show.qml` needs its own `id`s
+(`title1`/`image1` …); duplicates stop the slideshow from loading.
 
 ## New files
 
 - `scripts/install-crypto.sh`
 - `scripts/build-iso.sh`
 - `scripts/configure-existing-user.sh`
-- `scripts/install-release.sh` (writes `/etc/emcomm-tools/release` for `et-system-info release`; Cubic used `/etc/lsb-release`)
+- `scripts/install-release.sh`
 - `scripts/install-offline-lib-crypto.json`
 - `overlay/etc/profile.d/emcomm-tools.sh`
+- `post-install-check.sh`
+- `docs/install-guide/` (guide and screenshots)
+- Written by `build-iso.sh` on the build machine (so they're in the ISO):
+  `/etc/systemd/system/et-ssh-keygen.service`,
+  `/etc/systemd/system/et-fix-primary-group.service`,
+  `/usr/local/sbin/et-fix-primary-group`
 - Calamares branding in `overlay/etc/calamares/branding/emcomm-tools/`:
   `branding.desc`, `show.qml`, `logo.png` (screenshots and background moved, not new)
 
-## Order of work
+## Test results (VM, 11 Nov 2026)
 
-1. Make the package changes; `install.sh` completes on a fresh Debian 12 VM
-   with a clean `/tmp/et/et.log`.
-2. Encryption opt-in: test both answers and the standalone run.
-3. `build-iso.sh`: for each option, boot the ISO live and install it to a
-   second VM. Repeat option 1 with the encryption tools installed, and option 2
-   with `--crypted`.
-4. `tests/run-test-suite.sh` and `REGRESSION.md` on the installed system and on
-   hardware.
-5. Branding: boot splash on the live ISO and on the installed system, all 8
-   slides shown during the Calamares install, ETC boot menu on the ISO.
-6. Docs.
+UEFI VMs on KVM: 4 vCPU, 6 GB RAM, Debian 12.15 netinst.
+
+| Test | Result |
+|---|---|
+| `install.sh` on fresh Debian 12 | Completes. One failed step: xara (see To check) |
+| `post-install-check.sh` on that system | 90 passed; 2 failed, both xara (run before the dark-wallpaper and update checks were added) |
+| Existing user: groups, `et-data` primary group, umask 0002, `PATH`, `et-*` commands | Pass |
+| GNOME: dock, extensions, Yaru-dark, window buttons | Pass |
+| Wallpaper with the dark style, update notifications | Failed (Adwaita wallpaper, "Software Updates Ready"); fixed, and passing on the ISO-installed system after a reboot |
+| Boot splash `bgrt` with ETC watermark (installed system) | Pass |
+| et-api on OpenJDK 17 (`:1981`) | Pass |
+| Encryption prompt, answered No | Nothing installed; add-on staged |
+| Clean ISO build (`eggs remaster`, v26.10.30) | 6.0 GiB; disk-writing step under 2 minutes |
+| Clean ISO contents | No accounts, home data, callsign, Wi-Fi, SSH host keys or logs |
+| Live boot, Secure Boot off | Live desktop, ETC first-login setup, conky, release name |
+| Live boot, Secure Boot on | **Fails**: "Access Denied" (see To check) |
+| Calamares install (erase disk) | Completes; ETC installer branding |
+| ISO-installed system, `post-install-check.sh` | 90 passed; 2 failed: xara, and the `et-build-iso` link from a build made before that fix |
+
+Fixed during testing (all in `build-iso.sh` or the gschema override):
+launcher shown as broken, Calamares fatal branding error, blank slideshow,
+Adwaita wallpaper, update notifications, Calamares users' primary group,
+broken `et-build-iso` link in clean ISOs, eggs telemetry.
+
+Not tested yet: personal ISO (`--clone`, `--crypted`), the encryption tools
+answered Yes, BIOS boot, the fixed slideshow during a real install (it loads
+without errors), hardware with a radio (JS8Call, WSJT-X, CAT, audio, GPS),
+VARA under WINE 8.0.
 
 ## To check
 
-- Secure Boot: eggs v26.10.30 always puts its own unsigned GRUB on the ISO
-  (`bootloader-copy.sh`), so the ISO only boots with Secure Boot off. To
+- **xara**: upstream (`github.com/x0rro/xara`) was discontinued on 8 Nov 2026
+  and its history removed; tag `v0.1.1` no longer exists, there are no release
+  binaries, and both forks were synced after the wipe. `install-xara.sh`
+  fails on any base, r7 included. Decide: drop xara, or ship a binary.
+- **Secure Boot**: eggs v26.10.30 always puts its own unsigned GRUB on the
+  ISO (`bootloader-copy.sh`), so the ISO only boots with Secure Boot off. To
   support it, ship Debian's signed `shimx64.efi` as `BOOTX64.EFI` with
   `gcdx64.efi.signed` as `grubx64.efi` and a `.disk/info` marker.
-- Prebuilt `.deb`s: the dependencies of all of them resolve on bookworm
-  (checked 10 Nov 2026). They are WSJT-X 2.7.0, JS8Call 2.2.0 (ETC's 20.04
-  build), SDR++ `sdrpp_debian_bookworm_amd64.deb` (nightly 1.3.2, unpinned as in
-  r7), Pat 1.0.0, min 1.35.6, et-predict-app 1.5.2, et-aircraft-app 1.1.1,
-  VeraCrypt 1.26.29 (Debian 12 build) and PFTE 15.0.8. Still to do: runtime
-  checks, especially JS8Call and WSJT-X (launch, audio, CAT through et-radio).
+- **Live ISO splash** shows Debian's watermark; the installed system shows
+  ETC's. Cause not looked into yet.
+- **GDM logo** is Debian's.
+- **Calamares "Erase disk"** creates no swap partition.
+- **Live user**: `live` / `evolution` (eggs' default) and not in `et-data`.
+- **OSM map menu** (`download-osm-maps.sh`) draws on stderr, so it breaks when
+  `install.sh` output is piped (e.g. through `tee`). `download-et-maps.sh`
+  uses `/dev/tty` and works.
+- Prebuilt `.deb`s: dependencies resolve on bookworm and all install. They
+  are WSJT-X 2.7.0, JS8Call 2.2.0 (ETC's 20.04 build), SDR++
+  `sdrpp_debian_bookworm_amd64.deb` (nightly 1.3.2, unpinned as in r7), Pat
+  1.0.0, min 1.35.6, et-predict-app 1.5.2, et-aircraft-app 1.1.1, VeraCrypt
+  1.26.29 (Debian 12 build) and PFTE 15.0.8. Still to do: runtime checks on
+  hardware, especially JS8Call and WSJT-X (audio, CAT through et-radio).
   Fallbacks: Debian's own `js8call` 2.2.0 and `wsjtx` packages.
-- The existing user (first-boot account) gets dialout and et-data access and
-  the `/etc/skel` files after `install.sh`, after logging out and back in.
-- In a new terminal after logging in, `echo $PATH` includes
-  `/opt/emcomm-tools/bin` and `which et-radio` finds it.
-- Desktop parity: the dock shows the `favorite-apps` launchers, and
-  `~/Desktop/offline` is visible on the desktop.
 - wine 8.0: the VARA/Winlink add-on under `overlay/etc/skel/add-ons/wine` still
   works (r7 had wine 7.0).
-- et-api starts on OpenJDK 17 (`http://localhost:1981/api/geo/position`).
-  Spring Boot 2.4 predates official Java 17 support.
-- No credentials or logs remain in an option 1 ISO.
-- penguins-eggs on bookworm. Candidate pin: **v26.10.30** (`penguins-eggs_26.10.30-1_amd64.deb`).
-  Static check, 10 Nov 2026:
-  - All dependencies resolve on bookworm (`busybox-initramfs` is missing, but
-    its alternative `busybox-static` is there).
-  - The `oa` and `coa` binaries need glibc 2.34; bookworm has 2.36.
-  - The bundled `bootloaders/grub/i386-pc/grub-bios-setup` needs glibc 2.38 and
-    **won't run on bookworm**. It's likely only used by eggs' own installer for
-    BIOS disk installs; Calamares uses Debian's GRUB. Confirm the ISO build
-    doesn't call it.
-  - Upstream doesn't list supported Debian versions, and the package appears to
-    be built on trixie. Releases come out every few days, so keep the pin
-    until a new version is tested.
-  - Still to test in a bookworm VM: `eggs remaster`, `--clone`, `--crypted`, and
-    whether `--crypted` includes the user's data (upstream calls it an
-    "Encrypted Clone").
+- penguins-eggs pinned at **v26.10.30**. `eggs remaster` works on bookworm.
+  Still open:
+  - The bundled `bootloaders/grub/i386-pc/grub-bios-setup` needs glibc 2.38
+    (bookworm has 2.36). Calamares uses Debian's GRUB, so this likely only
+    matters for eggs' own installer; confirm with a BIOS install.
+  - `--clone` and `--crypted`, and whether `--crypted` includes the user's
+    data (upstream calls it an "Encrypted Clone").
+  - Releases come out every few days, so keep the pin until a new version is
+    tested.
