@@ -158,6 +158,13 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+REL=$(/opt/emcomm-tools/bin/et-system-info release 2>/dev/null)
+if [[ -n "${REL}" && "${REL}" != "unknown" && "${REL}" != *" "* ]]; then
+  pass "et-system-info release: ${REL}"
+else
+  fail "et-system-info release" "got '${REL}'; expected /etc/emcomm-tools/release (install-release.sh)"
+fi
+
 section "Encryption opt-in"
 check     "crypto add-on staged"                       test -x "${ADDON}"
 if [[ -e "${CRYPTO_MARKER}" ]]; then

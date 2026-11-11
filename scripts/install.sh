@@ -12,6 +12,7 @@ exitIfNotRoot
 
 ./bootstrap.sh
 ./update-apt.sh
+./install-release.sh
 
 ./install-base.sh
 ./install-dev-tools.sh
