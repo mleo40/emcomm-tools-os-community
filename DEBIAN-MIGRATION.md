@@ -77,8 +77,8 @@ All script paths are under `scripts/` unless shown otherwise.
 - **`install-base.sh`**: `openjdk-20-jdk` → `openjdk-17-jdk` (see Java note).
 - **`install-python.sh`**: `python2 python-setuptools` →
   `python3-setuptools python-is-python3`; remove the `update-alternatives`
-  line that points `python` at python2.
-- **`install-mbutil.sh`**: install with python3.
+  line that points `python` at python2. `install-mbutil.sh` (`python setup.py
+  install`) then runs on python3 unchanged.
 - **`install-wsjtx.sh`**: remove `libqcustomplot2.0` (not in bookworm, and not
   needed by the WSJT-X `.deb`).
 - **`install-sdrpp.sh`**: download `sdrpp_debian_bookworm_amd64.deb` instead of
@@ -88,7 +88,8 @@ All script paths are under `scripts/` unless shown otherwise.
 - **`remove-packages.sh`**:
   - drop `update-manager` and `update-notifier`: they aren't in Debian, and one
     unknown name makes the whole purge fail
-  - add `firefox-esr`: r7 had no Firefox
+  - add `firefox-esr`: r7 had no Firefox (Ubuntu's is a snap, removed with
+    `snapd`), and nothing in ETC uses it
 
 ### Removing Cubic and Ubuntu leftovers
 - **`install-dev-tools.sh`**: remove the Cubic/PPA block.
@@ -99,7 +100,8 @@ All script paths are under `scripts/` unless shown otherwise.
 - **`install-branding.sh`**:
   - remove the `ubuntu-logo.png`, `warty-final-ubuntu.png` and Ubiquity
     pixmap steps
-  - install `plymouth` and run `plymouth-set-default-theme -R spinner`
+  - run `plymouth-set-default-theme -R bgrt` (r7's theme; Debian defaults to
+    its own desktop-base theme)
   - add `splash` to `GRUB_CMDLINE_LINUX_DEFAULT` and run `update-grub`
 
 ### Desktop (GNOME)
@@ -197,8 +199,9 @@ Behaviour:
   also copies the script, its three `install-*.sh` helpers and the guides to
   `/opt/emcomm-tools/add-ons/crypto/` (copied, not run). Run it from there with
   `sudo /opt/emcomm-tools/add-ons/crypto/install-crypto.sh`.
-- `gpg` itself stays on every system: Debian's GNOME desktop depends on
-  `gnupg`. The opt-in covers ETC's explicit install and the guides.
+- `gpg` itself stays on every system, because GNOME's Passwords and Keys app
+  (`seahorse`) depends on `gnupg`. The opt-in covers ETC's explicit install and
+  the guides.
 - It writes `/etc/emcomm-tools/crypto-enabled`, which `build-iso.sh` uses to add
   a `-crypto` suffix to the ISO name.
 - The Calamares full-disk-encryption checkbox stays visible and unchecked.
@@ -235,8 +238,10 @@ Option 2 only:
 Both kinds:
 
 1. Install the penguins-eggs `.deb` from GitHub releases, **pinned to a tested
-   version** (its CLI changed from `eggs produce` to `eggs remaster`), and
-   `calamares`.
+   version** (its CLI changed from `eggs produce` to `eggs remaster`), plus
+   `calamares`, `cryptsetup` and `cryptsetup-initramfs`. Debian's GNOME install
+   doesn't include `cryptsetup`, and both the Calamares encryption checkbox and
+   `--crypted` need it.
 2. Clean up as in the table, then run `eggs remaster` with the right flags.
    The output goes to `/home/eggs/`.
 3. The ISO boots to a live GNOME session with an "Install" launcher for
@@ -249,7 +254,7 @@ Same EmComm Tools branding as r7, moved from Ubuntu's mechanisms to Debian's:
 
 | Item | r7 (Ubuntu) | Debian |
 |---|---|---|
-| Boot splash | Plymouth `spinner` theme with ETC throbber, animation and watermark PNGs | Same files, same theme (Debian's `plymouth-themes`), made the default with `plymouth-set-default-theme -R spinner`; `splash` on the kernel command line |
+| Boot splash | Plymouth `bgrt` theme (Ubuntu's default), which draws the ETC throbber, animation and watermark PNGs that r7 copies into `themes/spinner/` | Same files, same theme: Debian's `bgrt` also reads `themes/spinner/`. Set it with `plymouth-set-default-theme -R bgrt`; `splash` on the kernel command line |
 | Installer slideshow | 8 HTML slides in `overlay/usr/share/ubiquity-slideshow/slides/` (welcome, et-user, et-radio, et-mode, et-predict, et-mail, et-aircraft, et-reticulum) | The same 8 slides ported to a Calamares QML slideshow. Each slide is a title, 2–3 lines of text and the existing screenshot, so the port keeps the content one-for-one |
 | Installer logo and name | `ubuntu_installed.png` | Calamares `branding.desc`: product name "EmComm Tools OS Community", logo `logos/et-spinner/et-512x512-icon.png` |
 | Wallpaper | gschema override plus `warty-final-ubuntu.png` copy | gschema override only |
