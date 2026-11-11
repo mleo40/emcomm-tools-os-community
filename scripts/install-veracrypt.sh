@@ -11,7 +11,7 @@ trap 'et-log "\"${last_command}\" command failed with exit code $?."' ERR
 
 APP="veracrypt"
 VERSION="1.26.29"
-FILE="veracrypt-${VERSION}-Ubuntu-22.04-amd64.deb"
+FILE="veracrypt-${VERSION}-Debian-12-amd64.deb"
 URL="https://github.com/veracrypt/VeraCrypt/releases/download/VeraCrypt_${VERSION}/${FILE}"
 
 et-log "Installing ${APP} ${VERSION}..."

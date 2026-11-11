@@ -2,7 +2,7 @@
 #
 # Author  : Gaston Gonzalez
 # Date    : 16 March 2024
-# Updated : 26 October 2026
+# Updated : 11 November 2026
 # Purpose : Main installer for EmComm Tools Community (ETC)
 
 . ./env.sh
@@ -99,10 +99,6 @@ exitIfNotRoot
 # Instal SIGINT tools
 ./install-minimodem.sh
 
-# Install security tools
-./install-gpa.sh
-./install-pfte.sh
-
 # Install ISO tools
 ./install-ventoy.sh
 
@@ -129,7 +125,7 @@ exitIfNotRoot
 ./install-mercury-stats.sh
 ./install-offline-rnode-firmware.sh
 
-# Debrand Ubuntu
+# Debrand
 ./debrand.sh
 
 # Email
@@ -145,5 +141,19 @@ exitIfNotRoot
 ./install-rust.sh
 ./install-xara.sh
 
-# Install Veracrypt
-#./install-veracrypt.sh
+# Optional encryption tools (opt-in, default No). Always stage the add-on so it
+# can be installed later, including on systems installed from an ISO.
+./install-crypto.sh --stage
+case "${ET_CRYPTO}" in
+  yes) ./install-crypto.sh --yes ;;
+  no)  et-log "ET_CRYPTO=no: encryption tools not installed." ;;
+  *)   if [ -t 0 ]; then
+         ./install-crypto.sh
+       else
+         et-log "No terminal for the encryption prompt: encryption tools not installed."
+       fi ;;
+esac
+
+# Apply the user setup to the account running this script (run last, after
+# everything has been added to /etc/skel).
+./configure-existing-user.sh

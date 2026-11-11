@@ -1,9 +1,3 @@
-[apps/update-manager]
-first-run = false
-
-[com/ubuntu/update-notifier]
-no-show-notifications = true
-
 [org.gnome.desktop.background]
 picture-uri = 'file:///usr/share/backgrounds/emcomm-tools-wallpaper.png'
 show-desktop-icons = false
@@ -14,6 +8,7 @@ picture-uri = 'file:///usr/share/backgrounds/emcomm-tools-wallpaper.png'
 [org.gnome.shell]
 favorite-apps = ['et-user.desktop', 'js8call.desktop', 'fldigi.desktop', 'et-predict-app.desktop', 'et-aircraft.desktop', 'org.gnome.Terminal.desktop', 'navit.desktop', 'min.desktop', 'org.gnome.Nautilus.desktop']
 last-selected-power-profile = 'performance'
+enabled-extensions = ['dash-to-dock@micxgx.gmail.com', 'ding@rastersoft.com', 'ubuntu-appindicators@ubuntu.com']
 
 [org.gnome.system.location]
 enabled = false
@@ -39,3 +34,13 @@ sleep-inactive-battery-type = 'nothing'
 power-saver-profile-on-low-battery = false
 idle-dim = false
 ambient-enabled = false
+
+# Ubuntu builds these in; Debian needs the extensions plus these defaults to
+# match the r7 desktop (dock on the left, always visible, full height).
+[org.gnome.shell.extensions.dash-to-dock]
+dock-position = 'LEFT'
+dock-fixed = true
+extend-height = true
+
+[org.gnome.desktop.wm.preferences]
+button-layout = 'appmenu:minimize,maximize,close'

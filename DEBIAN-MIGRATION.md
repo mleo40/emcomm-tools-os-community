@@ -90,6 +90,9 @@ All script paths are under `scripts/` unless shown otherwise.
     unknown name makes the whole purge fail
   - add `firefox-esr`: r7 had no Firefox (Ubuntu's is a snap, removed with
     `snapd`), and nothing in ETC uses it
+  - first mark the GNOME apps as manually installed: Debian's `gnome`
+    metapackage hard-depends on LibreOffice, so the purge removes it and
+    `apt autoremove` would otherwise strip the desktop apps too
 
 ### Removing Cubic and Ubuntu leftovers
 - **`install-dev-tools.sh`**: remove the Cubic/PPA block.
@@ -107,7 +110,9 @@ All script paths are under `scripts/` unless shown otherwise.
 ### Desktop (GNOME)
 - **`overlay/usr/share/glib-2.0/schemas/90_ubuntu-settings.gschema.override`**:
   rename to `90_emcomm-tools.gschema.override`; remove the
-  `apps/update-manager` and `com/ubuntu/update-notifier` sections.
+  `apps/update-manager` and `com/ubuntu/update-notifier` sections; enable the
+  three extensions below and set the dock layout; add Ubuntu's
+  minimize/maximize/close window buttons (GNOME's default is close only).
 - **`configure-gnome.sh`**:
   - use the renamed override
   - install the Yaru theme: `yaru-theme-gtk yaru-theme-icon yaru-theme-gnome-shell`
@@ -121,8 +126,11 @@ All script paths are under `scripts/` unless shown otherwise.
     | `gnome-shell-extension-appindicator` | Tray icons |
 
 ### User setup
-- **`configure-user.sh`**: the first user now exists *before* `install.sh`
-  runs, so also set up that user (`$SUDO_USER`):
+- **`configure-user.sh`**: create the `et-data` group only if it doesn't exist
+  yet, so `install.sh` can be re-run.
+- **New `configure-existing-user.sh`**, run last by `install.sh` (after every
+  script has added to `/etc/skel`). The first user now exists *before*
+  `install.sh` runs, so it sets up that user (`$SUDO_USER`):
   - copy `/etc/skel` into their home without overwriting, and chown it
   - set their primary group to `et-data` (GID 1981)
   - add them to the `EXTRA_GROUPS` from `adduser.conf` (`dialout`,
@@ -198,7 +206,10 @@ Behaviour:
   Systems installed from a clean ISO have no repo checkout, so `install.sh`
   also copies the script, its three `install-*.sh` helpers and the guides to
   `/opt/emcomm-tools/add-ons/crypto/` (copied, not run). Run it from there with
-  `sudo /opt/emcomm-tools/add-ons/crypto/install-crypto.sh`.
+  `cd /opt/emcomm-tools/add-ons/crypto/scripts && sudo ./install-crypto.sh`.
+- The guides live in `scripts/crypto-docs/` (moved from
+  `overlay/etc/skel/Desktop/offline/crypto/`); the AmRRON entries live in
+  `scripts/install-offline-lib-crypto.json`.
 - `gpg` itself stays on every system, because GNOME's Passwords and Keys app
   (`seahorse`) depends on `gnupg`. The opt-in covers ETC's explicit install and
   the guides.
@@ -222,8 +233,9 @@ Behaviour:
 | Wi-Fi connections, SSH host keys | removed | kept |
 | Apt caches, `/tmp/et`, logs | removed | removed |
 | machine-id | reset | reset |
-| Live username and password | set in `/etc/penguins-eggs.d/eggs.yaml` | the user's own |
-| Groups for the live user and for users Calamares creates | primary `et-data` plus `adduser.conf`'s `EXTRA_GROUPS`, set in eggs' live-user config and Calamares' `users.conf` (`defaultGroups`). Calamares uses `useradd`, which ignores `adduser.conf` | unchanged from the source system |
+| Live username and password | eggs' default for now (shown when eggs runs); setting ETC's own is still to do, once eggs' `custom.yaml` keys are confirmed in the VM | the user's own |
+| Groups for users Calamares creates | `et-data`, `adduser.conf`'s `EXTRA_GROUPS` and `sudo`, as supplementary groups, through an eggs Calamares override (`/etc/penguins-eggs.d/branding/calamares/modules/users.conf`). Calamares uses `useradd`, which ignores `adduser.conf` | unchanged from the source system |
+| How things are left out | a marked block in eggs' `custom.exclude.list`: Wi-Fi connections, SSH host keys, logs, `/tmp/et`. A new `et-ssh-keygen.service` creates SSH host keys on first boot when they're missing | the marked block is removed |
 | File name | `emcomm-tools-os-community-<date>[-crypto].iso` | `emcomm-tools-personal-<hostname>-<date>.iso` |
 
 Option 2 only:
@@ -277,8 +289,11 @@ branding may have to go through eggs' theme option rather than
 
 - `scripts/install-crypto.sh`
 - `scripts/build-iso.sh`
+- `scripts/configure-existing-user.sh`
+- `scripts/install-offline-lib-crypto.json`
 - `overlay/etc/profile.d/emcomm-tools.sh`
-- Calamares branding: `branding.desc`, `show.qml` (screenshots moved, not new)
+- Calamares branding in `overlay/etc/calamares/branding/emcomm-tools/`:
+  `branding.desc`, `show.qml`, `logo.png` (screenshots and background moved, not new)
 
 ## Order of work
 

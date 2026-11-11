@@ -24,7 +24,6 @@ apt install \
   libboost-filesystem1.74.0 \
   libboost-log1.74.0 \
   libboost-thread1.74.0 \
-  libqcustomplot2.0 \
   -y
 
 if [[ ! -e "${ET_DIST_DIR}/${FILE}" ]]; then

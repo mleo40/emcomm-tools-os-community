@@ -1,5 +1,13 @@
 # EmComm Tools OS Community Release
 
+## Unreleased: Debian 12 base
+
+* Base OS moved from Ubuntu 22.10 (Cubic) to Debian 12 (bookworm)
+* Install flow: install Debian 12, run `install.sh`, optionally `build-iso.sh`
+* ISO builds with penguins-eggs (clean or personal), Calamares installer
+* Encryption tools (GPA, PFTE, VeraCrypt, steghide, guides) are now opt-in
+* OpenJDK 20 replaced by OpenJDK 17; Python 2 removed (mbutil runs on Python 3)
+
 ## 2026.04.01.R6 (6.0.0) Release Notes
 
 * Tier 1 radio PnP support

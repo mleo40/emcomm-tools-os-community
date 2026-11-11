@@ -2,7 +2,7 @@
 #
 # Author  : Gaston Gonzalez
 # Date    : 29 December 2023
-# Updated : 24 April 2025
+# Updated : 11 November 2026
 # Purpose : Install development tools
 set -e
 
@@ -28,16 +28,6 @@ apt install \
   rpm \
   vim \
   -y
-
-et-log "Installing tools for building custom ISO image..."
-if ! command -v cubic
-then
-  sudo apt-add-repository universe -y
-  sudo apt-add-repository ppa:cubic-wizard/release -y
-  sudo apt update
-  sudo apt install --no-install-recommends cubic -y
-fi
-
 
 # libyaml-dev - needed for Ruby via rbenv
 et-log "Installing tools needed for ETC R5"
