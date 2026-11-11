@@ -39,7 +39,7 @@ An internet connection is needed for steps 1–3.
 
 5. **Optional: build an ISO.**
    ```bash
-   sudo ./build-iso.sh
+   et-build-iso
    ```
    It offers two kinds of ISO:
 
@@ -225,7 +225,8 @@ Behaviour:
 
 ## ISO build (`scripts/build-iso.sh`)
 
-`build-iso.sh` asks which ISO to build:
+`install.sh` links it as `/usr/local/bin/et-build-iso` (on both the user's and
+sudo's PATH); it asks for sudo itself. It asks which ISO to build:
 
 ```
 1) Clean system: ready to deploy for someone else (default)
@@ -296,6 +297,7 @@ branding may have to go through eggs' theme option rather than
 - `scripts/install-crypto.sh`
 - `scripts/build-iso.sh`
 - `scripts/configure-existing-user.sh`
+- `scripts/install-release.sh` (writes `/etc/emcomm-tools/release` for `et-system-info release`; Cubic used `/etc/lsb-release`)
 - `scripts/install-offline-lib-crypto.json`
 - `overlay/etc/profile.d/emcomm-tools.sh`
 - Calamares branding in `overlay/etc/calamares/branding/emcomm-tools/`:

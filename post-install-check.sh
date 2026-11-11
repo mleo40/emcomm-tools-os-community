@@ -165,6 +165,9 @@ else
   fail "et-system-info release" "got '${REL}'; expected /etc/emcomm-tools/release (install-release.sh)"
 fi
 
+check     "et-build-iso on PATH and links to build-iso.sh" bash -c '[[ -x "$(readlink -f "$(command -v et-build-iso)")" && "$(readlink -f "$(command -v et-build-iso)")" == */scripts/build-iso.sh ]]'
+check     "et-build-iso in /usr/local/bin (on sudo's PATH)" test -L /usr/local/bin/et-build-iso
+
 section "Encryption opt-in"
 check     "crypto add-on staged"                       test -x "${ADDON}"
 if [[ -e "${CRYPTO_MARKER}" ]]; then
@@ -224,6 +227,6 @@ echo -e "  ${GREEN}${PASS} passed${NC}, ${RED}${FAIL} failed${NC}, ${YELLOW}${WA
 echo "  Report saved to ${REPORT}"
 echo
 echo "Still manual (see REGRESSION.md): radio CAT/audio with JS8Call and WSJT-X,"
-echo "VARA under WINE, GPS, maps, and the ISO build (scripts/build-iso.sh)."
+echo "VARA under WINE, GPS, maps, and the ISO build (et-build-iso)."
 
 [[ "${FAIL}" -eq 0 ]]

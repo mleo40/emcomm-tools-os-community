@@ -155,6 +155,11 @@ case "${ET_CRYPTO}" in
        fi ;;
 esac
 
+# 'et-build-iso' runs build-iso.sh from this clone. /usr/local/bin is on both the
+# user's PATH and sudo's secure_path. The link breaks if this clone is moved or
+# deleted.
+ln -sfv "$(pwd)/build-iso.sh" /usr/local/bin/et-build-iso
+
 # Apply the user setup to the account running this script (run last, after
 # everything has been added to /etc/skel).
 ./configure-existing-user.sh

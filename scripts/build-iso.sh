@@ -5,7 +5,8 @@
 #           penguins-eggs. The ISO boots as a live system and can install
 #           itself to disk with Calamares.
 #
-# Usage   : sudo ./build-iso.sh
+# Usage   : et-build-iso          (link created by install.sh)
+#           sudo ./build-iso.sh   (from this folder)
 #
 # Two kinds of ISO:
 #   1) Clean    - shareable; accounts, /home, Wi-Fi, SSH host keys and logs
@@ -19,10 +20,17 @@
 #       a new version before bumping the pin.
 set -e
 
+# Work from this script's folder, even when started through the et-build-iso
+# link: env.sh, functions.sh and ../overlay are found relative to it.
+cd "$(dirname "$(readlink -f "$0")")"
+
+# Ask for sudo instead of failing when run as a normal user.
+if [[ ${EUID} -ne 0 ]]; then
+  exec sudo "$(readlink -f "$0")" "$@"
+fi
+
 . ./env.sh
 . ./functions.sh
-
-exitIfNotRoot
 
 EGGS_VERSION="26.10.30"
 EGGS_ZIP="penguins-eggs-debian.zip"

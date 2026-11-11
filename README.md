@@ -23,7 +23,7 @@ An internet connection is required.
 4. Reboot.
 5. Optional: build a live ISO of the system:
    ```bash
-   sudo ./build-iso.sh
+   et-build-iso
    ```
    Choose a clean ISO to share with others, or a personal ISO that carries
    your own account and data (optionally passphrase-protected). The ISO is

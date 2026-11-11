@@ -253,10 +253,11 @@ WINE, GPS and maps.
 
 ## Optional: Build an ISO
 
-To make a bootable live ISO of the system you just installed:
+To make a bootable live ISO of the system you just installed, run this and
+enter your password when asked:
 
 ```bash
-cd ~/emcomm-tools-os-community/scripts && sudo ./build-iso.sh
+et-build-iso
 ```
 
 - **Clean**: a shareable image with your accounts, home folder, Wi-Fi
@@ -264,4 +265,6 @@ cd ~/emcomm-tools-os-community/scripts && sudo ./build-iso.sh
 - **Personal**: a portable copy of your own system, including your data,
   optionally encrypted with a passphrase. Do not share it.
 
-The ISO is written to `/home/eggs/`.
+The ISO is written to `/home/eggs/`. `et-build-iso` runs
+`scripts/build-iso.sh` from your clone of the repository, so keep
+`~/emcomm-tools-os-community` in place.
