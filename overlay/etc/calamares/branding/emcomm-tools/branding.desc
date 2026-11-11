@@ -1,0 +1,38 @@
+# EmComm Tools branding for the Calamares installer.
+---
+componentName:  emcomm-tools
+
+welcomeStyleCalamares:   false
+welcomeExpandingLogo:    true
+windowExpanding:    normal
+windowSize: 800px,520px
+windowPlacement: center
+sidebar: widget
+navigation: widget
+
+strings:
+    productName:         "EmComm Tools OS Community"
+    shortProductName:    "EmComm Tools"
+    version:             "R7"
+    shortVersion:        "R7"
+    versionedName:       "EmComm Tools OS Community R7"
+    shortVersionedName:  "EmComm Tools R7"
+    bootloaderEntryName: "EmComm Tools"
+    productUrl:          "https://community.emcommtools.com"
+    supportUrl:          "https://community.emcommtools.com"
+    knownIssuesUrl:      "https://community.emcommtools.com"
+    releaseNotesUrl:     "https://community.emcommtools.com"
+
+images:
+    productLogo:         "logo.png"
+    productIcon:         "logo.png"
+    productWelcome:      "background.png"
+
+slideshow:               "show.qml"
+slideshowAPI:            1
+
+style:
+   SidebarBackground:    "#2c3133"
+   SidebarText:          "#FFFFFF"
+   SidebarTextCurrent:   "#2c3133"
+   SidebarBackgroundCurrent: "#FFFFFF"

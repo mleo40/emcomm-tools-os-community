@@ -284,7 +284,15 @@ case $1 in
     hostname -I | awk '{print $1}'
     ;;
   release)
-    grep DISTRIB_DESCRIPTION /etc/lsb-release | sed 's|"||g' | awk '{print $1}' | cut -d"=" -f2
+    # Debian builds: written by install-release.sh. Older Ubuntu/Cubic builds:
+    # /etc/lsb-release.
+    if [ -s /etc/emcomm-tools/release ]; then
+      head -1 /etc/emcomm-tools/release
+    elif [ -f /etc/lsb-release ]; then
+      grep DISTRIB_DESCRIPTION /etc/lsb-release | sed 's|"||g' | awk '{print $1}' | cut -d"=" -f2
+    else
+      echo "unknown"
+    fi
     ;;  
   *)
     echo "Command not supported."

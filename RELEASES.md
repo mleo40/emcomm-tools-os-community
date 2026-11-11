@@ -1,5 +1,15 @@
 # EmComm Tools OS Community Release
 
+## Unreleased: Debian 12 base
+
+* Base OS moved from Ubuntu 22.10 (Cubic) to Debian 12 (bookworm)
+* ISO built with Debian's live-build (`live-build/build.sh`), with Debian's
+  signed shim and GRUB for Secure Boot; installs with Calamares (replaces
+  Ubiquity)
+* Encryption tools (GPA, PFTE, VeraCrypt, steghide, guides) are opt-in: an
+  unchecked "Optional software" page in the installer, installed offline
+* OpenJDK 20 replaced by OpenJDK 17; Python 2 removed (mbutil runs on Python 3)
+
 ## 2026.11.26.R7 (7.0.0) Release Notes
 
 REMINDERS:

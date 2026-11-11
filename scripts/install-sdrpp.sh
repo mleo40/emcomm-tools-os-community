@@ -14,7 +14,7 @@ trap 'et-log "\"${last_command}\" command failed with exit code $?."' ERR
 
 APP=sdrpp
 VERSION=nightly
-DOWNLOAD_FILE=sdrpp_ubuntu_jammy_amd64.deb
+DOWNLOAD_FILE=sdrpp_debian_bookworm_amd64.deb
 
 et-log "****************************************************************"
 et-log "* WARNING:                                                     *"

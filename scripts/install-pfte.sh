@@ -25,4 +25,10 @@ if [[ ! -e ${ET_DIST_DIR}/${DOWNLOAD_FILE} ]]; then
   mv ${DOWNLOAD_FILE} ${ET_DIST_DIR}
 fi
 
+# ET_DOWNLOAD_ONLY=<dir>: copy the .deb there and stop (offline add-on).
+if [[ -n "${ET_DOWNLOAD_ONLY}" ]]; then
+  cp -v "${ET_DIST_DIR}/${DOWNLOAD_FILE}" "${ET_DOWNLOAD_ONLY}/"
+  exit 0
+fi
+
 DEBIAN_FRONTEND=noninteractive dpkg -i "${ET_DIST_DIR}/${DOWNLOAD_FILE}" 

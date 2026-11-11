@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# Date    : 11 November 2026
+# Purpose : Give EmComm Tools users et-data as their primary group.
+#
+# Users created by the Calamares installer get et-data only as an extra group:
+# Calamares runs 'useradd -U', which ignores /etc/adduser.conf and always makes
+# a personal primary group. ETC expects et-data as the primary group
+# (USERS_GID in /etc/adduser.conf) so files are shared between operators.
+#
+# For every et-data member whose primary group is something else: make et-data
+# the primary group and move their home's files from the personal group to
+# et-data. Does nothing when everything is already set. Run as root; the
+# installer runs it in the new system after creating the user.
+
+ET_GROUP=et-data
+
+ET_GID=$(getent group "${ET_GROUP}" | cut -d: -f3)
+[[ -n "${ET_GID}" ]] || exit 0
+
+getent passwd | while IFS=: read -r USER _ USER_UID USER_GID _ HOME_DIR _; do
+  (( USER_UID >= 1000 && USER_UID < 60000 )) || continue
+  [[ "${USER_GID}" == "${ET_GID}" ]] && continue
+  id -nG "${USER}" | tr ' ' '\n' | grep -qx "${ET_GROUP}" || continue
+  usermod -g "${ET_GROUP}" "${USER}"
+  [[ -d "${HOME_DIR}" ]] && find "${HOME_DIR}" -xdev -gid "${USER_GID}" -exec chgrp -h "${ET_GROUP}" {} +
+  echo "et-fix-primary-group: primary group of ${USER} is now ${ET_GROUP}"
+done
+exit 0

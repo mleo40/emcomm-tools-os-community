@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# Date    : 11 November 2026
+# Purpose : Install EmComm Tools into the image (live-build chroot hook).
+#
+# build.sh copies the repository to /root/etc-build (config/includes.chroot).
+# This runs install.sh in build mode (no prompts), reports failed steps, and
+# removes the copy and the logs so neither ends up in the ISO.
+
+set -u
+
+BUILD_DIR=/root/etc-build
+LOG=/tmp/et/et.log
+
+cd "${BUILD_DIR}/scripts" || exit 1
+export ET_BUILD=1
+[[ -n "${ET_RELEASE:-}" ]] && export ET_RELEASE
+
+./install.sh
+RC=$?
+
+echo "=== EmComm Tools build: install.sh exit code ${RC} ==="
+if [[ -f "${LOG}" ]]; then
+  FAILED=$(grep -c 'failed with exit code' "${LOG}" || true)
+  echo "=== Failed steps: ${FAILED} ==="
+  grep 'failed with exit code' "${LOG}" || true
+fi
+
+# Live installer launcher: ETC's name instead of "Install Debian".
+sed -i 's/^Name=.*/Name=Install EmComm Tools/' /usr/share/applications/install-debian.desktop
+
+# Nothing from the build stays in the image.
+rm -rf "${BUILD_DIR}" /tmp/et /opt/dist /opt/src 2>/dev/null
+apt-get clean
+
+exit 0

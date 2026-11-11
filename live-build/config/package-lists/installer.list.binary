@@ -1,0 +1,9 @@
+# Not installed in the image: carried in the ISO's package pool. The installer
+# (calamares-settings-debian's bootloader-config) installs GRUB into the new
+# system from there, so installs work offline.
+grub-efi-amd64
+grub-efi-amd64-signed
+shim-signed
+grub-pc
+cryptsetup-initramfs
+keyutils

@@ -1,0 +1,8 @@
+# Installed in the image. install.sh adds everything else.
+task-gnome-desktop
+calamares
+calamares-settings-debian
+sudo
+git
+curl
+ca-certificates

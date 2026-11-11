@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Date    : 11 November 2026
+# Purpose : Live session only: mark the desktop installer launcher as trusted.
+#
+# Debian's add-calamares-desktop-icon only marks it trusted on Xfce, so GNOME's
+# desktop icons extension (ding) shows it as broken. ding wants 'true'.
+
+[[ -d /run/live ]] || exit 0
+
+LAUNCHER="$(xdg-user-dir DESKTOP 2>/dev/null || echo "${HOME}/Desktop")/install-debian.desktop"
+
+# Wait for add-calamares-desktop-icon to create it.
+for _ in $(seq 1 30); do
+  [[ -f "${LAUNCHER}" ]] && break
+  sleep 1
+done
+[[ -f "${LAUNCHER}" ]] || exit 0
+
+chmod +x "${LAUNCHER}"
+gio set --type=string "${LAUNCHER}" metadata::trusted true
+touch "${LAUNCHER}"

@@ -1,15 +1,19 @@
 #!/bin/bash
 # Author  : Gaston Gonzalez
 # Date    : 14 March 2026
+# Updated : 11 November 2026
 # Purpose : Installs a variety of offline resources
+#
+# Usage   : ./install-offline-lib.sh [json-file [save-dir]]
+#           (defaults: install-offline-lib.json, /etc/skel/Desktop/offline)
 
 . ./env.sh
 . ../overlay/opt/emcomm-tools/bin/et-common
 
 et-log "Installing offline docs..."
 
-OFFLINE_FILES_JSON="install-offline-lib.json"
-OFFLINE_SAVE_DIR="/etc/skel/Desktop/offline"
+OFFLINE_FILES_JSON="${1:-install-offline-lib.json}"
+OFFLINE_SAVE_DIR="${2:-/etc/skel/Desktop/offline}"
 
 [[ ! -e "${OFFLINE_SAVE_DIR}" ]] && mkdir -v -p ${OFFLINE_SAVE_DIR}
 

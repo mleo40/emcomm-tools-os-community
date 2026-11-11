@@ -2,14 +2,14 @@
 #
 # Author  : Gaston Gonzalez
 # Date    : 16 March 2024
-# Updated : 9 October 2024
+# Updated : 11 November 2026
 # Purpose : Configure users and groups
 set -e
 
 ET_GID=1981
 
 et-log "Adding '${ET_GROUP}' group..."
-groupadd -g ${ET_GID} ${ET_GROUP} 
+getent group ${ET_GROUP} >/dev/null || groupadd -g ${ET_GID} ${ET_GROUP}
 
 et-log "Configuring users..."
 

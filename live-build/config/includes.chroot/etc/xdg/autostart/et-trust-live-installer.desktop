@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Trust the live installer launcher
+Exec=/usr/local/bin/et-trust-live-installer
+NoDisplay=true
+OnlyShowIn=GNOME;
+X-GNOME-Autostart-Phase=Application
