@@ -106,8 +106,8 @@ Branch `feature/debian-live-iso` against `release/r7` at build37
 It's less than it looks:
 
 - 17 files are the install guide's screenshots, plus the guide itself.
-- 22 files are moves or deletions with no new logic: 12 renames (slideshow
-  images, encryption guide files, the GNOME settings file) and 10 deleted
+- 23 files are moves or deletions with no new logic: 12 renames (slideshow
+  images, encryption guide files, the GNOME settings file) and 11 deleted
   Ubuntu/Cubic files.
 - Most edits to existing scripts are 1–10 lines.
 - The branch combines three separate efforts: the Debian port, the new ISO
@@ -129,13 +129,14 @@ It's less than it looks:
 ## Beyond the minimum
 
 Changes mostly needed to address goal #6, but aren't strictly needed, and why they're in. Together they're
-about 40% of the added lines; dropping them gives the smallest possible
+about 45% of the added lines; dropping them gives the smallest possible
 migration, at the cost of r7's look and some live-session usability:
 
 | Change | Why it's here | Could drop? |
 |---|---|---|
 | GNOME parity: Yaru theme, dock, desktop icons, tray icons, window buttons | Look and version parity with r7 | Yes, if r7's look isn't required |
 | Calamares slideshow ported from Ubiquity (`show.qml`) | Branding parity | Yes; Calamares works without it |
+| Installer stylesheet (`stylesheet.qss`): the encryption choices drawn as buttons | Found on hardware that the plain list didn't look clickable | Yes; the page works without it |
 | GRUB menus branded: ETC background on the live ISO's boot menu; "EmComm Tools" and the same background on installed systems | Branding parity | Yes; the stock Debian menus work |
 | ETC boot splash watermark: Debian's logo diverted (Debian's plymouth puts its own in) | Branding parity | Yes; Debian's logo shows instead |
 | Live-session polish: installer icon shown correctly, installer starts without a password, ETC dock in the live session, callsign/grid/Winlink password saved in the live session carried into the installed system | Usability of the live session | Yes; the ISO works without them |
@@ -155,7 +156,7 @@ In VMs, with the network unplugged unless noted:
 |---|---|
 | Build (`live-build/build.sh`) | Completes; `install.sh` 0 failed steps (last built from 22beb66) |
 | ISO contents | No build files, logs, SSH host keys or machine-id; encryption tools prepared, not installed; WINE (32- and 64-bit), winetricks and the VARA add-on scripts included |
-| UEFI, Secure Boot on: live session | ETC boot menu, splash, desktop and dock; installer starts without a password; Optional software page text, including the encryption legal notice; slideshow advances |
+| UEFI, Secure Boot on: live session | ETC boot menu, splash, desktop and dock; installer starts without a password; Optional software page text, including the encryption legal notice; slideshow advances; installer sidebar steps readable (ISO from c1a32a6); Optional software page's Skip/Install buttons (applied by hand in the live session, then committed in 7191f84) |
 | UEFI, Secure Boot on: install with encryption tools | Tools and guides installed from the ISO |
 | UEFI, Secure Boot on: install without encryption tools | No tools, guides or marker; add-on still available |
 | UEFI, Secure Boot on: installed system | Boots; GRUB menu shows "EmComm Tools" with the ETC background; ETC splash, dock, wallpaper; `et-data` primary group; SSH server running; apt sources include `contrib` and `non-free`; update checks off; ETC test suite passes except xara (no source package) |

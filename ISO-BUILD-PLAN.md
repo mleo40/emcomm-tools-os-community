@@ -38,7 +38,7 @@ It takes about 45 minutes, mostly `install.sh` compiling and downloading. The
 ISO and `build.log` are written to `/var/tmp/etc-live-build/`:
 
 ```
-emcomm-tools-os-community-<date>-amd64.hybrid.iso    about 4.6 GB
+emcomm-tools-os-community-<date>-amd64.hybrid.iso    about 4.9 GB
 ```
 
 At the end, `build.sh` prints the `install.sh` summary from the build:
