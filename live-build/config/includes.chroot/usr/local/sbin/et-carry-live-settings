@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# Date    : 12 November 2026
+# Purpose : Carry the live session's EmComm Tools user settings into the
+#           installed system.
+#
+# Usage   : et-carry-live-settings <target root> <new user>
+#
+# Run by the installer (shellprocess@etc-live-settings), in the live session,
+# after the new user is created. If the live user saved EmComm Tools User
+# Configuration (callsign, grid, Winlink password), copy it to the new user so
+# the setup doesn't appear again after install. If they didn't save it,
+# nothing is copied and the setup appears at first login as usual.
+
+ROOT="$1"
+NEW_USER="$2"
+[[ -n "${ROOT}" && -d "${ROOT}" && -n "${NEW_USER}" ]] || exit 0
+
+# The live user (live-config creates it as UID 1000).
+LIVE_HOME=$(getent passwd 1000 | cut -d: -f6)
+SRC="${LIVE_HOME}/.config/emcomm-tools"
+
+# Only if the live user clicked Save (et-user-first-login writes the marker).
+[[ -f "${SRC}/first-login-complete" && -f "${SRC}/user.json" ]] || exit 0
+
+NEW_HOME=$(chroot "${ROOT}" getent passwd "${NEW_USER}" | cut -d: -f6)
+[[ -n "${NEW_HOME}" ]] || exit 0
+
+DEST="${ROOT}${NEW_HOME}/.config/emcomm-tools"
+mkdir -p "${DEST}"
+cp -f "${SRC}/user.json" "${SRC}/first-login-complete" "${DEST}/"
+# Owner and primary group (et-data, set by the earlier ETC setup step).
+chroot "${ROOT}" chown -R "${NEW_USER}:" "${NEW_HOME}/.config"
+
+echo "et-carry-live-settings: copied EmComm Tools user settings to ${NEW_USER}"
+exit 0

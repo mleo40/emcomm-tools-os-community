@@ -41,6 +41,12 @@ mkdir -p "${WORK}"
 cp -a "${HERE}/config" "${WORK}/"
 [[ -d "${CACHE_KEEP}" ]] && mv "${CACHE_KEEP}" "${WORK}/cache"
 
+# Live ISO boot menu (BIOS and UEFI): ETC's background instead of live-build's
+# Debian splash. live-build uses these instead of rendering its splash.svg.
+mkdir -p "${WORK}/config/bootloaders/syslinux_common"
+cp "${REPO}/logos/emcomm-tools-boot-640x480.png" "${WORK}/config/bootloaders/syslinux_common/splash.png"
+cp "${REPO}/logos/emcomm-tools-boot-800x600.png" "${WORK}/config/bootloaders/syslinux_common/splash800x600.png"
+
 # BIOS installs: grub-pc conflicts with grub-efi-amd64, so it can't go in
 # installer.list.binary. Its .debs go into the ISO's package pool through the
 # 0910-grub-pc-pool binary hook.
@@ -63,6 +69,7 @@ mkdir -p "${WORK}/config/includes.chroot/root/etc-build"
   | tar -C "${WORK}/config/includes.chroot/root/etc-build" -xf -
 chmod 755 "${WORK}"/config/hooks/normal/*.hook.* \
           "${WORK}"/config/includes.chroot/usr/local/bin/* \
+          "${WORK}"/config/includes.chroot/usr/local/sbin/* \
           "${WORK}"/config/includes.chroot/usr/lib/live/config/*
 
 # Pass ET_RELEASE into the chroot hook.

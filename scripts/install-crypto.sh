@@ -127,6 +127,12 @@ fi
 if [[ "$1" != "--yes" ]]; then
   echo "This installs optional encryption tools: GNU Privacy Assistant,"
   echo "Paranoia File & Text Encryption, VeraCrypt, steghide, gpg and guides."
+  echo
+  echo "Encryption laws differ by country: do not install these tools where"
+  echo "possessing or using them is illegal. You are responsible for following"
+  echo "your local laws. Amateur radio rules in most countries also prohibit"
+  echo "transmitting encrypted messages."
+  echo
   read -r -p "Install optional encryption tools? [y/N] " ANSWER
   if [[ ! "${ANSWER}" =~ ^[Yy]$ ]]; then
     et-log "Encryption tools not installed."

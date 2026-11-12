@@ -41,6 +41,16 @@ if [[ ! -f /etc/default/grub ]]; then
 elif ! grep -q '^GRUB_CMDLINE_LINUX_DEFAULT=.*splash' /etc/default/grub; then
   et-log "Enabling boot splash in GRUB..."
   sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 splash"/' /etc/default/grub
+fi
+
+# GRUB menu: "EmComm Tools" instead of "Debian GNU/Linux", and ETC's boot
+# background (the same image as the live ISO's boot menu).
+et-log "Branding the GRUB menu..."
+cp -v ../logos/emcomm-tools-boot-800x600.png /usr/share/backgrounds/emcomm-tools-grub.png
+mkdir -p /etc/default/grub.d
+echo 'GRUB_DISTRIBUTOR="EmComm Tools"' > /etc/default/grub.d/emcomm-tools-branding.cfg
+echo 'GRUB_BACKGROUND="/usr/share/backgrounds/emcomm-tools-grub.png"' >> /etc/default/grub.d/emcomm-tools-branding.cfg
+if [[ -f /etc/default/grub ]]; then
   update-grub
 fi
 

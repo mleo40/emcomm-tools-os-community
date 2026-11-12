@@ -2,7 +2,7 @@
 
 How the ETC developer builds an EmComm Tools ISO for distribution. The ISO is
 Debian 12 with EmComm Tools installed, built with Debian/live-build. Users boot it, try it live,
-and install it with the installer (Calamares). Building needs internet; the
+and install it with the installer (Calamares). Building the image needs internet; the
 finished ISO boots, installs and runs without it.
 
 Why the project moved to this method, and what changed to get here, is in
@@ -12,7 +12,8 @@ Why the project moved to this method, and what changed to get here, is in
 
 - A Debian 12 machine to build on. A VM is fine: 4 CPUs, 6 GB RAM, 100 GB disk.
 - About 60 GB free, internet, and root (`sudo`).
-- `git`. `build.sh` installs `live-build` if it's missing.
+- `git` 
+- `build.sh` (from this repo) installs `live-build` if it's missing.
 
 The build happens in a fresh, separate system (a chroot), so nothing from the
 build machine's accounts, files or settings ends up in the ISO. A
@@ -62,15 +63,15 @@ To change what's in the image beyond these, edit the repository, the same as
 for any ETC change: `scripts/install.sh` and its scripts, `overlay/`, or
 `live-build/config/package-lists/`.
 
-`ET_EXPERT` options (offline Wikipedia download, WINE notes) aren't available
-in an ISO build: they ask questions, and the build runs without prompts.
+The `ET_EXPERT` offline Wikipedia download isn't available in an ISO build:
+it asks which file to download, and the build runs without prompts.
 
 ## What's in the ISO
 
 | Item | In the ISO |
 |---|---|
 | Debian 12, GNOME, EmComm Tools | Installed |
-| Maps | The global map (80 MB). Each operator chooses country tiles and a state map at first login (needs internet then) |
+| Maps | The global map (80 MB). Other maps are copied in after install (see [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md)) |
 | Encryption tools (GPA, PFTE, VeraCrypt, steghide, gpg, guides) | Carried, not installed. The person installing chooses them on the installer's **Optional software** page (not selected by default); they install from the ISO, no internet needed. They can also be added later from `/opt/emcomm-tools/add-ons/crypto` |
 | GRUB for UEFI and BIOS | Carried, so installs work offline |
 | Live session login | Debian's defaults: user `user`, password `live`. Only in the live session; installed systems have only the account created in the installer |
@@ -93,8 +94,10 @@ in an ISO build: they ask questions, and the build runs without prompts.
 
 The installer settings are in
 `live-build/config/includes.chroot/etc/calamares/`: Debian's settings with
-ETC's branding, the Optional software page, and an ETC setup step (`et-data`
-primary group, SSH host keys).
+ETC's branding, the Optional software page, and ETC steps that give new users
+`et-data` as primary group, create SSH host keys, carry over the callsign and
+grid saved in the live session, and restore `contrib`/`non-free` in apt
+sources.
 
 ## Test before publishing
 
@@ -103,9 +106,14 @@ In a VM with UEFI and Secure Boot on, and with no network:
 1. The ISO boots to the live desktop: ETC wallpaper, dock, conky panel and boot
    splash.
 2. **Install EmComm Tools** starts the installer without a password.
-3. Install once with **Encryption tools** selected and once without.
-4. The installed system boots with Secure Boot on. Log in, then check:
-   - ETC's first-login setup opens
+3. Install once with **Encryption tools** selected and once without. In one
+   of them, save a callsign and grid in the live session's EmComm Tools User
+   Configuration first.
+4. The installed system boots with Secure Boot on, and its boot menu shows
+   "EmComm Tools GNU/Linux" with the ETC background. Log in, then check:
+   - ETC's first-login setup opens, except after the install where a callsign
+     was saved live: then it doesn't, and `~/.config/emcomm-tools/user.json`
+     has that callsign and grid
    - `id` shows `et-data` as the primary group
    - `systemctl is-active ssh` is `active`
    - the encryption tools are there only if they were selected
@@ -120,6 +128,7 @@ Also boot it once on a BIOS (non-UEFI) machine or VM.
 sha256sum emcomm-tools-os-community-<date>-amd64.hybrid.iso > emcomm-tools-os-community-<date>-amd64.hybrid.iso.sha256
 ```
 
-Publish the ISO with its `.sha256` file. Users write it to a USB stick (for
-example with Ventoy, or `dd`); it's larger than 4 GB, so a FAT32 stick can't
-hold it as a file.
+Publish the ISO with its `.sha256` file, and point users to
+[docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md): it covers checking the
+download, a Ventoy USB stick, installing, and copying maps, offline Wikipedia
+and VARA backups in afterwards.
