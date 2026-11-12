@@ -4,8 +4,9 @@
 # Purpose : Install EmComm Tools into the image (live-build chroot hook).
 #
 # build.sh copies the repository to /root/etc-build (config/includes.chroot).
-# This runs install.sh in build mode (no prompts), reports failed steps, and
-# removes the copy and the logs so neither ends up in the ISO.
+# This runs install.sh in build mode (no prompts), reports failed steps, keeps
+# a read-only copy at /opt/emcomm-tools-os-community, and removes the build
+# copy and the logs.
 #
 # Numbered 0900 so it runs before live-build's cleanup hooks (8000-8110), which
 # then remove logs, SSH host keys, machine-id and temporary files from the image.
@@ -43,7 +44,17 @@ if [[ -n "${ETC_FAV}" && -f "${SCHEMAS}/96_calamares-settings-debian.gschema.ove
   glib-compile-schemas "${SCHEMAS}"
 fi
 
-# Nothing from the build stays in the image.
+# A read-only copy of the repository the ISO was built from (tracked files, no
+# git history), for scripts users run after install: maps, Wikipedia, xara,
+# the test suite. See docs/INSTALL-GUIDE.md.
+REPO_COPY=/opt/emcomm-tools-os-community
+rm -rf "${REPO_COPY}" && mkdir -p "${REPO_COPY}"
+(cd "${BUILD_DIR}" && git -c safe.directory='*' ls-files -z \
+  | xargs -0 cp --parents -t "${REPO_COPY}")
+chown -R root:root "${REPO_COPY}"
+chmod -R u+rwX,go+rX,go-w "${REPO_COPY}"
+
+# Nothing else from the build stays in the image.
 rm -rf "${BUILD_DIR}" /tmp/et /opt/dist /opt/src 2>/dev/null
 apt-get clean
 

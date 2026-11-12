@@ -8,8 +8,7 @@ disk when you're ready. No internet is needed to boot, install or run it.
 You need:
 
 - The ETC ISO file and its `.sha256` file.
-- A USB stick of 16 GB or more (32 GB or more if you'll keep maps, offline
-  Wikipedia or VARA backups on it).
+- A USB stick of 16 GB or more.
 - A 64-bit computer with 4 GB of RAM or more. For installing: 64 GB of disk
   or more. The installer erases the disk you choose.
 
@@ -52,23 +51,6 @@ macOS and Linux can all open.
 
 Copy the ISO file onto the **Ventoy** partition. You can rename it, for example
 to `emcomm-tools.iso`.
-
-### Keep your large files on the stick
-
-Make a folder on the **Ventoy** partition for files you'll want on any ETC
-system, for example:
-
-```
-etc-files/
-  maps/             .mbtiles map tiles, .osm.pbf state maps
-  wikipedia/        .zim files
-  wine-backups/     etc-wine-backup-*.tar.gz (VARA)
-```
-
-Copy files to this folder on any computer. After installing ETC, plug the stick
-into the installed system and copy them into place (see **After installing**).
-The live system can't open this folder while it's running from the same stick
-(Ventoy is using that partition).
 
 ### Secure Boot
 
@@ -137,8 +119,10 @@ tick **Encrypt system** and set a passphrase; it's asked for at every start.
 
 **Optional software:** the encryption tools (GNU Privacy Assistant, Paranoia
 File & Text Encryption, VeraCrypt, steghide, gpg and guides) are installed only
-if you select **Encryption tools**. Encryption laws differ by country: don't
-select them where possessing or using them is illegal. Click **Next** to skip.
+if you click **Install encryption tools** (it turns dark when selected).
+Encryption laws differ by country: don't select them where possessing or using
+them is illegal. To skip them, click **Skip encryption tools** or just
+**Next**.
 
 ![Optional software](install-guide/images/12-optional-software.png)
 
@@ -166,32 +150,6 @@ Log in. If you didn't save your callsign and grid square in the live system,
 
 ## 7. After installing
 
-Plug in your Ventoy stick to copy files from its `etc-files/` folder: it opens
-as **Ventoy** in Files, at `/media/<your login>/Ventoy`.
-
-**Maps.** ETC includes a world map. More detailed maps aren't included in the
-ISO yet. Copy map files from the stick's `etc-files/maps/`:
-
-- Map tiles (`.mbtiles`): copy to `~/.local/share/emcomm-tools/mbtileserver/tilesets/`
-- State maps for Navit (`.osm.pbf`): copy to `~/my-maps/`
-
-**Offline Wikipedia.** The Kiwix reader is installed; no Wikipedia files are
-included. Download `.zim` files from https://download.kiwix.org/zim/wikipedia/
-(for example the `nopic` editions, 350 MB to 1 GB each), or copy them from the
-stick's `etc-files/wikipedia/`. Put them in `~/wikipedia/` and open them in
-Kiwix.
-
-**VARA.** WINE and the VARA install scripts are included; VARA itself isn't.
-Either:
-
-- with internet, run the scripts in `~/add-ons/wine` in order, as your normal
-  user (not with `sudo`): `01-install-wine-deps.sh`, `02-install-vara-hf.sh`,
-  `03-install-vara-fm.sh` and `04-run-regedit.sh`. `~/add-ons/wine/README.md`
-  has the details for each step
-
-- or restore a backup made on another ETC system with
-  `05-backup-wine-install.sh`:
-
-  ```bash
-  cd ~ && tar -xzf /media/$USER/Ventoy/etc-files/wine-backups/etc-wine-backup-*.tar.gz
-  ```
+Maps beyond the included world map, offline Wikipedia (`.zim`) files and the
+xara modem aren't in the ISO. How to add them after install is still to be
+decided; this guide will cover it once it is.

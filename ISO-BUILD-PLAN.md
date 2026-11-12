@@ -57,7 +57,6 @@ publishing.
 |---|---|---|
 | Release name (shown in the conky panel, sent as JS8Call's MyInfo) | `sudo ET_RELEASE=ETC-r8-debian12 ./build.sh` | From the last ETC tag, e.g. `ETC-r7-build37-debian12` |
 | Build folder | `sudo ET_WORK_DIR=/path ./build.sh` | `/var/tmp/etc-live-build` (emptied at the start of each build; the download cache is kept) |
-| xara modem | Put `xara-<version>.tar.gz` in `scripts/` (see `scripts/xara.md`) | Not included: xara's upstream source was withdrawn |
 
 To change what's in the image beyond these, edit the repository, the same as
 for any ETC change: `scripts/install.sh` and its scripts, `overlay/`, or
@@ -71,10 +70,12 @@ it asks which file to download, and the build runs without prompts.
 | Item | In the ISO |
 |---|---|
 | Debian 12, GNOME, EmComm Tools | Installed |
-| Maps | The global map (80 MB). Other maps are copied in after install (see [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md)) |
+| Maps | The global map (80 MB). How users add other maps after install is still to be decided (see [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md)) |
 | Encryption tools (GPA, PFTE, VeraCrypt, steghide, gpg, guides) | Carried, not installed. The person installing chooses them on the installer's **Optional software** page (not selected by default); they install from the ISO, no internet needed. They can also be added later from `/opt/emcomm-tools/add-ons/crypto` |
 | GRUB for UEFI and BIOS | Carried, so installs work offline |
+| xara modem | Not included (its source was withdrawn; a `xara-*.tar.gz` in `scripts/` isn't copied). Rust is installed. How users add xara after install is still to be decided (see [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md)) |
 | Live session login | Debian's defaults: user `user`, password `live`. Only in the live session; installed systems have only the account created in the installer |
+| This repository | A read-only copy in `/opt/emcomm-tools-os-community` (about 10 MB, no git history): ETC's scripts and test suite, matching the ISO |
 | Accounts, home folders, SSH host keys, machine-id, logs, build files | None. Each installed system gets its own SSH host keys and machine-id |
 
 ## How the build works
@@ -85,9 +86,11 @@ it asks which file to download, and the build runs without prompts.
    `live-build/config/package-lists/emcomm-tools.list.chroot`.
 3. The `0900-emcomm-tools` chroot hook runs `install.sh` with `ET_BUILD=1`:
    no prompts, no maps beyond the global map, encryption tools prepared but not
-   installed, no existing user to set up. It then removes the repository copy
-   and the build's downloads. live-build's own cleanup hooks run after it and
-   remove logs, SSH host keys and machine-id.
+   installed, no existing user to set up. It then keeps a read-only copy of
+   the repository (tracked files, no git history) in
+   `/opt/emcomm-tools-os-community`, and removes the build copy and the
+   build's downloads. live-build's own cleanup hooks run after it and remove
+   logs, SSH host keys and machine-id.
 4. The binary stage adds Debian's signed shim and GRUB (Secure Boot), the GRUB
    packages the installer needs (the `0910-grub-pc-pool` hook adds BIOS GRUB),
    and writes the hybrid ISO (USB or DVD, BIOS or UEFI).
@@ -106,7 +109,7 @@ In a VM with UEFI and Secure Boot on, and with no network:
 1. The ISO boots to the live desktop: ETC wallpaper, dock, conky panel and boot
    splash.
 2. **Install EmComm Tools** starts the installer without a password.
-3. Install once with **Encryption tools** selected and once without. In one
+3. Install once with **Install encryption tools** selected and once without. In one
    of them, save a callsign and grid in the live session's EmComm Tools User
    Configuration first.
 4. The installed system boots with Secure Boot on, and its boot menu shows
@@ -117,8 +120,8 @@ In a VM with UEFI and Secure Boot on, and with no network:
    - `id` shows `et-data` as the primary group
    - `systemctl is-active ssh` is `active`
    - the encryption tools are there only if they were selected
-5. Run the ETC test suite (`tests/run-test-suite.sh`, copied from the
-   repository). `test-xara` fails unless xara was built.
+5. Run the ETC test suite:
+   `cd /opt/emcomm-tools-os-community/tests && ./run-test-suite.sh`. `test-xara` fails: xara isn't in the ISO.
 
 Also boot it once on a BIOS (non-UEFI) machine or VM.
 
@@ -130,5 +133,4 @@ sha256sum emcomm-tools-os-community-<date>-amd64.hybrid.iso > emcomm-tools-os-co
 
 Publish the ISO with its `.sha256` file, and point users to
 [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md): it covers checking the
-download, a Ventoy USB stick, installing, and copying maps, offline Wikipedia
-and VARA backups in afterwards.
+download, a Ventoy USB stick, the live system and installing.

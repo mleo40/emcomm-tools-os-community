@@ -1,0 +1,31 @@
+/*
+ * ETC installer styles. Calamares 3.2 reads stylesheet.qss from the branding
+ * folder.
+ *
+ * Optional software page (packagechooser): show each choice as a button, with
+ * a hover color and a dark selected state, so it's clear they can be clicked.
+ */
+PackageChooserPage QListView#products {
+    border: none;
+    background: transparent;
+    font-size: 11pt;
+    min-width: 250px;
+    max-width: 250px;
+}
+PackageChooserPage QListView#products::item {
+    border: 1px solid #8a8f91;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #2c3133;
+    padding: 10px 8px;
+    margin: 4px 2px;
+}
+PackageChooserPage QListView#products::item:hover {
+    background: #e3e5e6;
+    border-color: #2c3133;
+}
+PackageChooserPage QListView#products::item:selected {
+    background: #2c3133;
+    color: #ffffff;
+    border-color: #2c3133;
+}
