@@ -14,6 +14,30 @@ The smallest change that:
 3. leaves the encryption tools to the person installing, and
 4. produces an ISO that boots, installs and runs with no internet.
 
+## Decision for the ETC developer: Java version
+
+r7 installs OpenJDK 20. Debian 12 doesn't have OpenJDK 20; its Java is
+OpenJDK 17, which gets Debian security updates. This branch uses OpenJDK 17.
+
+Two ETC apps use Java, and neither needs more than 17:
+
+| App | Newest Java its compiled code needs |
+|---|---|
+| et-api 1.3.0 (Spring Boot 2.4.13, built with JDK 20) | 11 |
+| YAAC (`latest` zip) | 9 |
+
+Measured 10 Nov 2026 by reading the class-file version of every class,
+including nested jars. On the test systems et-api's service runs on OpenJDK 17
+and answers on port 1981.
+
+| Option | Effect |
+|---|---|
+| **OpenJDK 17 from Debian** (this branch) | No extra work; security updates from Debian |
+| OpenJDK 20 or newer from another source (for example Eclipse Temurin) | Matches r7's version; adds a non-Debian download to `install-base.sh` and its own update path |
+
+Revisit if a future et-api or YAAC needs Java 18 or later. Spring Boot 2.4
+predates official Java 17 support, so watch et-api in hardware testing.
+
 ## Size
 
 Branch `feature/debian-live-iso` against `release/r7`: **73 files,
