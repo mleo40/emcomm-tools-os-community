@@ -34,5 +34,8 @@ fi
 
 dpkg -i "${ET_DIST_DIR}/${FILE}"
 
+# Keep ETC's WSJT-X build; don't let apt swap it for Debian's wsjtx.
+apt-mark hold wsjtx
+
 et-log "Updating ${APP} launcher icon to support PNP..."
 cp -v ../overlay/usr/share/applications/wsjtx.desktop /usr/share/applications/

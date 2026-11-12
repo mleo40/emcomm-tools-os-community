@@ -6,6 +6,9 @@
 # build.sh copies the repository to /root/etc-build (config/includes.chroot).
 # This runs install.sh in build mode (no prompts), reports failed steps, and
 # removes the copy and the logs so neither ends up in the ISO.
+#
+# Numbered 0900 so it runs before live-build's cleanup hooks (8000-8110), which
+# then remove logs, SSH host keys, machine-id and temporary files from the image.
 
 set -u
 
@@ -28,6 +31,17 @@ fi
 
 # Live installer launcher: ETC's name instead of "Install Debian".
 sed -i 's/^Name=.*/Name=Install EmComm Tools/' /usr/share/applications/install-debian.desktop
+
+# Live session dock: Debian's live settings (96_calamares-settings-debian,
+# removed with Calamares at install) override ETC's dock with Debian's apps.
+# Use the installer plus ETC's launchers instead.
+SCHEMAS=/usr/share/glib-2.0/schemas
+ETC_FAV=$(sed -n 's/^favorite-apps *= *\[\(.*\)\]/\1/p' "${SCHEMAS}/90_emcomm-tools.gschema.override")
+if [[ -n "${ETC_FAV}" && -f "${SCHEMAS}/96_calamares-settings-debian.gschema.override" ]]; then
+  sed -i "s|^favorite-apps=.*|favorite-apps=['install-debian.desktop', ${ETC_FAV}]|" \
+    "${SCHEMAS}/96_calamares-settings-debian.gschema.override"
+  glib-compile-schemas "${SCHEMAS}"
+fi
 
 # Nothing from the build stays in the image.
 rm -rf "${BUILD_DIR}" /tmp/et /opt/dist /opt/src 2>/dev/null

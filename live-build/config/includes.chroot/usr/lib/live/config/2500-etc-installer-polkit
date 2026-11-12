@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# Date    : 11 November 2026
+# Purpose : Live session only: start the installer without a password.
+#
+# live-config runs this at live boot, so the rule is written to the running
+# live system, not the image, and installed systems never get it. The live
+# user already has passwordless sudo; this does the same for polkit, which the
+# installer launcher (pkexec) asks for otherwise.
+
+mkdir -p /etc/polkit-1/rules.d
+cat > /etc/polkit-1/rules.d/49-etc-live-installer.rules <<'RULE'
+polkit.addRule(function(action, subject) {
+    if (subject.user == "user" && subject.local && subject.active) {
+        return polkit.Result.YES;
+    }
+});
+RULE

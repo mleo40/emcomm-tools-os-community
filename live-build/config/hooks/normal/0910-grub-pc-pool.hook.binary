@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# Date    : 11 November 2026
+# Purpose : Add grub-pc (BIOS) to the ISO's package pool.
+#
+# The installer installs GRUB into the new system from the ISO's pool, so
+# installs work offline. grub-pc conflicts with grub-efi-amd64, so live-build
+# can't resolve both from installer.list.binary. build.sh downloads the grub-pc
+# .debs to config/grub-pc/; this adds them to the pool and rebuilds the index
+# the same way live-build's binary_package-lists does.
+#
+# Binary hooks run in the binary/ folder, after the pool is built and before
+# the checksums and the ISO are made.
+
+set -e
+
+SRC=../config/grub-pc
+DIST=bookworm
+ARCH=amd64
+
+ls "${SRC}"/*.deb >/dev/null 2>&1 || { echo "No grub-pc .debs in ${SRC}"; exit 1; }
+
+mkdir -p pool/main/g/grub2
+cp -v "${SRC}"/*.deb pool/main/g/grub2/
+
+for SECTION in pool/*; do
+  SECTION="$(basename "${SECTION}")"
+  mkdir -p "dists/${DIST}/${SECTION}/binary-${ARCH}"
+  apt-ftparchive packages "pool/${SECTION}" > "dists/${DIST}/${SECTION}/binary-${ARCH}/Packages"
+  gzip -9 -c "dists/${DIST}/${SECTION}/binary-${ARCH}/Packages" \
+    > "dists/${DIST}/${SECTION}/binary-${ARCH}/Packages.gz"
+done
+
+rm -f "dists/${DIST}/Release"
+apt-ftparchive \
+  -o APT::FTPArchive::Release::Origin="Debian" \
+  -o APT::FTPArchive::Release::Label="Debian" \
+  -o APT::FTPArchive::Release::Suite="${DIST}" \
+  -o APT::FTPArchive::Release::Codename="${DIST}" \
+  -o APT::FTPArchive::Release::Architectures="${ARCH}" \
+  -o APT::FTPArchive::Release::Components="main contrib non-free non-free-firmware" \
+  release "dists/${DIST}" > "/tmp/etc-release.$$"
+mv "/tmp/etc-release.$$" "dists/${DIST}/Release"
+
+echo "grub-pc added to the ISO package pool."

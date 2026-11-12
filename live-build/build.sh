@@ -28,13 +28,25 @@ ISO_NAME="emcomm-tools-os-community-$(date +%Y%m%d)"
 
 command -v lb >/dev/null || { apt-get update && apt-get install -y live-build; }
 
-# Fresh build folder with this repo's live-build config.
+# Fresh build folder with this repo's live-build config. live-build's download
+# cache is kept between builds to save time.
+CACHE_KEEP="${WORK}.cache"
 if [[ -d "${WORK}" ]]; then
-  (cd "${WORK}" && lb clean --purge >/dev/null 2>&1 || true)
+  (cd "${WORK}" && lb clean >/dev/null 2>&1 || true)
+  rm -rf "${CACHE_KEEP}"
+  [[ -d "${WORK}/cache" ]] && mv "${WORK}/cache" "${CACHE_KEEP}"
   rm -rf "${WORK}"
 fi
 mkdir -p "${WORK}"
 cp -a "${HERE}/config" "${WORK}/"
+[[ -d "${CACHE_KEEP}" ]] && mv "${CACHE_KEEP}" "${WORK}/cache"
+
+# BIOS installs: grub-pc conflicts with grub-efi-amd64, so it can't go in
+# installer.list.binary. Its .debs go into the ISO's package pool through the
+# 0910-grub-pc-pool binary hook.
+mkdir -p "${WORK}/config/grub-pc"
+apt-get update -qq
+(cd "${WORK}/config/grub-pc" && apt-get download grub-pc grub-pc-bin)
 
 # The repository, for the chroot hook (removed again by the hook). Only files
 # git tracks (plus .git, for the release tag), so untracked files never reach
@@ -49,13 +61,14 @@ mkdir -p "${WORK}/config/includes.chroot/root/etc-build"
   (cd "${REPO}" && find scripts -maxdepth 1 -name 'xara-*.tar.gz' -print0); } \
   | tar -C "${REPO}" --null -T - -cf - \
   | tar -C "${WORK}/config/includes.chroot/root/etc-build" -xf -
-chmod 755 "${WORK}"/config/hooks/normal/*.hook.chroot \
-          "${WORK}"/config/includes.chroot/usr/local/bin/*
+chmod 755 "${WORK}"/config/hooks/normal/*.hook.* \
+          "${WORK}"/config/includes.chroot/usr/local/bin/* \
+          "${WORK}"/config/includes.chroot/usr/lib/live/config/*
 
 # Pass ET_RELEASE into the chroot hook.
 if [[ -n "${ET_RELEASE:-}" ]]; then
   sed -i "s/^set -u$/set -u\nexport ET_RELEASE='${ET_RELEASE}'/" \
-    "${WORK}/config/hooks/normal/9000-emcomm-tools.hook.chroot"
+    "${WORK}/config/hooks/normal/0900-emcomm-tools.hook.chroot"
 fi
 
 cd "${WORK}"

@@ -21,8 +21,10 @@ sudo ./build.sh
 
 1. Debian 12 chroot with GNOME, Calamares and the packages in
    `config/package-lists/`.
-2. Chroot hook `9000-emcomm-tools.hook.chroot` copies the repo into the chroot
+2. Chroot hook `0900-emcomm-tools.hook.chroot` copies the repo into the chroot
    and runs `install.sh` with `ET_BUILD=1` (no prompts), then removes the copy.
+   It runs before Debian's cleanup hooks (8000–8110), which then remove logs,
+   SSH host keys, machine-id and temporary files.
 3. Binary stage: hybrid ISO (USB or DVD, BIOS or UEFI) with Debian's signed
    shim and GRUB, so it boots with Secure Boot on.
 
@@ -46,7 +48,8 @@ The build never has a user logged in, so there's no operator data to strip.
   unchecked. If ticked, `install-crypto.sh --offline` installs them into the
   new system from the `.deb`s carried in the ISO. No internet needed.
 - Users created by Calamares get `et-data` as primary group and the
-  `adduser.conf` extra groups (a `shellprocess` step).
+  `adduser.conf` extra groups; the new system gets its own SSH host keys (a
+  `shellprocess` step).
 - The full-disk encryption checkbox stays visible and unchecked.
 
 ## First login (each operator)

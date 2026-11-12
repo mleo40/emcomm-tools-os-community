@@ -1,9 +1,12 @@
 # Not installed in the image: carried in the ISO's package pool. The installer
 # (calamares-settings-debian's bootloader-config) installs GRUB into the new
 # system from there, so installs work offline.
+#
+# UEFI only here. grub-pc (BIOS) conflicts with grub-efi-amd64, so live-build
+# can't resolve both in one list; build.sh downloads the grub-pc .debs and the
+# 0910-grub-pc-pool binary hook adds them to the pool.
 grub-efi-amd64
 grub-efi-amd64-signed
 shim-signed
-grub-pc
 cryptsetup-initramfs
 keyutils

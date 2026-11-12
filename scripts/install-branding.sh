@@ -20,6 +20,14 @@ cp -v ../overlay/usr/share/plymouth/themes/spinner/*.png "${PLYMOUTH_DIR}/themes
 # r7 used Ubuntu's default 'bgrt' theme, which draws the images in
 # themes/spinner/. Debian defaults to its own desktop-base theme.
 et-log "Setting boot splash theme..."
+# Debian's plymouth initramfs hook replaces the two-step watermark with
+# desktop-base's Debian logo. Divert that logo and put ETC's watermark there.
+DEBIAN_LOGO=/usr/share/desktop-base/debian-logos/logo-text-version-64.png
+if [[ -e "${DEBIAN_LOGO}" || -e "${DEBIAN_LOGO}.debian" ]]; then
+  dpkg-divert --local --rename --add --divert "${DEBIAN_LOGO}.debian" "${DEBIAN_LOGO}"
+  cp -v ../overlay/usr/share/plymouth/themes/spinner/watermark.png "${DEBIAN_LOGO}"
+fi
+
 plymouth-set-default-theme -R bgrt
 
 # Debian's default kernel command line is 'quiet' only; plymouth needs 'splash'.

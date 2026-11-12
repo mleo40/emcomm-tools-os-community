@@ -53,5 +53,10 @@ fi
 
 dpkg -i $ET_DIST_DIR/$FILE
 
+# Debian has its own js8call (2.2.0+ds), which apt sees as newer than ETC's
+# build and would install on upgrade, pulling in Debian's wsjtx-data, which
+# conflicts with ETC's WSJT-X. Keep ETC's build.
+apt-mark hold js8call
+
 et-log "Updating JS8Call launcher icon to support PNP..."
 cp -v ../overlay/usr/share/applications/js8call.desktop /usr/share/applications/

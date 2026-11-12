@@ -93,7 +93,9 @@ prepare_offline() {
 install_offline() {
   [[ -d "${PAYLOAD_DIR}" ]] || { et-log "No prepared payload in ${PAYLOAD_DIR}."; exit 1; }
   et-log "Installing optional encryption tools from ${PAYLOAD_DIR}..."
-  apt-get install -y --no-download "${PAYLOAD_DIR}"/debs/*.deb
+  # Local .debs only. (--no-download would refuse them: apt counts copying a
+  # local file as a download.) Dependencies are all in debs/ or installed.
+  apt-get install -y "${PAYLOAD_DIR}"/debs/*.deb
 
   tar -C /opt -xzf "${PAYLOAD_DIR}/gpa-${GPA_VERSION}.tar.gz"
   ln -sfn "/opt/gpa-${GPA_VERSION}" /opt/gpa
