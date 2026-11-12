@@ -55,7 +55,7 @@ publishing.
 
 | Option | How | Default |
 |---|---|---|
-| Release name (shown in the conky panel, sent as JS8Call's MyInfo) | `sudo ET_RELEASE=ETC-r8-debian12 ./build.sh` | From the last ETC tag, e.g. `ETC-r7-build34-debian12` |
+| Release name (shown in the conky panel, sent as JS8Call's MyInfo) | `sudo ET_RELEASE=ETC-r8-debian12 ./build.sh` | From the last ETC tag, e.g. `ETC-r7-build37-debian12` |
 | Build folder | `sudo ET_WORK_DIR=/path ./build.sh` | `/var/tmp/etc-live-build` (emptied at the start of each build; the download cache is kept) |
 | xara modem | Put `xara-<version>.tar.gz` in `scripts/` (see `scripts/xara.md`) | Not included: xara's upstream source was withdrawn |
 

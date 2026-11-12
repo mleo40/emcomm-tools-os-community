@@ -31,8 +31,9 @@ images:
 slideshow:               "show.qml"
 slideshowAPI:            1
 
+# Key names read by Debian 12's Calamares (3.2.61).
 style:
-   SidebarBackground:    "#2c3133"
-   SidebarText:          "#FFFFFF"
-   SidebarTextCurrent:   "#2c3133"
-   SidebarBackgroundCurrent: "#FFFFFF"
+   sidebarBackground:    "#2c3133"
+   sidebarText:          "#FFFFFF"
+   sidebarTextSelect:    "#2c3133"
+   sidebarTextHighlight: "#FFFFFF"

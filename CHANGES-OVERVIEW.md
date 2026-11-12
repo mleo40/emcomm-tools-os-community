@@ -51,6 +51,19 @@ OpenJDK 17 (Debian security updates). ETC's Java apps need at most Java 11
 is a non-Debian JDK 20+ (for example Eclipse Temurin), with its own downloads
 and updates. Revisit if et-api or YAAC ever needs Java 18 or later.
 
+### Sound server: PipeWire instead of PulseAudio
+
+Debian 12's GNOME uses PipeWire (with `pipewire-pulse` and WirePlumber); r7 on
+Ubuntu 22.04 uses PulseAudio. This branch doesn't change either: it's the
+desktop default each distribution ships. ETC's radio apps mostly open the
+radio's sound card directly through ALSA (for example JS8Call's
+`sysdefault:CARD=ET_AUDIO`, Direwolf's `ADEVICE`), which works under either.
+Apps that go through the sound server (WINE/VARA, the desktop's own sounds)
+now go through PipeWire. Checked in a VM with a DigiRig Lite and a built-in
+card: the built-in card stays the desktop default, and JS8Call lists the
+DigiRig for input and output. Still to check on hardware: VARA under WINE,
+and the JS8Call/WSJT-X output list below.
+
 ## Version parity with r7
 
 **Applications ETC downloads or builds itself keep r7's pinned versions.** The
@@ -86,8 +99,9 @@ Debian 12 install. To watch in hardware testing: VARA under WINE 8.0.
 
 ## Size/Scope of this migration
 
-Branch `feature/debian-live-iso` against `release/r7`: **95 files,
-+1,685 / −341 lines** (not counting this document).
+Branch `feature/debian-live-iso` against `release/r7` at build37
+(`emcomm-tools-os-community-20261111-r7-build37`, merged in): **95 files,
++1,686 / −341 lines** (not counting this document).
 
 It's less than it looks:
 
@@ -103,7 +117,7 @@ It's less than it looks:
 
 | # | Category | Files | Lines +/− | Why |
 |---|---|---|---|---|
-| 1 | Installer: Ubiquity → Calamares | 22 | +312 / −209 | Ubuntu's installer doesn't exist on Debian. The 8 slideshow images only moved. The 9 Ubiquity HTML slides were deleted, and the same 8 slides were ported to one Calamares `show.qml` (264 lines). |
+| 1 | Installer: Ubiquity → Calamares | 22 | +313 / −209 | Ubuntu's installer doesn't exist on Debian. The 8 slideshow images only moved. The 9 Ubiquity HTML slides were deleted, and the same 8 slides were ported to one Calamares `show.qml` (264 lines). |
 | 2 | Docs | 20 | +342 | Release notes; developer build guide; end-user install guide. |
 | 3 | New ISO build (live-build) | 16 | +472 | Replaces Cubic. All new files; nothing existing changed. |
 | 4 | Debian package and OS differences | 16 | +115 / −74 | A small edit in each script that named an Ubuntu package, version or URL. |
@@ -148,6 +162,28 @@ In VMs, with the network unplugged unless noted:
 | UEFI, Secure Boot on: live settings carry-over | Callsign and grid saved in the live session are in the installed user's `user.json`, with the `first-login-complete` marker, owned by the new user; setup doesn't open at first login. Passed in the ISO built from 180a991. The same ISO failed the **Cancel** case: Cancel also writes the marker, so the default settings were copied and setup didn't open. Fixed by also checking that `user.json` differs from the `/etc/skel` default; the check passed on the installed system, the fix is in the ISO built from 22beb66 |
 | Ventoy 1.1.10, UEFI, Secure Boot off | ISO boots from a Ventoy stick to the ETC boot menu and live desktop |
 
+## Found on real hardware (12 Nov 2026)
+
+From the ISO built from 22beb66, booted live from a Ventoy stick on a laptop.
+Findings are from reproducing in a VM with the same ISO and a DigiRig Lite
+passed through.
+
+| Bug | Findings so far | Status |
+|---|---|---|
+| gpsd didn't start in the live session; started by hand | Same design as r7: gpsd is disabled and only the u-blox udev rule (`92-et-u-blox.rules`) starts it, by waiting 5 seconds and running `systemctl restart gpsd`. It started fine on the installed system, which has the same setup, so the likely cause is timing: with the GPS plugged in before a (slower) live boot, the restart can be dropped while the system is still starting, and nothing retries it. Not reproduced: no GPS in the VM | Open. Possible fix (changes r7 behavior): `systemctl --no-block restart gpsd`, without the sleep |
+| JS8Call and WSJT-X: the DigiRig Lite could be chosen for audio input, but the output list was empty (live session only; fine after install) | Not reproduced in a VM with the same ISO, the DigiRig passed through and an emulated built-in card: the DigiRig is listed for input and output (`sysdefault:CARD=ET_AUDIO` and the other ALSA names), and the built-in card stays the desktop default. The live session and the installed system have the same audio setup | Open. See the sound server note in the review section |
+
+**et-api first start (same in r7).** At the first login, et-api builds its
+search indexes, then crashes: it expects `data/weather-forecast-zone.csv`,
+which `install-et-api.sh` doesn't download and the et-api 1.3.0 release
+doesn't publish. systemd restarts it, it skips the indexes it already built,
+and it answers about 20–60 seconds after login. et-predict and et-aircraft
+ask et-api only when they open, so opening them in that window leaves them
+empty until reopened. On an installed system this happens once, because the
+indexes stay on disk; in the live session it happens every boot. The
+forecast-zone index stays empty. Fix belongs upstream: download the file, or
+have et-api start without it.
+
 ## Files in each category
 
 ### 1. Installer: Ubiquity → Calamares
@@ -158,7 +194,7 @@ In VMs, with the network unplugged unless noted:
 | `overlay/usr/share/ubiquity/pixmaps/ubuntu_installed.png` | Deleted |
 | `overlay/etc/calamares/branding/emcomm-tools/screenshots/*.png` (7), `background.png` | Moved from the Ubiquity slideshow, unchanged |
 | `overlay/etc/calamares/branding/emcomm-tools/show.qml` | New: the same 8 slides, as Calamares QML |
-| `overlay/etc/calamares/branding/emcomm-tools/branding.desc`, `logo.png` | New: installer name and logo |
+| `overlay/etc/calamares/branding/emcomm-tools/branding.desc`, `logo.png` | New: installer name, logo and sidebar colors |
 | `scripts/debrand.sh` | Installs the Calamares branding instead of Ubiquity's; drops the Cubic kernel reinstall |
 
 ### 2. Docs
