@@ -33,3 +33,11 @@ apt purge \
   -y
 
 apt autoremove -y
+
+# No automatic update checks (r7 removed Ubuntu's update-notifier). apt's daily
+# timers would refresh the package lists from the internet; update by hand with
+# 'sudo apt update && sudo apt upgrade'. GNOME Software's update settings are in
+# the gschema override, and its login service is hidden in
+# /etc/skel/.config/autostart/org.gnome.Software.desktop.
+et-log "Disabling automatic update checks..."
+systemctl disable apt-daily.timer apt-daily-upgrade.timer

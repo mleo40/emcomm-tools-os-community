@@ -2,7 +2,8 @@
 
 ## Unreleased: Debian 12 base
 
-* Base OS moved from Ubuntu 22.10 (Cubic) to Debian 12 (bookworm)
+* Moved from Ubuntu/Cubic to Debian/live-build: Ubuntu 22.10 to Debian 12, and
+  Cubic to live-build for the ISO
 * ISO built with Debian's live-build (`live-build/build.sh`), with Debian's
   signed shim and GRUB for Secure Boot; installs with Calamares (replaces
   Ubiquity)

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=GNOME Software
+Comment=EmComm Tools: don't start GNOME Software's update service at login (Software still opens from the app menu)
+Exec=gnome-software --gapplication-service
+Hidden=true
