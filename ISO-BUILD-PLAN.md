@@ -86,7 +86,12 @@ it asks which file to download, and the build runs without prompts.
    `live-build/config/package-lists/emcomm-tools.list.chroot`.
 3. The `0900-emcomm-tools` chroot hook runs `install.sh` with `ET_BUILD=1`:
    no prompts, no maps beyond the global map, encryption tools prepared but not
-   installed, no existing user to set up. It then keeps a read-only copy of
+   installed, no existing user to set up. It then downloads et-api's NWS
+   forecast zone file (pinned, checksum checked) to
+   `/opt/emcomm-tools-api/data/weather-forecast-zone.csv`: et-api 1.3.0 needs
+   it but its release doesn't include it (see
+   [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md)); if the download fails, it
+   counts as a failed step. It keeps a read-only copy of
    the repository (tracked files, no git history) in
    `/opt/emcomm-tools-os-community`, and removes the build copy and the
    build's downloads. live-build's own cleanup hooks run after it and remove

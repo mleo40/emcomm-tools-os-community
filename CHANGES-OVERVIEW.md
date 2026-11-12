@@ -110,7 +110,7 @@ Debian 12 install. To watch in hardware testing: VARA under WINE 8.0.
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
 (`emcomm-tools-os-community-20261111-r7-build37`, merged in): **97 files,
-+1,931 / −341 lines** (not counting this document).
++1,936 / −341 lines** (not counting this document).
 
 It's less than it looks:
 
@@ -127,7 +127,7 @@ It's less than it looks:
 | # | Category | Files | Lines +/− | Why |
 |---|---|---|---|---|
 | 1 | Installer: Ubiquity → Calamares | 23 | +344 / −209 | Ubuntu's installer doesn't exist on Debian. The 8 slideshow images only moved. The 9 Ubiquity HTML slides were deleted, and the same 8 slides were ported to one Calamares `show.qml` (264 lines). |
-| 2 | Docs | 20 | +305 | Release notes; developer build guide; end-user install guide. |
+| 2 | Docs | 20 | +310 | Release notes; developer build guide; end-user install guide. |
 | 3 | New ISO build (live-build) | 17 | +723 | Replaces Cubic. All new files; nothing existing changed. |
 | 4 | Debian package and OS differences | 16 | +115 / −74 | A small edit in each script that named an Ubuntu package, version or URL. |
 | 5 | Encryption tools opt-in | 11 | +221 / −23 | Distribution requirement, not Debian's. `install-crypto.sh` is most of it. The guide files (`gpg-cheatsheet.md`, `steghide.md`, `steghide.jpg`) were moved unchanged, so only users who choose the tools get them. |
@@ -164,8 +164,8 @@ were on real hardware:
 
 | Test | Result |
 |---|---|
-| Build (`live-build/build.sh`) | Completes; `install.sh` 0 failed steps (last completed build: 7191f84, with build37 merged) |
-| ISO contents | No build files, logs, SSH host keys or machine-id; encryption tools prepared, not installed; WINE (32- and 64-bit), winetricks and the VARA add-on scripts included; read-only repository copy in `/opt/emcomm-tools-os-community` (12 MB); installer `stylesheet.qss` in the branding |
+| Build (`live-build/build.sh`) | Completes; `install.sh` 0 failed steps (last completed build: 4353008, with build37 merged) |
+| ISO contents | No build files, logs, SSH host keys or machine-id; encryption tools prepared, not installed; WINE (32- and 64-bit), winetricks and the VARA add-on scripts included; read-only repository copy in `/opt/emcomm-tools-os-community` (12 MB); installer `stylesheet.qss` in the branding; et-api's `weather-forecast-zone.csv` (NWS, checksum verified) in its data folder |
 | UEFI, Secure Boot on: live session | ETC boot menu, splash, desktop and dock; installer starts without a password; Optional software page text, including the encryption legal notice; slideshow advances; installer sidebar steps readable (ISO from c1a32a6); Optional software page's Skip/Install buttons (applied by hand in the live session, then committed in 7191f84) |
 | UEFI, Secure Boot on: install with encryption tools | Tools and guides installed from the ISO |
 | UEFI, Secure Boot on: install without encryption tools | No tools, guides or marker; add-on still available |
@@ -173,7 +173,7 @@ were on real hardware:
 | BIOS (no UEFI): live boot and install | Boots and installs; BIOS GRUB installed from the ISO (tested before GRUB branding was added) |
 | UEFI, Secure Boot on: live settings carry-over | Callsign and grid saved in the live session are in the installed user's `user.json`, with the `first-login-complete` marker, owned by the new user; setup doesn't open at first login. Passed in the ISO built from 180a991. The same ISO failed the **Cancel** case: Cancel also writes the marker, so the default settings were copied and setup didn't open. Fixed by also checking that `user.json` differs from the `/etc/skel` default; the check passed on the installed system, the fix is in the ISO built from 22beb66 |
 | Ventoy 1.1.10, UEFI, Secure Boot off | ISO boots from a Ventoy stick to the ETC boot menu and live desktop |
-| Laptop, live session, GPS connected | et-api hang reproduced; with the NWS file added by hand, et-api's first start builds all indexes in 15 s with no restart; GPS position, callsign, aircraft and forecast-zone lookups work |
+| Laptop, live session (ISO from 4353008, UEFI, Secure Boot off), GPS, DigiRig Mobile and SDR connected | `validate-install.sh`: 92 passed, 0 failed. et-api starts once with no restart; et-predict and et-aircraft work without restarting it; aircraft received by the SDR are identified from et-api's FAA data (US-registered; others, such as Canadian, have no entry). The et-api hang was reproduced on an earlier ISO, before the NWS file was included |
 | Laptop, live session, DigiRig Lite | JS8Call, WSJT-X and Winlink over ARDOP use the DigiRig for audio input and output |
 
 ## Files in each category
