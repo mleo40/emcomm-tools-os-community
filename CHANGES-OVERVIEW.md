@@ -138,29 +138,15 @@ In VMs, with the network unplugged unless noted:
 
 | Test | Result |
 |---|---|
-| Build (`live-build/build.sh`) | Completes; `install.sh` 0 failed steps |
+| Build (`live-build/build.sh`) | Completes; `install.sh` 0 failed steps (last built from 22beb66) |
 | ISO contents | No build files, logs, SSH host keys or machine-id; encryption tools prepared, not installed; WINE (32- and 64-bit), winetricks and the VARA add-on scripts included |
 | UEFI, Secure Boot on: live session | ETC boot menu, splash, desktop and dock; installer starts without a password; Optional software page text, including the encryption legal notice; slideshow advances |
 | UEFI, Secure Boot on: install with encryption tools | Tools and guides installed from the ISO |
 | UEFI, Secure Boot on: install without encryption tools | No tools, guides or marker; add-on still available |
 | UEFI, Secure Boot on: installed system | Boots; GRUB menu shows "EmComm Tools" with the ETC background; ETC splash, dock, wallpaper; `et-data` primary group; SSH server running; apt sources include `contrib` and `non-free`; update checks off; ETC test suite passes except xara (no source package) |
 | BIOS (no UEFI): live boot and install | Boots and installs; BIOS GRUB installed from the ISO (tested before GRUB branding was added) |
-| UEFI, Secure Boot on: live settings carry-over | Callsign and grid saved in the live session are in the installed user's `user.json`, with the `first-login-complete` marker, owned by the new user; setup doesn't open at first login. Passed in the ISO built from 180a991. The same ISO failed the **Cancel** case: Cancel also writes the marker, so the default settings were copied and setup didn't open. Fixed by also checking that `user.json` differs from the `/etc/skel` default; the check passed on the installed system, but the fix isn't in a built ISO yet |
+| UEFI, Secure Boot on: live settings carry-over | Callsign and grid saved in the live session are in the installed user's `user.json`, with the `first-login-complete` marker, owned by the new user; setup doesn't open at first login. Passed in the ISO built from 180a991. The same ISO failed the **Cancel** case: Cancel also writes the marker, so the default settings were copied and setup didn't open. Fixed by also checking that `user.json` differs from the `/etc/skel` default; the check passed on the installed system, the fix is in the ISO built from 22beb66 |
 | Ventoy 1.1.10, UEFI, Secure Boot off | ISO boots from a Ventoy stick to the ETC boot menu and live desktop |
-
-Not tested yet:
-
-- The carry-over **Cancel** fix in a rebuilt ISO: install after **Cancel** in
-  the live session (setup should then open at first login), and again with a
-  callsign saved
-- GRUB branding on BIOS: the live ISO's boot menu and the installed system's
-  menu
-- Installing with **Encrypt system** (full-disk encryption) on the Partitions
-  page
-- Ventoy with Secure Boot on
-- The install guide's after-install steps: copying files from the Ventoy stick,
-  the VARA scripts (needs internet), restoring a WINE backup
-- Hardware with a radio (CAT, audio, JS8Call, WSJT-X, VARA under WINE)
 
 ## Files in each category
 
