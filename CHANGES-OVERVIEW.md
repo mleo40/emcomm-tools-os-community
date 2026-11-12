@@ -133,7 +133,7 @@ migration, at the cost of r7's look and some live-session usability:
 |---|---|---|
 | GNOME parity: Yaru theme, dock, desktop icons, tray icons, window buttons | Look and version parity with r7 | Yes, if r7's look isn't required |
 | Calamares slideshow ported from Ubiquity (`show.qml`) | Branding parity | Yes; Calamares works without it |
-| Installer stylesheet (`stylesheet.qss`): the encryption choices drawn as buttons | Found on hardware that the plain list didn't look clickable | Yes; the page works without it |
+| Installer stylesheet (`stylesheet.qss`): the encryption choices drawn as buttons | Encryption is legally restricted in some jurisdictions, so installing the tools must be a clear, deliberate choice | Yes; the page works without it |
 | GRUB menus branded: ETC background on the live ISO's boot menu; "EmComm Tools" and the same background on installed systems | Branding parity | Yes; the stock Debian menus work |
 | ETC boot splash watermark: Debian's logo diverted (Debian's plymouth puts its own in) | Branding parity | Yes; Debian's logo shows instead |
 | Live-session polish: installer icon shown correctly, installer starts without a password, ETC dock in the live session, callsign/grid/Winlink password saved in the live session carried into the installed system | Usability of the live session | Yes; the ISO works without them |
@@ -152,8 +152,8 @@ were on real hardware:
 
 | Test | Result |
 |---|---|
-| Build (`live-build/build.sh`) | Completes; `install.sh` 0 failed steps (last completed build: c1a32a6, with build37 merged) |
-| ISO contents | No build files, logs, SSH host keys or machine-id; encryption tools prepared, not installed; WINE (32- and 64-bit), winetricks and the VARA add-on scripts included |
+| Build (`live-build/build.sh`) | Completes; `install.sh` 0 failed steps (last completed build: 7191f84, with build37 merged) |
+| ISO contents | No build files, logs, SSH host keys or machine-id; encryption tools prepared, not installed; WINE (32- and 64-bit), winetricks and the VARA add-on scripts included; read-only repository copy in `/opt/emcomm-tools-os-community` (12 MB); installer `stylesheet.qss` in the branding |
 | UEFI, Secure Boot on: live session | ETC boot menu, splash, desktop and dock; installer starts without a password; Optional software page text, including the encryption legal notice; slideshow advances; installer sidebar steps readable (ISO from c1a32a6); Optional software page's Skip/Install buttons (applied by hand in the live session, then committed in 7191f84) |
 | UEFI, Secure Boot on: install with encryption tools | Tools and guides installed from the ISO |
 | UEFI, Secure Boot on: install without encryption tools | No tools, guides or marker; add-on still available |
