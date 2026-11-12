@@ -3,10 +3,10 @@
 This document covers what one-time changes are needed to move EmComm Tools from Ubuntu/Cubic to Debian/live-build,
 and why.
 
-Once these changes are PR/merged, this document becomes irrelevant and can be removed.
+Once these changes are merged, this document becomes irrelevant and can be removed.
 
 How to build ISOs from now on is in
-[ISO-BUILD-PLAN.md](../ISO-BUILD-PLAN.md) and should persist.
+[ISO-BUILD-PLAN.md](ISO-BUILD-PLAN.md) and should persist.
 
 ## Goal
 
@@ -14,9 +14,10 @@ The smallest change that:
 
 1. moves EmComm Tools from Ubuntu/Cubic to Debian/live-build,
 2. builds an ISO for global distribution,
-3. leaves the encryption tools installation up to the person installing, and
-4. produces an ISO that boots, installs and runs with no internet. Installing
-   VARA (optional) needs internet, or a WINE backup to restore.
+3. leaves the encryption tools installation up to the person installing,
+4. produces an ISO that boots, installs and runs with no internet. Installing VARA (optional) needs internet, or a WINE backup to restore from,
+5. keeps version parity with r7 where possible, and
+6. maintain the look and style of r7.
 
 ## For the ETC developer to review
 
@@ -29,10 +30,10 @@ asks none, so each is handled differently now:
 
 | r7 question | Where | Now |
 |---|---|---|
-| OSM state map (Navit) | `download-osm-maps.sh` | Not in the ISO. Planned: first-login map step per operator. Until then there's no simple way to get it |
-| ETC map tiles: US, Canada or world | `download-et-maps.sh` | The world map (80 MB) is in the ISO. US and Canada tiles: same planned first-login step |
-| Wikipedia file (`ET_EXPERT`) | `download-wikipedia.sh` | No `.zim` files ship with the ISO; the Kiwix reader is installed. Users download `.zim` files after install ([INSTALL-GUIDE.md](INSTALL-GUIDE.md)) |
-| VARA/WINE notes (`ET_EXPERT`) | `install-wine.sh`, `wine.txt` | WINE, winetricks and the VARA add-on scripts (`~/add-ons/wine`) are in the ISO; VARA itself isn't. Users install it after install, with internet or by restoring a WINE backup made with `05-backup-wine-install.sh` (`cd ~ && tar -xzf etc-wine-backup-*.tar.gz`). Covered in [INSTALL-GUIDE.md](INSTALL-GUIDE.md) |
+| OSM state map (Navit) | `download-osm-maps.sh` | Not in the ISO. For now, users copy a `.osm.pbf` state map to `~/my-maps/` after install ([INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md)). Suggested next step: a map step after install that runs `download-osm-maps.sh` for the user when online |
+| ETC map tiles: US, Canada or world | `download-et-maps.sh` | The world map (80 MB) is in the ISO. For now, users copy US or Canada `.mbtiles` to `~/.local/share/emcomm-tools/mbtileserver/tilesets/` after install ([INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md)). Suggested next step: the same map step runs `download-et-maps.sh` |
+| Wikipedia file (`ET_EXPERT`) | `download-wikipedia.sh` | No `.zim` files ship with the ISO; the Kiwix reader is installed. For now, users download or copy `.zim` files after install ([INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md)). Suggested next step: the same map step also offers `download-wikipedia.sh` when online |
+| VARA/WINE notes (`ET_EXPERT`) | `install-wine.sh`, `wine.txt` | WINE, winetricks and the VARA add-on scripts (`~/add-ons/wine`) are in the ISO; VARA itself isn't. Users install it after install, with internet or by restoring a WINE backup made with `05-backup-wine-install.sh` (`cd ~ && tar -xzf etc-wine-backup-*.tar.gz`). Covered in [INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md) |
 
 Other changes users will notice:
 
@@ -85,11 +86,12 @@ Debian 12 install. To watch in hardware testing: VARA under WINE 8.0.
 
 ## Size/Scope of this migration
 
-Branch `feature/debian-live-iso` against `release/r7`: **76 files,
-+1,674 / −341 lines** (not counting this document).
+Branch `feature/debian-live-iso` against `release/r7`: **95 files,
++1,682 / −341 lines** (not counting this document).
 
 It's less than it looks:
 
+- 17 files are the install guide's screenshots, plus the guide itself.
 - 22 files are moves or deletions with no new logic: 12 renames (slideshow
   images, encryption guide files, the GNOME settings file) and 10 deleted
   Ubuntu/Cubic files.
@@ -102,18 +104,18 @@ It's less than it looks:
 | # | Category | Files | Lines +/− | Why |
 |---|---|---|---|---|
 | 1 | Installer: Ubiquity → Calamares | 22 | +312 / −209 | Ubuntu's installer doesn't exist on Debian. The 8 slideshow images only moved. The 9 Ubiquity HTML slides were deleted, and the same 8 slides were ported to one Calamares `show.qml` (264 lines). |
-| 2 | New ISO build (live-build) | 15 | +545 | Replaces Cubic. All new files; nothing existing changed. |
-| 3 | Encryption tools opt-in | 11 | +221 / −23 | Product requirement, not Debian's. `install-crypto.sh` is most of it. The guide files (`gpg-cheatsheet.md`, `steghide.md`, `steghide.jpg`) were moved unchanged, so only users who choose the tools get them. |
+| 2 | Docs | 20 | +342 | Release notes; developer build guide; end-user install guide. |
+| 3 | New ISO build (live-build) | 16 | +469 | Replaces Cubic. All new files; nothing existing changed. |
 | 4 | Debian package and OS differences | 16 | +115 / −74 | A small edit in each script that named an Ubuntu package, version or URL. |
-| 5 | Desktop parity with r7 | 6 | +77 / −20 | Ubuntu builds in its dock, theme and tray icons; Debian needs them added. No automatic update checks, as in r7. |
-| 6 | Users | 2 | +92 | Users created by the installer get ETC's `et-data` group as primary. |
-| 7 | Build mode | 2 | +53 / −15 | `install.sh` asks nothing during the image build. |
-| 8 | Docs | 2 | +259 | Release notes; end-user install guide. |
+| 5 | Encryption tools opt-in | 11 | +221 / −23 | Distribution requirement, not Debian's. `install-crypto.sh` is most of it. The guide files (`gpg-cheatsheet.md`, `steghide.md`, `steghide.jpg`) were moved unchanged, so only users who choose the tools get them. |
+| 6 | Desktop parity with r7 | 6 | +77 / −20 | Ubuntu builds in its dock, theme and tray icons; Debian needs them added. No automatic update checks, as in r7. |
+| 7 | Users | 2 | +92 | Users created by the installer get ETC's `et-data` group as primary. |
+| 8 | Build mode | 2 | +54 / −15 | `install.sh` asks nothing during the image build. |
 
 ## Beyond the minimum
 
-Changes the goal didn't strictly need, and why they're in. Together they're
-roughly a third of the added lines; dropping them gives the smallest possible
+Changes mostly needed to address goal #6, but aren't strictly needed, and why they're in. Together they're
+about 40% of the added lines; dropping them gives the smallest possible
 migration, at the cost of r7's look and some live-session usability:
 
 | Change | Why it's here | Could drop? |
@@ -121,14 +123,14 @@ migration, at the cost of r7's look and some live-session usability:
 | GNOME parity: Yaru theme, dock, desktop icons, tray icons, window buttons | Look and version parity with r7 | Yes, if r7's look isn't required |
 | Calamares slideshow ported from Ubiquity (`show.qml`) | Branding parity | Yes; Calamares works without it |
 | GRUB menus branded: ETC background on the live ISO's boot menu; "EmComm Tools" and the same background on installed systems | Branding parity | Yes; the stock Debian menus work |
-| `configure-existing-user.sh` | Only for running `install.sh` on an existing Debian system; the ISO doesn't use it | Yes, if only the ISO is supported |
-| Live-session polish: installer icon shown correctly, installer starts without a password, ETC dock in the live session, callsign/grid/Winlink password saved in the live session carried into the installed system | Usability of the live session | Yes; the ISO works without them |
-| Update checks off: GNOME Software settings and login service, apt's daily timers | r7 removed Ubuntu's update-notifier; an offline system shouldn't try | No (requested) |
-| `et-fix-primary-group` (installer step) | ETC shares files through the `et-data` group, and Calamares can't set a primary group | Only by changing ETC's group design |
 | ETC boot splash watermark: Debian's logo diverted (Debian's plymouth puts its own in) | Branding parity | Yes; Debian's logo shows instead |
+| Live-session polish: installer icon shown correctly, installer starts without a password, ETC dock in the live session, callsign/grid/Winlink password saved in the live session carried into the installed system | Usability of the live session | Yes; the ISO works without them |
+| `et-fix-primary-group` (installer step) | ETC shares files through the `et-data` group, and Calamares can't set a primary group | Only by changing ETC's group design |
+| `configure-existing-user.sh` | Only for running `install.sh` on an existing Debian system; the ISO doesn't use it | Yes, if only the ISO is supported |
 | `configure-user.sh` doesn't fail if `et-data` exists | Lets `install.sh` run twice on the same system | Yes; the ISO build runs it once |
+| Update checks off: GNOME Software settings and login service, apt's daily timers | r7 removed Ubuntu's update-notifier; an offline system shouldn't try | No (requested) |
 | `build.sh` keeps live-build's download cache | Faster rebuilds | Yes |
-| End-user install guide with screenshots ([INSTALL-GUIDE.md](INSTALL-GUIDE.md)): Ventoy stick with a folder for maps, `.zim` files and VARA backups; booting; installing; copying those files in after install | The installer and boot steps changed from r7; users need current instructions | Yes; it's documentation only |
+| End-user install guide with screenshots ([INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md)): Ventoy stick with a folder for maps, `.zim` files and VARA backups; booting; installing; copying those files in after install | The installer and boot steps changed from r7; users need current instructions | Yes; it's documentation only |
 
 ## Verified (11–12 Nov 2026)
 
@@ -138,16 +140,26 @@ In VMs, with the network unplugged unless noted:
 |---|---|
 | Build (`live-build/build.sh`) | Completes; `install.sh` 0 failed steps |
 | ISO contents | No build files, logs, SSH host keys or machine-id; encryption tools prepared, not installed; WINE (32- and 64-bit), winetricks and the VARA add-on scripts included |
-| UEFI, Secure Boot on: live session | ETC boot menu, splash, desktop and dock; installer starts without a password; Optional software page text; slideshow advances |
+| UEFI, Secure Boot on: live session | ETC boot menu, splash, desktop and dock; installer starts without a password; Optional software page text, including the encryption legal notice; slideshow advances |
 | UEFI, Secure Boot on: install with encryption tools | Tools and guides installed from the ISO |
 | UEFI, Secure Boot on: install without encryption tools | No tools, guides or marker; add-on still available |
-| UEFI, Secure Boot on: installed system | Boots; ETC splash, dock, wallpaper; `et-data` primary group; SSH server running; apt sources include `contrib` and `non-free`; update checks off; ETC test suite passes except xara (no source package) |
-| BIOS (no UEFI): live boot and install | Boots and installs; BIOS GRUB installed from the ISO |
+| UEFI, Secure Boot on: installed system | Boots; GRUB menu shows "EmComm Tools" with the ETC background; ETC splash, dock, wallpaper; `et-data` primary group; SSH server running; apt sources include `contrib` and `non-free`; update checks off; ETC test suite passes except xara (no source package) |
+| BIOS (no UEFI): live boot and install | Boots and installs; BIOS GRUB installed from the ISO (tested before GRUB branding was added) |
+| UEFI, Secure Boot on: live settings carry-over | Callsign and grid saved in the live session are in the installed user's `user.json`, with the `first-login-complete` marker, owned by the new user; setup doesn't open at first login. The first try failed: Calamares 3.2 needs `@@ROOT@@ @@USER@@`, not `${ROOT} ${USER}`. Passed with that fix applied by hand in the live session; the fix isn't in a built ISO yet |
 | Ventoy 1.1.10, UEFI, Secure Boot off | ISO boots from a Ventoy stick to the ETC boot menu and live desktop |
 
-Not tested yet: the encryption legal notice in the installer (added after the
-last build), the installed system's GRUB branding, Ventoy with Secure Boot on,
-and hardware with a radio (CAT, audio, JS8Call, WSJT-X, VARA under WINE).
+Not tested yet:
+
+- The live settings carry-over fix in a rebuilt ISO, including an install after
+  **Cancel** in the live session (setup should then open at first login)
+- GRUB branding on BIOS: the live ISO's boot menu and the installed system's
+  menu
+- Installing with **Encrypt system** (full-disk encryption) on the Partitions
+  page
+- Ventoy with Secure Boot on
+- The install guide's after-install steps: copying files from the Ventoy stick,
+  the VARA scripts (needs internet), restoring a WINE backup
+- Hardware with a radio (CAT, audio, JS8Call, WSJT-X, VARA under WINE)
 
 ## Files in each category
 
@@ -162,7 +174,15 @@ and hardware with a radio (CAT, audio, JS8Call, WSJT-X, VARA under WINE).
 | `overlay/etc/calamares/branding/emcomm-tools/branding.desc`, `logo.png` | New: installer name and logo |
 | `scripts/debrand.sh` | Installs the Calamares branding instead of Ubiquity's; drops the Cubic kernel reinstall |
 
-### 2. New ISO build (live-build)
+### 2. Docs
+
+| File | Change |
+|---|---|
+| `RELEASES.md` | Release entry |
+| `ISO-BUILD-PLAN.md` | New: developer guide for building and publishing ISOs |
+| `docs/INSTALL-GUIDE.md`, `docs/install-guide/images/` | New: end-user guide (Ventoy USB stick with room for maps, `.zim` files and VARA backups; installing; after install) |
+
+### 3. New ISO build (live-build)
 
 | File | Purpose |
 |---|---|
@@ -172,22 +192,16 @@ and hardware with a radio (CAT, audio, JS8Call, WSJT-X, VARA under WINE).
 | `live-build/config/package-lists/emcomm-tools.list.chroot` | GNOME and Calamares in the image |
 | `live-build/config/package-lists/installer.list.binary` | GRUB packages carried in the ISO, so installs work offline |
 | `live-build/config/includes.chroot/etc/calamares/settings.conf` | Installer steps (Debian's, plus ETC's five) |
-| `live-build/config/includes.chroot/etc/calamares/modules/*.conf` (6) | Groups for new users, Optional software page, offline encryption install, ETC setup (primary group, SSH host keys), live settings carry-over, apt sources (Debian's installer drops `contrib` and `non-free`; this puts them back) |
+| `live-build/config/includes.chroot/etc/calamares/modules/users.conf` | Groups for new users |
+| `live-build/config/includes.chroot/etc/calamares/modules/packagechooser-crypto.conf` | Optional software page |
+| `live-build/config/includes.chroot/etc/calamares/modules/contextualprocess-crypto.conf` | Installs the encryption tools offline if selected |
+| `live-build/config/includes.chroot/etc/calamares/modules/shellprocess-etc-setup.conf` | ETC setup: primary group, SSH host keys |
+| `live-build/config/includes.chroot/etc/calamares/modules/shellprocess-etc-live-settings.conf` | Carries the callsign, grid and Winlink password saved in the live session to the new user |
+| `live-build/config/includes.chroot/etc/calamares/modules/shellprocess-etc-sources.conf` | apt sources: Debian's installer drops `contrib` and `non-free`; this puts them back |
 | `live-build/config/includes.chroot/usr/local/sbin/et-carry-live-settings` | Copies the callsign, grid and Winlink password saved in the live session to the new user |
-| `live-build/config/includes.chroot/…/et-trust-live-installer` (2) | Live session: shows the installer icon as trusted on GNOME |
+| `live-build/config/includes.chroot/usr/local/bin/et-trust-live-installer` | Live session: marks the installer icon as trusted on GNOME |
+| `live-build/config/includes.chroot/etc/xdg/autostart/et-trust-live-installer.desktop` | Live session: runs `et-trust-live-installer` at login |
 | `live-build/config/includes.chroot/usr/lib/live/config/2500-etc-installer-polkit` | Live session: the installer starts without a password |
-| `ISO-BUILD-PLAN.md` | Developer guide: building and publishing ISOs |
-
-### 3. Encryption tools opt-in
-
-| File | Change |
-|---|---|
-| `scripts/install-crypto.sh` | New: installs GPA, PFTE, VeraCrypt, steghide, gpg and guides; or prepares them for the installer and installs them offline |
-| `scripts/crypto-docs/gpg-cheatsheet.md`, `steghide.md`, `steghide.jpg` | Moved unchanged from `overlay/etc/skel/Desktop/offline/crypto/` (which every user got), so they're only installed with the tools |
-| `scripts/install-offline-lib-crypto.json`, `install-offline-lib.json` | AmRRON key and GPG guide moved to the crypto list |
-| `scripts/install-offline-lib.sh` | Takes a file list and destination |
-| `scripts/install-pfte.sh`, `install-veracrypt.sh` | Download-only mode, for the offline install |
-| `tests/test-gpa.sh`, `test-pfte.sh` | Pass when the tools weren't chosen |
 
 ### 4. Debian package and OS differences
 
@@ -207,7 +221,18 @@ and hardware with a radio (CAT, audio, JS8Call, WSJT-X, VARA under WINE).
 | `scripts/configure-user.sh` | Don't fail if `et-data` already exists |
 | `tests/test-java.sh`, `test-python.sh` | Expect Java 17 and Python 3 |
 
-### 5. Desktop parity with r7
+### 5. Encryption tools opt-in
+
+| File | Change |
+|---|---|
+| `scripts/install-crypto.sh` | New: installs GPA, PFTE, VeraCrypt, steghide, gpg and guides; or prepares them for the installer and installs them offline |
+| `scripts/crypto-docs/gpg-cheatsheet.md`, `steghide.md`, `steghide.jpg` | Moved unchanged from `overlay/etc/skel/Desktop/offline/crypto/` (which every user got), so they're only installed with the tools |
+| `scripts/install-offline-lib-crypto.json`, `install-offline-lib.json` | AmRRON key and GPG guide moved to the crypto list |
+| `scripts/install-offline-lib.sh` | Takes a file list and destination |
+| `scripts/install-pfte.sh`, `install-veracrypt.sh` | Download-only mode, for the offline install |
+| `tests/test-gpa.sh`, `test-pfte.sh` | Pass when the tools weren't chosen |
+
+### 6. Desktop parity with r7
 
 | File | Change |
 |---|---|
@@ -217,25 +242,16 @@ and hardware with a radio (CAT, audio, JS8Call, WSJT-X, VARA under WINE).
 | `logos/emcomm-tools-boot-800x600.png`, `-640x480.png` | New: GRUB menu background for the live ISO (via `live-build/build.sh`) and installed systems |
 | `overlay/etc/skel/.config/autostart/org.gnome.Software.desktop` | New: GNOME Software's update service doesn't start at login (the app still opens) |
 
-### 6. Users
+### 7. Users
 
 | File | Change |
 |---|---|
 | `overlay/opt/emcomm-tools/bin/et-fix-primary-group` | New: `et-data` as primary group for users the installer creates |
 | `scripts/configure-existing-user.sh` | New: sets up the user when `install.sh` runs on an existing Debian system (not used by the ISO) |
 
-### 7. Build mode
+### 8. Build mode
 
 | File | Change |
 |---|---|
-| `scripts/install.sh` | `ET_BUILD=1`: no prompts; maps chosen at first login; encryption tools prepared, not asked |
+| `scripts/install.sh` | `ET_BUILD=1`: no prompts; only the world map; encryption tools prepared, not asked |
 | `scripts/download-et-maps.sh` | Country can be passed instead of asked |
-
-### 8. Docs
-
-| File | Change |
-|---|---|
-| `RELEASES.md` | Release entry |
-| `docs/INSTALL-GUIDE.md`, `docs/install-guide/images/` | New: end-user guide (Ventoy USB stick with room for maps, `.zim` files and VARA backups; installing; after install) |
-
-The developer build guide is `ISO-BUILD-PLAN.md` (category 2).

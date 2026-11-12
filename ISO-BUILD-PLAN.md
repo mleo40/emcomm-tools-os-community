@@ -6,7 +6,7 @@ and install it with the installer (Calamares). Building the image needs internet
 finished ISO boots, installs and runs without it.
 
 Why the project moved to this method, and what changed to get here, is in
-[docs/CHANGES-OVERVIEW.md](docs/CHANGES-OVERVIEW.md).
+[CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md).
 
 ## What you need
 

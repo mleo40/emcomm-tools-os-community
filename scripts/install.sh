@@ -6,7 +6,8 @@
 # Purpose : Main installer for EmComm Tools Community (ETC)
 #
 # ET_BUILD=1: image build (live-build chroot, see live-build/). Nothing is
-# asked: maps are chosen at first login (the global map is included), the
+# asked: only the global map is included (users copy in other maps after
+# install), the
 # encryption tools are prepared for the installer's optional page instead of
 # asked for, and there is no existing user to set up.
 
@@ -63,7 +64,7 @@ exitIfNotRoot
 
 # Add user-specific data
 if [[ -n "${ET_BUILD}" ]]; then
-  et-log "Build mode: the OSM state map is chosen at first login."
+  et-log "Build mode: no OSM state map is included."
 else
   ./download-osm-maps.sh
 fi
