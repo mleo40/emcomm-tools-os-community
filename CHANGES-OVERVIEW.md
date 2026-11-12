@@ -87,7 +87,7 @@ Debian 12 install. To watch in hardware testing: VARA under WINE 8.0.
 ## Size/Scope of this migration
 
 Branch `feature/debian-live-iso` against `release/r7`: **95 files,
-+1,682 / −341 lines** (not counting this document).
++1,685 / −341 lines** (not counting this document).
 
 It's less than it looks:
 
@@ -105,7 +105,7 @@ It's less than it looks:
 |---|---|---|---|---|
 | 1 | Installer: Ubiquity → Calamares | 22 | +312 / −209 | Ubuntu's installer doesn't exist on Debian. The 8 slideshow images only moved. The 9 Ubiquity HTML slides were deleted, and the same 8 slides were ported to one Calamares `show.qml` (264 lines). |
 | 2 | Docs | 20 | +342 | Release notes; developer build guide; end-user install guide. |
-| 3 | New ISO build (live-build) | 16 | +469 | Replaces Cubic. All new files; nothing existing changed. |
+| 3 | New ISO build (live-build) | 16 | +472 | Replaces Cubic. All new files; nothing existing changed. |
 | 4 | Debian package and OS differences | 16 | +115 / −74 | A small edit in each script that named an Ubuntu package, version or URL. |
 | 5 | Encryption tools opt-in | 11 | +221 / −23 | Distribution requirement, not Debian's. `install-crypto.sh` is most of it. The guide files (`gpg-cheatsheet.md`, `steghide.md`, `steghide.jpg`) were moved unchanged, so only users who choose the tools get them. |
 | 6 | Desktop parity with r7 | 6 | +77 / −20 | Ubuntu builds in its dock, theme and tray icons; Debian needs them added. No automatic update checks, as in r7. |
@@ -145,13 +145,14 @@ In VMs, with the network unplugged unless noted:
 | UEFI, Secure Boot on: install without encryption tools | No tools, guides or marker; add-on still available |
 | UEFI, Secure Boot on: installed system | Boots; GRUB menu shows "EmComm Tools" with the ETC background; ETC splash, dock, wallpaper; `et-data` primary group; SSH server running; apt sources include `contrib` and `non-free`; update checks off; ETC test suite passes except xara (no source package) |
 | BIOS (no UEFI): live boot and install | Boots and installs; BIOS GRUB installed from the ISO (tested before GRUB branding was added) |
-| UEFI, Secure Boot on: live settings carry-over | Callsign and grid saved in the live session are in the installed user's `user.json`, with the `first-login-complete` marker, owned by the new user; setup doesn't open at first login. The first try failed: Calamares 3.2 needs `@@ROOT@@ @@USER@@`, not `${ROOT} ${USER}`. Passed with that fix applied by hand in the live session; the fix isn't in a built ISO yet |
+| UEFI, Secure Boot on: live settings carry-over | Callsign and grid saved in the live session are in the installed user's `user.json`, with the `first-login-complete` marker, owned by the new user; setup doesn't open at first login. Passed in the ISO built from 180a991. The same ISO failed the **Cancel** case: Cancel also writes the marker, so the default settings were copied and setup didn't open. Fixed by also checking that `user.json` differs from the `/etc/skel` default; the check passed on the installed system, but the fix isn't in a built ISO yet |
 | Ventoy 1.1.10, UEFI, Secure Boot off | ISO boots from a Ventoy stick to the ETC boot menu and live desktop |
 
 Not tested yet:
 
-- The live settings carry-over fix in a rebuilt ISO, including an install after
-  **Cancel** in the live session (setup should then open at first login)
+- The carry-over **Cancel** fix in a rebuilt ISO: install after **Cancel** in
+  the live session (setup should then open at first login), and again with a
+  callsign saved
 - GRUB branding on BIOS: the live ISO's boot menu and the installed system's
   menu
 - Installing with **Encrypt system** (full-disk encryption) on the Partitions

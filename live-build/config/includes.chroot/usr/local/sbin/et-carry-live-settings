@@ -20,8 +20,11 @@ NEW_USER="$2"
 LIVE_HOME=$(getent passwd 1000 | cut -d: -f6)
 SRC="${LIVE_HOME}/.config/emcomm-tools"
 
-# Only if the live user clicked Save (et-user-first-login writes the marker).
+# Only if the live user clicked Save. et-user-first-login writes the marker on
+# Cancel too, so also check that user.json is no longer the /etc/skel default
+# (Save rewrites it; Cancel leaves it as is).
 [[ -f "${SRC}/first-login-complete" && -f "${SRC}/user.json" ]] || exit 0
+cmp -s "${SRC}/user.json" /etc/skel/.config/emcomm-tools/user.json && exit 0
 
 NEW_HOME=$(chroot "${ROOT}" getent passwd "${NEW_USER}" | cut -d: -f6)
 [[ -n "${NEW_HOME}" ]] || exit 0
