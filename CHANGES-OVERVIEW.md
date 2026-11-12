@@ -32,6 +32,18 @@ The following describe changes that need decisions from the ETC Dev before movin
 desktop with EmComm Tools, without installing anything. Installing to disk only
 happens when the user clicks **Install EmComm Tools**.
 
+**et-api's missing data file (upstream bug, also in r7).** et-api 1.3.0
+indexes NWS forecast zones from `data/weather-forecast-zone.csv`, but neither
+its release nor ETC provides that file, so et-api fails at first start. Without
+a GPS it exits and systemd restarts it; with a GPS connected, its gpsd
+connection keeps the failed process alive with no web server, so et-predict and
+et-aircraft get nothing until et-api is restarted by hand (every live boot, and
+an installed system's first login). The file is the National Weather Service's
+public-domain zone–county correlation file, which matches et-api's format
+exactly. The ISO build hook downloads it (pinned version and checksum) to
+that path, so et-api's install script and config are unchanged from r7.
+**For the ETC developer to review:** publish the file with et-api.
+
 **Java version: OpenJDK 17 instead of 20.** r7 uses OpenJDK 20, which Debian 12 doesn't have. This branch uses Debian's
 OpenJDK 17 (Debian security updates). ETC's Java apps need at most Java 11
 (et-api) and Java 9 (YAAC), and et-api runs on 17 in testing. The alternative
@@ -97,8 +109,8 @@ Debian 12 install. To watch in hardware testing: VARA under WINE 8.0.
 ## Size/Scope of this migration
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
-(`emcomm-tools-os-community-20261111-r7-build37`, merged in): **96 files,
-+1,689 / −341 lines** (not counting this document).
+(`emcomm-tools-os-community-20261111-r7-build37`, merged in): **97 files,
++1,931 / −341 lines** (not counting this document).
 
 It's less than it looks:
 
@@ -115,8 +127,8 @@ It's less than it looks:
 | # | Category | Files | Lines +/− | Why |
 |---|---|---|---|---|
 | 1 | Installer: Ubiquity → Calamares | 23 | +344 / −209 | Ubuntu's installer doesn't exist on Debian. The 8 slideshow images only moved. The 9 Ubiquity HTML slides were deleted, and the same 8 slides were ported to one Calamares `show.qml` (264 lines). |
-| 2 | Docs | 20 | +302 | Release notes; developer build guide; end-user install guide. |
-| 3 | New ISO build (live-build) | 16 | +484 | Replaces Cubic. All new files; nothing existing changed. |
+| 2 | Docs | 20 | +305 | Release notes; developer build guide; end-user install guide. |
+| 3 | New ISO build (live-build) | 17 | +723 | Replaces Cubic. All new files; nothing existing changed. |
 | 4 | Debian package and OS differences | 16 | +115 / −74 | A small edit in each script that named an Ubuntu package, version or URL. |
 | 5 | Encryption tools opt-in | 11 | +221 / −23 | Distribution requirement, not Debian's. `install-crypto.sh` is most of it. The guide files (`gpg-cheatsheet.md`, `steghide.md`, `steghide.jpg`) were moved unchanged, so only users who choose the tools get them. |
 | 6 | Desktop parity with r7 | 6 | +77 / −20 | Ubuntu builds in its dock, theme and tray icons; Debian needs them added. No automatic update checks, as in r7. |
@@ -161,6 +173,7 @@ were on real hardware:
 | BIOS (no UEFI): live boot and install | Boots and installs; BIOS GRUB installed from the ISO (tested before GRUB branding was added) |
 | UEFI, Secure Boot on: live settings carry-over | Callsign and grid saved in the live session are in the installed user's `user.json`, with the `first-login-complete` marker, owned by the new user; setup doesn't open at first login. Passed in the ISO built from 180a991. The same ISO failed the **Cancel** case: Cancel also writes the marker, so the default settings were copied and setup didn't open. Fixed by also checking that `user.json` differs from the `/etc/skel` default; the check passed on the installed system, the fix is in the ISO built from 22beb66 |
 | Ventoy 1.1.10, UEFI, Secure Boot off | ISO boots from a Ventoy stick to the ETC boot menu and live desktop |
+| Laptop, live session, GPS connected | et-api hang reproduced; with the NWS file added by hand, et-api's first start builds all indexes in 15 s with no restart; GPS position, callsign, aircraft and forecast-zone lookups work |
 | Laptop, live session, DigiRig Lite | JS8Call, WSJT-X and Winlink over ARDOP use the DigiRig for audio input and output |
 
 ## Files in each category
@@ -190,8 +203,9 @@ were on real hardware:
 | File | Purpose |
 |---|---|
 | `live-build/build.sh` | The one build command |
-| `live-build/config/hooks/normal/0900-emcomm-tools.hook.chroot` | Runs `install.sh` inside the image (before Debian's cleanup hooks); keeps a read-only repository copy in `/opt/emcomm-tools-os-community`; removes build files; ETC launchers in the live dock |
+| `live-build/config/hooks/normal/0900-emcomm-tools.hook.chroot` | Runs `install.sh` inside the image (before Debian's cleanup hooks); adds et-api's NWS forecast zone data file; keeps a read-only repository copy in `/opt/emcomm-tools-os-community`; removes build files; ETC launchers in the live dock |
 | `live-build/config/hooks/normal/0910-grub-pc-pool.hook.binary` | Adds BIOS GRUB to the ISO's package pool (it conflicts with UEFI GRUB, so it can't go in the package list) |
+| `tests/validate-install.sh` | New: checks an installed system (or the live session) and runs ETC's app tests; PASS/FAIL/WARN/SKIP summary |
 | `live-build/config/package-lists/emcomm-tools.list.chroot` | GNOME and Calamares in the image |
 | `live-build/config/package-lists/installer.list.binary` | GRUB packages carried in the ISO, so installs work offline |
 | `live-build/config/includes.chroot/etc/calamares/settings.conf` | Installer steps (Debian's, plus ETC's five) |

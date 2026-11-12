@@ -23,6 +23,24 @@ export ET_BUILD=1
 ./install.sh
 RC=$?
 
+# et-api's NWS forecast zone data. et-api 1.3.0 reads it from
+# data/weather-forecast-zone.csv, but neither its release nor ETC provides it:
+# without it et-api fails at first start, and with a GPS connected the failed
+# process hangs instead of restarting. It's the National Weather Service's
+# zone-county correlation file (public domain, https://www.weather.gov/gis/ZoneCounty).
+# Staged here, for the ISO only, so et-api's install and config stay as in r7.
+NWS_URL="https://www.weather.gov/source/gis/Shapefiles/County/bp16ap26.dbx"
+NWS_SHA256="69d3472d4d576b8a4924efb7a43108f7c64111f503e15efd650f43dc617a6f12"
+NWS_FILE=/opt/emcomm-tools-api/data/weather-forecast-zone.csv
+if curl -L -f -s --retry 3 -o "${NWS_FILE}" "${NWS_URL}" \
+   && echo "${NWS_SHA256}  ${NWS_FILE}" | sha256sum -c --quiet -; then
+  chgrp et-data "${NWS_FILE}" && chmod 664 "${NWS_FILE}"
+  echo "et-api forecast zone data: ${NWS_FILE}"
+else
+  rm -f "${NWS_FILE}"
+  echo "\"download ${NWS_URL}\" command failed with exit code 1." >> "${LOG}"
+fi
+
 echo "=== EmComm Tools build: install.sh exit code ${RC} ==="
 if [[ -f "${LOG}" ]]; then
   FAILED=$(grep -c 'failed with exit code' "${LOG}" || true)

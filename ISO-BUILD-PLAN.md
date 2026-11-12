@@ -120,8 +120,11 @@ In a VM with UEFI and Secure Boot on, and with no network:
    - `id` shows `et-data` as the primary group
    - `systemctl is-active ssh` is `active`
    - the encryption tools are there only if they were selected
-5. Run the ETC test suite:
-   `cd /opt/emcomm-tools-os-community/tests && ./run-test-suite.sh`. `test-xara` fails: xara isn't in the ISO.
+5. As the installed user, run the install check, which also runs ETC's app
+   tests: `/opt/emcomm-tools-os-community/tests/validate-install.sh`. It
+   reports PASS, FAIL, WARN and SKIP for each check and exits with the number
+   of failures. Plug in the radio audio interface and GPS first to include
+   them.
 
 Also boot it once on a BIOS (non-UEFI) machine or VM.
 
