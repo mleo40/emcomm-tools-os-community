@@ -1,27 +1,12 @@
 The base WINE applications have been installed to support a future
 installation of Windows programs such as VARA HF, VARA FM, and VARA
-Terminal. However, these applications can't be installed within this
-session of Cubic. They must be installed on a running version of 
-EmComm Tools Community via a desktop session.
+Terminal. These applications can't be installed by this script. Install
+them from a desktop session with the scripts in $HOME/add-ons/wine.
 
 If you previously made a backup copy of your WINE installation using
-the "$HOME/add-ons/wine/05-backup-wine-install.sh" script and would 
-like to bake it into this ISO image, perform the following:
+the "$HOME/add-ons/wine/05-backup-wine-install.sh" script, restore it in
+your home folder instead:
 
-1. Change into the skeleton directory now with:
+   cd ~ && tar -xzf /path/to/etc-wine-backup-*.tar.gz
 
-   cd /etc/skel
-
-2. Copy your etc-wine-backup-*.tar.gz file using Cubic to this 
-   directory.
-
-3. Restore the backup into this directory with:
-
-   tar -xzf etc-wine-backup-*.tar.gz
-
-4. Confirm that you see a `.wine32` directory here.
-
-5. Delete the compressed backup file to reduce the size of the 
-   final image.
-
-   rm etc-wine-backup-*.tar.gz
+Confirm that you see a `.wine32` directory in your home folder.

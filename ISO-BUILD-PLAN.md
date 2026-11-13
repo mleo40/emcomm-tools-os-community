@@ -71,11 +71,11 @@ it asks which file to download, and the build runs without prompts.
 |---|---|
 | Debian 12, GNOME, EmComm Tools | Installed |
 | Maps | The global map (80 MB). How users add other maps after install is still to be decided (see [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md)) |
-| Encryption tools (GPA, PFTE, steghide, guides) | Carried, not installed. The person installing chooses them on the installer's **Optional software** page (not selected by default); they install from the ISO, no internet needed. They can also be added later from `/opt/emcomm-tools/add-ons/crypto` |
+| Encryption tools (GPA, PFTE, steghide, guides) | Carried, not installed. The person installing chooses them on the installer's **Optional software** page (not selected by default); they install from the ISO, no internet needed. They can also be added later, offline: `sudo /opt/emcomm-tools-os-community/scripts/install-crypto.sh --offline` |
 | GRUB for UEFI and BIOS | Carried, so installs work offline |
 | xara modem | Not included (its source was withdrawn; a `xara-*.tar.gz` in `scripts/` isn't copied). Rust is installed. How users add xara after install is still to be decided (see [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md)) |
 | Live session login | Debian's defaults: user `user`, password `live`. Only in the live session; installed systems have only the account created in the installer |
-| This repository | A read-only copy in `/opt/emcomm-tools-os-community` (about 12 MB, no git history): ETC's scripts and test suite, matching the ISO |
+| This repository | A read-only copy in `/opt/emcomm-tools-os-community` (about 12 MB, no git history): ETC's scripts and test suite, matching the ISO. `scripts/install.sh` there isn't executable, so it isn't run over an installed system by accident (`sudo bash install.sh` runs it on purpose) |
 | Accounts, home folders, SSH host keys, machine-id, logs, build files | None. Each installed system gets its own SSH host keys and machine-id |
 
 ## How the build works
@@ -104,8 +104,9 @@ The installer settings are in
 `live-build/config/includes.chroot/etc/calamares/`: Debian's settings with
 ETC's branding, the Optional software page, and ETC steps that give new users
 `et-data` as primary group, create SSH host keys, carry over the callsign and
-grid saved in the live session, and restore `contrib`/`non-free` in apt
-sources.
+grid saved in the live session, restore `contrib`/`non-free` in apt
+sources, and remove the installer and the live-session helpers from the new
+system (as r7's installer removed itself).
 
 ## Test before publishing
 

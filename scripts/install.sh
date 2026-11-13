@@ -8,7 +8,7 @@
 # ET_BUILD=1: image build (live-build chroot, see live-build/). Nothing is
 # asked: only the global map is included, the encryption tools are prepared
 # for the installer's optional page instead of asked for, and there is no
-# existing user to set up.
+# user to set up (the installer creates it).
 
 . ./env.sh
 . ./functions.sh
@@ -155,29 +155,9 @@ fi
 ./install-rust.sh
 ./install-xara.sh
 
-# Optional encryption tools (opt-in, default No). Always stage the add-on so it
-# can be installed later, including on systems installed from an ISO.
-./install-crypto.sh --stage
-if [[ -n "${ET_BUILD}" ]]; then
-  # Installed only if ticked on the installer's Optional software page.
-  ./install-crypto.sh --prepare
-else
-  case "${ET_CRYPTO}" in
-    yes) ./install-crypto.sh --yes ;;
-    no)  et-log "ET_CRYPTO=no: encryption tools not installed." ;;
-    *)   if [ -t 0 ]; then
-           ./install-crypto.sh
-         else
-           et-log "No terminal for the encryption prompt: encryption tools not installed."
-         fi ;;
-  esac
-fi
+# Install Veracrypt
+#./install-veracrypt.sh
 
-if [[ -n "${ET_BUILD}" ]]; then
-  et-log "Build mode done."
-  exit 0
-fi
-
-# Apply the user setup to the account running this script (run last, after
-# everything has been added to /etc/skel).
-./configure-existing-user.sh
+# Optional encryption tools: prepared for the installer's Optional software
+# page, installed only if selected there.
+./install-crypto.sh --prepare

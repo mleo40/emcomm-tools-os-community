@@ -99,7 +99,8 @@ check "GNOME Software update service off at login" \
   "grep -qx 'Hidden=true' ${HOME}/.config/autostart/org.gnome.Software.desktop"
 check "Conky starts at login" "test -e ${HOME}/.config/autostart/conky.desktop"
 if install_only "Installer not left installed"; then
-  dpkg -s calamares >/dev/null 2>&1 && warn "Installer still installed (\"Install System\" in the app menu; Debian's default)" || pass "Installer removed"
+  dpkg -s calamares >/dev/null 2>&1 && fail "Installer still installed (\"Install System\" in the app menu)" || pass "Installer removed"
+  check "Installer settings removed (/etc/calamares)" "! test -e /etc/calamares"
 fi
 
 # --------------------------------------------------------------------------
@@ -160,7 +161,7 @@ command -v xara >/dev/null && pass "xara installed" || info "xara not installed 
 
 # --------------------------------------------------------------------------
 section "Encryption tools"
-check "Add-on available for later" "test -x /opt/emcomm-tools/add-ons/crypto/scripts/install-crypto.sh"
+check "Encryption tools can be added later (offline)" "test -x /opt/emcomm-tools-os-community/scripts/install-crypto.sh && test -d /opt/emcomm-tools/add-ons/crypto/payload/debs"
 CRYPTO_BIN=(gpa:/usr/local/bin/gpa pfte:/opt/pfte/bin steghide:/usr/bin/steghide)
 if [[ -e /etc/emcomm-tools/crypto-enabled ]]; then
   info "Encryption tools were selected"
@@ -177,6 +178,7 @@ section "Files"
 if [[ -r /opt/emcomm-tools-os-community/scripts/install.sh ]]; then
   pass "Repository copy in /opt/emcomm-tools-os-community"
   check "Repository copy is read-only for users" "! test -w /opt/emcomm-tools-os-community/scripts"
+  check "install.sh not executable (no accidental reinstall)" "! test -x /opt/emcomm-tools-os-community/scripts/install.sh"
 else
   fail "Repository copy missing: /opt/emcomm-tools-os-community"
 fi

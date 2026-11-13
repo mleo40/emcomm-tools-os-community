@@ -23,8 +23,8 @@ in this directory as your normal user (do not use 'sudo').
 
     ./04-run-regedit.sh
 
-5. If you want to include your WINE installation in a future EmComm Tools
-   Community image build, run the following to make a backup of your WINE
+5. If you want to restore your WINE installation on another ETC system (or
+   after reinstalling), run the following to make a backup of your WINE
    installation now.
 
     ./05-backup-wine-install.sh
@@ -32,24 +32,19 @@ in this directory as your normal user (do not use 'sudo').
 It is important that you do not run any of the VARA programs until after
 the backup is run in step 5.
 
-## Including VARA in an ETC ISO image
+## Restoring VARA on another ETC system
 
-If you want to include VARA in a future EmComm Tools Community image build,
-perform the following in Cubic after the main install script is finished.
+ETC ISOs don't include a WINE installation. To restore the backup made in
+step 5 on another ETC system (or after reinstalling):
 
-1. Change into the `/etc/skel` directory.
+1. Copy the backup file (`etc-wine-backup-HOST-YYYYMMDD.tar.gz`) to the system,
+   for example from a USB stick.
 
-2. Copy the WINE backup file created in step 5 using the file copy option
-   in Cubic (i.e. `etc-wine-backup-HOST-YYYYMMDD.tar.gz`).
-
-3. Unpack the backup file. This will create `/etc/skel/.wine32`.
+2. Unpack it in your home folder. This creates `~/.wine32`.
 
 ```
-tar -xzf etc-wine-backup-*
+cd ~ && tar -xzf /path/to/etc-wine-backup-*.tar.gz
 ```
 
-4. Delete the backup file on the Cubic session to save on space.
-
-```
-rm etc-wine-backup-*
-```
+The backup can include your VARA registration, so don't add it to an ISO you
+share with others.

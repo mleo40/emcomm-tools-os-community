@@ -49,8 +49,10 @@ if [[ -f "${LOG}" ]]; then
   grep 'failed with exit code' "${LOG}" || true
 fi
 
-# Live installer launcher: ETC's name instead of "Install Debian".
-sed -i 's/^Name=.*/Name=Install EmComm Tools/' /usr/share/applications/install-debian.desktop
+# Live installer launcher: ETC's name and logo instead of Debian's.
+sed -i -e 's/^Name=.*/Name=Install EmComm Tools/' \
+  -e 's|^Icon=.*|Icon=/etc/calamares/branding/emcomm-tools/logo.png|' \
+  /usr/share/applications/install-debian.desktop
 
 # Live session dock: Debian's live settings (96_calamares-settings-debian,
 # from calamares-settings-debian, which the installer removes) override ETC's dock
@@ -70,6 +72,10 @@ git -c safe.directory='*' -C "${BUILD_DIR}" clean -fdxq
 rm -rf "${BUILD_DIR}/.git"
 chown -R root:root "${BUILD_DIR}"
 chmod -R u+rwX,go+rX,go-w "${BUILD_DIR}"
+# install.sh would reinstall everything over an installed system: not
+# executable here, so it isn't run by accident ('sudo bash install.sh' still
+# runs it on purpose).
+chmod a-x "${BUILD_DIR}/scripts/install.sh"
 
 # Nothing else from the build stays in the image.
 rm -rf /tmp/et /opt/dist /opt/src 2>/dev/null

@@ -9,7 +9,7 @@ picture-uri = 'file:///usr/share/backgrounds/emcomm-tools-wallpaper.png'
 [org.gnome.shell]
 favorite-apps = ['et-user.desktop', 'js8call.desktop', 'fldigi.desktop', 'et-predict-app.desktop', 'et-aircraft.desktop', 'org.gnome.Terminal.desktop', 'navit.desktop', 'min.desktop', 'org.gnome.Nautilus.desktop']
 last-selected-power-profile = 'performance'
-enabled-extensions = ['dash-to-dock@micxgx.gmail.com', 'ding@rastersoft.com', 'ubuntu-appindicators@ubuntu.com']
+enabled-extensions = ['dash-to-dock@micxgx.gmail.com', 'ding@rastersoft.com', 'ubuntu-appindicators@ubuntu.com', 'user-theme@gnome-shell-extensions.gcampax.github.com']
 
 [org.gnome.system.location]
 enabled = false
@@ -42,6 +42,10 @@ ambient-enabled = false
 dock-position = 'LEFT'
 dock-fixed = true
 extend-height = true
+
+# Yaru shell theme (top bar and menus), as Ubuntu's session has built in.
+[org.gnome.shell.extensions.user-theme]
+name = 'Yaru-dark'
 
 [org.gnome.desktop.wm.preferences]
 button-layout = 'appmenu:minimize,maximize,close'
