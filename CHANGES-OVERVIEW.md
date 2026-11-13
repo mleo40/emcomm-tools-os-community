@@ -18,24 +18,13 @@ now on: [ISO-BUILD-PLAN.md](ISO-BUILD-PLAN.md).
 The following describe changes that need the attention of the ETC Dev before
 moving forward.
 
-**New behavior: the ISO is a live system.** It boots into a working GNOME
+**New: the ISO is a live system.** It boots into a working GNOME
 desktop with EmComm Tools, without installing anything. Installing to disk only
 happens when the user clicks **Install EmComm Tools**.
 
 **New: encryption tools are opt-in** (`install-crypto.sh`) and offered during
-the user install experience now. The packages ship in the ISO but aren't
+the user install now. The packages ship in the ISO but aren't
 installed by default, unlike r7.
-
-**et-api's missing data file (upstream bug, also in r7).** et-api 1.3.0
-indexes NWS forecast zones from `data/weather-forecast-zone.csv`, but neither
-its release nor ETC provides that file, so et-api fails at first start. Without
-a GPS it exits and systemd restarts it; with a GPS connected, its gpsd
-connection keeps the failed process alive with no web server, so et-predict and
-et-aircraft get nothing until et-api is restarted by hand (every live boot, and
-an installed system's first login). The file is the National Weather Service's
-public-domain zone–county correlation file, which matches et-api's format
-exactly. The ISO build hook downloads it (pinned version and checksum) to
-that path, so et-api's install script and config are unchanged from r7.
 
 **Java version: OpenJDK 17 instead of 20.** r7 uses OpenJDK 20, which Debian
 12 doesn't have. This branch uses Debian's OpenJDK 17 (Debian security
@@ -92,7 +81,7 @@ VARA under WINE 8.0 still needs testing.
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
 (`emcomm-tools-os-community-20261111-r7-build37`, merged in): **96 files,
-+1,300 / −380 lines** (not counting this document).
++1,283 / −380 lines** (not counting this document).
 
 It's less than it looks:
 
@@ -101,18 +90,17 @@ It's less than it looks:
   images, encryption guide files) and 11 deleted
   Ubuntu/Cubic files.
 - Most edits to existing scripts are 1–10 lines.
-- It's planned as one PR with six commits, each reviewable on its own. The
+- It's planned as one PR with five commits, each reviewable on its own. The
   core comes first; the others build on it in any order. Estimated sizes
   against r7:
 
 | Commit | Files | Lines | Share | Why |
 |---|---|---|---|---|
-| 1. Core: Debian 12, live-build ISO, Calamares installer | 42 | +602 / −166 | 46% | Ubuntu's installer and Cubic don't exist on Debian. live-build replaces Cubic's manual steps with code: all new files. Each script that named an Ubuntu package, version or URL gets a small edit. `install.sh` asks nothing during the build. Users created by the installer get ETC's `et-data` group as primary. |
+| 1. Core: Debian 12, live-build ISO, Calamares installer | 42 | +602 / −166 | 47% | Ubuntu's installer and Cubic don't exist on Debian. live-build replaces Cubic's manual steps with code: all new files. Each script that named an Ubuntu package, version or URL gets a small edit. `install.sh` asks nothing during the build. Users created by the installer get ETC's `et-data` group as primary. |
 | 2. Desktop and boot parity with r7 | 16 | +159 / −200 | 12% | Ubuntu builds in its dock, theme, tray icons and boot branding; Debian needs them added. Calamares gets r7's slideshow. |
-| 3. Encryption tools opt-in | 13 | +174 / −14 | 13% | Distribution requirement, not Debian's. An installer page lets users choose; the guides are moved unchanged, so only users who choose the tools get them. |
-| 4. et-api's NWS data file (bug fix) | (in the build hook) | +17 | 1% | et-api 1.3.0 fails at first start without it, also in r7. |
-| 5. Live-session polish | 5 | +107 | 8% | The installer launcher has ETC's name and logo and starts without a password; settings saved in the live session carry into the install. |
-| 6. Docs | 20 | +241 | 19% | Release notes, developer build guide, end-user install guide. |
+| 3. Encryption tools opt-in | 13 | +174 / −14 | 14% | Distribution requirement, not Debian's. An installer page lets users choose; the guides are moved unchanged, so only users who choose the tools get them. |
+| 4. Live-session polish | 5 | +107 | 8% | The installer launcher has ETC's name and logo and starts without a password; settings saved in the live session carry into the install. |
+| 5. Docs | 20 | +239 | 19% | Release notes, developer build guide, end-user install guide. |
 
 ## Additions beyond the Debian port
 
@@ -128,6 +116,5 @@ over a third of the added lines:
 | 2 | GRUB menus branded: ETC background on the live ISO's boot menu; "EmComm Tools" and the same background on installed systems | Branding parity with r7 |
 | 2 | ETC boot splash watermark: Debian's logo diverted (Debian's plymouth puts its own in) | Branding parity with r7 |
 | 3 | Installer stylesheet (`stylesheet.qss`): the encryption choices drawn as buttons | Encryption is legally restricted in some jurisdictions, so installing the tools must be a clear, deliberate choice |
-| 4 | et-api's NWS forecast zone file (build hook) | Fixes an r7 et-api bug (fails at first start; hangs with a GPS connected) |
-| 5 | Live-session polish: ETC installer launcher and dock; live settings carried into the install | Branding parity with r7 and usability of the live session |
-| 6 | End-user install guide with screenshots ([INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md)) | The installer and boot steps changed from r7 |
+| 4 | Live-session polish: ETC installer launcher and dock; live settings carried into the install | Branding parity with r7 and usability of the live session |
+| 5 | End-user install guide with screenshots ([INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md)) | The installer and boot steps changed from r7 |

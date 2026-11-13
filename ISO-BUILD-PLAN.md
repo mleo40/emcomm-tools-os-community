@@ -59,7 +59,7 @@ asks which file to download, and the build can't answer.
 - `live-build/build.sh`: sets up and runs `lb config` / `lb build`.
 - `live-build/config/package-lists/emcomm-tools.list.chroot`: base packages.
 - `live-build/config/hooks/normal/0900-emcomm-tools.hook.chroot`: runs
-  `install.sh` with `ET_BUILD=1`, adds et-api's NWS zone file, cleans up.
+  `install.sh` with `ET_BUILD=1`, cleans up.
 - `live-build/config/hooks/normal/0910-grub-pc-pool.hook.binary`: BIOS GRUB
   for offline installs.
 - `live-build/config/includes.chroot/etc/calamares/`: installer settings.

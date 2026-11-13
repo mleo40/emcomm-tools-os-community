@@ -10,8 +10,6 @@
 * Encryption tools (GPA, PFTE, steghide, guides) are opt-in: an "Optional
   software" page in the installer, not selected by default, installed offline
 * The installer removes itself from the installed system, as in r7
-* et-api's NWS forecast zone data is included: et-api no longer fails at first
-  start (with a GPS connected it used to hang until restarted)
 * Yaru top bar, as in r7; time servers are Debian's NTP pool
 * OpenJDK 20 replaced by OpenJDK 17; Python 2 removed (mbutil runs on Python 3)
 
