@@ -7,8 +7,8 @@
 * ISO built with Debian's live-build (`live-build/build.sh`), with Debian's
   signed shim and GRUB for Secure Boot; installs with Calamares (replaces
   Ubiquity)
-* Encryption tools (GPA, PFTE, steghide, guides) are opt-in: an
-  unchecked "Optional software" page in the installer, installed offline
+* Encryption tools (GPA, PFTE, steghide, guides) are opt-in: an "Optional
+  software" page in the installer, not selected by default, installed offline
 * The installer removes itself from the installed system, as in r7
 * et-api's NWS forecast zone data is included: et-api no longer fails at first
   start (with a GPS connected it used to hang until restarted)

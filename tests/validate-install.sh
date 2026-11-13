@@ -108,7 +108,7 @@ section "Boot"
 check "Boot splash enabled (splash on the kernel command line)" "grep -qw splash /proc/cmdline"
 check "Plymouth theme is bgrt" "grep -q 'Theme=bgrt' /etc/plymouth/plymouthd.conf"
 if install_only "GRUB branding"; then
-  check "GRUB branding drop-in" "grep -q 'EmComm Tools' /etc/default/grub.d/emcomm-tools-branding.cfg"
+  check "GRUB branding drop-in" "grep -q 'EmComm Tools' /etc/default/grub.d/emcomm-tools.cfg"
   if [[ -r /boot/grub/grub.cfg ]]; then
     check "GRUB menu shows EmComm Tools" "grep -q \"EmComm Tools\" /boot/grub/grub.cfg"
   else

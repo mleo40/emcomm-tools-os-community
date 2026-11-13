@@ -30,29 +30,18 @@ fi
 
 plymouth-set-default-theme -R bgrt
 
-# Debian's default kernel command line is 'quiet' only; plymouth needs 'splash'.
-if [[ ! -f /etc/default/grub ]]; then
-  # Image build: GRUB is installed later, by the installer. Its update-grub
-  # reads this drop-in.
-  et-log "Enabling boot splash in GRUB (drop-in)..."
-  mkdir -p /etc/default/grub.d
-  echo 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} splash"' \
-    > /etc/default/grub.d/emcomm-tools.cfg
-elif ! grep -q '^GRUB_CMDLINE_LINUX_DEFAULT=.*splash' /etc/default/grub; then
-  et-log "Enabling boot splash in GRUB..."
-  sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 splash"/' /etc/default/grub
-fi
-
-# GRUB menu: "EmComm Tools" instead of "Debian GNU/Linux", and ETC's boot
-# background (the same image as the live ISO's boot menu).
-et-log "Branding the GRUB menu..."
+# GRUB is installed later, by the installer; its update-grub reads this
+# drop-in: 'splash' for plymouth (Debian's default is 'quiet' only), "EmComm
+# Tools" instead of "Debian GNU/Linux", and ETC's boot background (the same
+# image as the live ISO's boot menu).
+et-log "Configuring the GRUB menu and boot splash (drop-in)..."
 cp -v ../logos/emcomm-tools-boot-800x600.png /usr/share/backgrounds/emcomm-tools-grub.png
 mkdir -p /etc/default/grub.d
-echo 'GRUB_DISTRIBUTOR="EmComm Tools"' > /etc/default/grub.d/emcomm-tools-branding.cfg
-echo 'GRUB_BACKGROUND="/usr/share/backgrounds/emcomm-tools-grub.png"' >> /etc/default/grub.d/emcomm-tools-branding.cfg
-if [[ -f /etc/default/grub ]]; then
-  update-grub
-fi
+cat > /etc/default/grub.d/emcomm-tools.cfg <<'EOF'
+GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} splash"
+GRUB_DISTRIBUTOR="EmComm Tools"
+GRUB_BACKGROUND="/usr/share/backgrounds/emcomm-tools-grub.png"
+EOF
 
 gsettings set org.gnome.desktop.background picture-uri file:////usr/share/backgrounds/emcomm-tools-wallpaper.png
 gsettings set org.gnome.desktop.background picture-uri-dark file:////usr/share/backgrounds/emcomm-tools-wallpaper.png

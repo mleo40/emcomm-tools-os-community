@@ -1,5 +1,29 @@
 # Installed in the image. install.sh adds everything else.
-task-gnome-desktop
+gnome-core
+# r7's Ubuntu desktop apps that gnome-core doesn't include (Debian's full GNOME
+# adds many more that r7 didn't have). alsa-utils: ETC's audio scripts.
+alsa-utils
+anacron
+xorg
+xdg-user-dirs-gtk
+cups
+simple-scan
+orca
+seahorse
+file-roller
+cheese
+shotwell
+rhythmbox
+rhythmbox-plugins
+transmission-gtk
+gnome-calendar
+aisleriot
+gnome-mahjongg
+gnome-mines
+gnome-sudoku
+remmina
+deja-dup
+gnome-power-manager
 calamares
 calamares-settings-debian
 sudo

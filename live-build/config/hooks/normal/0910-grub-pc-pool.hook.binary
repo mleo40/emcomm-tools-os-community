@@ -3,14 +3,9 @@
 # Date    : 11 November 2026
 # Purpose : Add grub-pc (BIOS) to the ISO's package pool.
 #
-# The installer installs GRUB into the new system from the ISO's pool, so
-# installs work offline. grub-pc conflicts with grub-efi-amd64, so live-build
-# can't resolve both from installer.list.binary. build.sh downloads the grub-pc
-# .debs to config/grub-pc/; this adds them to the pool and rebuilds the index
-# the same way live-build's binary_package-lists does.
-#
-# Binary hooks run in the binary/ folder, after the pool is built and before
-# the checksums and the ISO are made.
+# grub-pc conflicts with grub-efi-amd64, so live-build can't put both in the
+# pool; build.sh downloads grub-pc to config/grub-pc/ and this adds it, so BIOS
+# installs work offline.
 
 set -e
 

@@ -3,24 +3,15 @@
 # Date    : 11 November 2026
 # Purpose : Install the OPTIONAL encryption tools (opt-in only).
 #
-# Installs:
-#   - GNU Privacy Assistant (install-gpa.sh)
-#   - Paranoia File & Text Encryption (install-pfte.sh)
-#   - steghide
-#   - offline guides (gpg, steghide) and the AmRRON public key / GPG guide
+# GPA, PFTE, steghide and the guides (gpg, steghide, AmRRON key).
 #
-# Usage (ISO builds only):
-#   ./install-crypto.sh --prepare  During the image build (install.sh,
-#                                  ET_BUILD): download the packages, build GPA
-#                                  and download the guides into the payload,
-#                                  without installing anything
-#   ./install-crypto.sh --offline  Install from that payload, with no network:
-#                                  run by the installer when the tools are
-#                                  selected, or later by hand with sudo from
-#                                  /opt/emcomm-tools-os-community/scripts
+#   --prepare  run by install.sh: download and build everything into the
+#              payload, without installing it
+#   --offline  install from the payload, no network: run by the installer when
+#              selected, or later with sudo
 
-# Work from this script's folder (the installer calls it by full path) and make
-# sure the ETC commands (et-log) are found.
+# Run from this folder (the installer calls it by full path), with ETC's
+# commands on PATH.
 cd "$(dirname "$(readlink -f "$0")")"
 export PATH="/opt/emcomm-tools/bin:${PATH}"
 
