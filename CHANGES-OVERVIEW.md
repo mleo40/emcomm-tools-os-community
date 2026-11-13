@@ -1,17 +1,18 @@
-# Moving EmComm Tools from Ubuntu/Cubic to Debian/live-build: what changes
+# Moving EmComm Tools from Ubuntu/Cubic to Debian/live-build
 
 What changes, and why. For review only; remove once merged. Building ISOs from
 now on: [ISO-BUILD-PLAN.md](ISO-BUILD-PLAN.md).
 
 ## Goals
 
-1. Move EmComm Tools from Ubuntu/Cubic to Debian/live-build.
-2. Build one ISO suitable for distribution worldwide.
-3. Let the person installing choose whether to install the encryption tools.
-4. Boot, install and run with no internet.
-5. Keep r7's application versions where possible (see
-   [Version parity with r7](#version-parity-with-r7)).
-6. Keep r7's look and style.
+1. **Move ETC to Debian 12 and live-build**, keeping r7's app versions (see
+   [Version parity with r7](#version-parity-with-r7)) and working with no
+   internet.
+2. **Keep r7's look and style.**
+3. **One ISO for worldwide distribution:** the person installing chooses
+   whether to install the encryption tools.
+4. **A usable live session** whose settings carry into the install.
+5. **Docs** for whoever builds the ISO and whoever installs it.
 
 ## For the ETC developer to review
 
@@ -40,11 +41,11 @@ required:
 
 | r7 question | Where | New experience |
 |---|---|---|
-| OSM state map (Navit) | `download-osm-maps.sh` | Not in the ISO. Run `download-osm-maps.sh` after install (needs internet) |
+| OSM state map (Navit) | `download-osm-maps.sh` | Navit is in the ISO; the state map files aren't. Run `download-osm-maps.sh` after install (needs internet) |
 | ETC map tiles | `download-et-maps.sh` | World map (80 MB) in the ISO. Run `download-et-maps.sh` after install for US or Canada (needs internet) |
 | Wikipedia file | `download-wikipedia.sh` | Kiwix installed, no `.zim` files. Run `download-wikipedia.sh` after install (needs internet) |
 | VARA/WINE notes | `install-wine.sh`, `wine.txt` | WINE and the VARA add-on scripts (`~/add-ons/wine`) are in the ISO; installing VARA is optional, after install, and needs internet |
-| xara modem | `install-xara.sh`, `scripts/xara.md` | Build tools (Rust) and `install-xara.sh` are in the ISO; installing xara is optional, after install, from the user's own `xara-*.tar.gz`, and needs internet |
+| xara modem | `install-xara.sh`, `scripts/xara.md` | Build tools (Rust) and `install-xara.sh` are in the ISO; installing xara is optional, after install, from a user-supplied `xara-*.tar.gz`, and needs internet |
 
 ## Version parity with r7
 
@@ -94,27 +95,12 @@ It's less than it looks:
   core comes first; the others build on it in any order. Estimated sizes
   against r7:
 
-| Commit | Files | Lines | Share | Why |
-|---|---|---|---|---|
-| 1. Core: Debian 12, live-build ISO, Calamares installer | 42 | +602 / −166 | 47% | Ubuntu's installer and Cubic don't exist on Debian. live-build replaces Cubic's manual steps with code: all new files. Each script that named an Ubuntu package, version or URL gets a small edit. `install.sh` asks nothing during the build. Users created by the installer get ETC's `et-data` group as primary. |
-| 2. Desktop and boot parity with r7 | 16 | +159 / −200 | 12% | Ubuntu builds in its dock, theme, tray icons and boot branding; Debian needs them added. Calamares gets r7's slideshow. |
-| 3. Encryption tools opt-in | 13 | +174 / −14 | 14% | Distribution requirement, not Debian's. An installer page lets users choose; the guides are moved unchanged, so only users who choose the tools get them. |
-| 4. Live-session polish | 5 | +107 | 8% | The installer launcher has ETC's name and logo and starts without a password; settings saved in the live session carry into the install. |
-| 5. Docs | 20 | +239 | 19% | Release notes, developer build guide, end-user install guide. |
+| # | Commit | Files | Lines | Share | Why |
+|---|---|---|---|---|---|
+| 1 | `debian - Debian 12 base, live-build ISO and Calamares installer` | 42 | +602 / −166 | 47% | live-build replaces Cubic's manual steps (all new files)<br>Small edits where scripts named Ubuntu packages, versions or URLs<br>`install.sh` asks nothing during the build<br>Installer-created users get `et-data` as primary group<br>Read-only repo copy in `/opt/emcomm-tools-os-community`: users can add the encryption tools or xara later and run ETC's test suite (r7's copy sat in `/root`, out of reach)<br>`build.sh` keeps live-build's download cache for faster rebuilds (optional) |
+| 2 | `debian - Desktop and boot branding parity with r7` | 16 | +159 / −200 | 12% | Branding parity: GNOME look (Yaru theme and top bar, dock, desktop and tray icons, window buttons)<br>Calamares slideshow ported from Ubiquity<br>ETC GRUB menus and background (live ISO and installed)<br>ETC boot splash<br>Ubuntu builds these in; Debian needs them added |
+| 3 | `debian - Encryption tools opt-in at install` | 13 | +174 / −14 | 14% | Distribution requirement: encryption is legally restricted in some jurisdictions, so installing the tools must be a deliberate choice the user makes<br>Installer page with Skip/Install buttons (`stylesheet.qss`)<br>Guides move unchanged, so only users who choose the tools get them |
+| 4 | `debian - Live-session polish` | 5 | +107 | 8% | Branding parity and live-session usability<br>Installer launcher with ETC's name and logo, starting without a password<br>ETC's dock<br>Settings saved live carry into the install |
+| 5 | `docs - ISO build guide, install guide, release notes` | 20 | +239 | 19% | Release notes<br>Developer build guide<br>End-user install guide with screenshots (installer and boot steps changed from r7) |
 
-## Additions beyond the Debian port
-
-Changes beyond the Debian port itself, and why each is in. Together they're
-over a third of the added lines:
-
-| Commit | Change | Why it's here |
-|---|---|---|
-| 1 | `build.sh` keeps live-build's download cache | Faster ISO rebuilds (not strictly necessary) |
-| 1 | Read-only repository copy in `/opt/emcomm-tools-os-community` | Needed to add the encryption tools or xara after install; also ETC's test suite. r7 left its copy in `/root`, out of users' reach |
-| 2 | GNOME parity: Yaru theme (including the top bar), dock, desktop icons, tray icons, window buttons | Branding parity with r7 |
-| 2 | Calamares slideshow ported from Ubiquity (`show.qml`, `EtcSlide.qml`) | Branding parity with r7 |
-| 2 | GRUB menus branded: ETC background on the live ISO's boot menu; "EmComm Tools" and the same background on installed systems | Branding parity with r7 |
-| 2 | ETC boot splash watermark: Debian's logo diverted (Debian's plymouth puts its own in) | Branding parity with r7 |
-| 3 | Installer stylesheet (`stylesheet.qss`): the encryption choices drawn as buttons | Encryption is legally restricted in some jurisdictions, so installing the tools must be a clear, deliberate choice |
-| 4 | Live-session polish: ETC installer launcher and dock; live settings carried into the install | Branding parity with r7 and usability of the live session |
-| 5 | End-user install guide with screenshots ([INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md)) | The installer and boot steps changed from r7 |
+<br><br><br><br><br><br>
