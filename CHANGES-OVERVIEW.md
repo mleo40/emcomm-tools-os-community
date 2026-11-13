@@ -92,7 +92,7 @@ VARA under WINE 8.0 still needs testing.
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
 (`emcomm-tools-os-community-20261111-r7-build37`, merged in): **96 files,
-+1,316 / −380 lines** (not counting this document).
++1,300 / −380 lines** (not counting this document).
 
 It's less than it looks:
 
@@ -112,7 +112,7 @@ It's less than it looks:
 | 3. Encryption tools opt-in | 13 | +174 / −14 | 13% | Distribution requirement, not Debian's. An installer page lets users choose; the guides are moved unchanged, so only users who choose the tools get them. |
 | 4. et-api's NWS data file (bug fix) | (in the build hook) | +17 | 1% | et-api 1.3.0 fails at first start without it, also in r7. |
 | 5. Live-session polish | 5 | +107 | 8% | The installer launcher has ETC's name and logo and starts without a password; settings saved in the live session carry into the install. |
-| 6. Docs | 20 | +257 | 20% | Release notes, developer build guide, end-user install guide. |
+| 6. Docs | 20 | +241 | 19% | Release notes, developer build guide, end-user install guide. |
 
 ## Additions beyond the Debian port
 

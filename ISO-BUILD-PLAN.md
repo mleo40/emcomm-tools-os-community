@@ -48,7 +48,7 @@ asks which file to download, and the build can't answer.
 |---|---|
 | Debian 12, GNOME, EmComm Tools | Installed |
 | Maps | Global map only (80 MB). Adding other maps: to be decided |
-| Encryption tools | Carried, not installed. Opt-in on the installer's **Optional software** page, or later: `sudo /opt/emcomm-tools-os-community/scripts/install-crypto.sh --offline` |
+| Encryption tools install files | Carried, not installed. Opt-in on the installer's **Optional software** page, or later: `sudo /opt/emcomm-tools-os-community/scripts/install-crypto.sh --offline` |
 | GRUB for UEFI and BIOS | Carried, for offline installs |
 | Live session login | `user` / `live` (Debian's default), live session only |
 | This repository | Read-only copy in `/opt/emcomm-tools-os-community`, no git history; `install.sh` not executable |
@@ -63,22 +63,6 @@ asks which file to download, and the build can't answer.
 - `live-build/config/hooks/normal/0910-grub-pc-pool.hook.binary`: BIOS GRUB
   for offline installs.
 - `live-build/config/includes.chroot/etc/calamares/`: installer settings.
-
-## Test before publishing
-
-In a VM with UEFI, Secure Boot on and no network:
-
-1. The ISO boots live; **Install EmComm Tools** starts without a password.
-2. Install twice: **Install encryption tools** after saving a callsign live;
-   **Skip encryption tools** after clicking **Cancel** in setup.
-3. Each install boots with Secure Boot to the "EmComm Tools GNU/Linux" menu.
-   Setup opens at first login only after the **Cancel** install.
-4. `id` shows `et-data` as primary group, `systemctl is-active ssh` is
-   `active`, encryption tools present only if selected.
-5. `cd /opt/emcomm-tools-os-community/tests && ./run-test-suite.sh`
-   (`test-xara` fails, as expected).
-
-Also boot once on BIOS.
 
 ## Publish
 
