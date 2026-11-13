@@ -1,5 +1,6 @@
 #!/bin/bash
 # Author   : Gaston Gonzalez
+# Date     : 6 March 2026
 # Updated  : 11 November 2026
 # Purpose  : Test GNU Privacy Assistant installation (optional encryption tools)
 

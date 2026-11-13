@@ -6,10 +6,9 @@
 # Purpose : Main installer for EmComm Tools Community (ETC)
 #
 # ET_BUILD=1: image build (live-build chroot, see live-build/). Nothing is
-# asked: only the global map is included (users copy in other maps after
-# install), the
-# encryption tools are prepared for the installer's optional page instead of
-# asked for, and there is no existing user to set up.
+# asked: only the global map is included, the encryption tools are prepared
+# for the installer's optional page instead of asked for, and there is no
+# existing user to set up.
 
 . ./env.sh
 . ./functions.sh

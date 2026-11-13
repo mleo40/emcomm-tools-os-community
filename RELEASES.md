@@ -7,7 +7,7 @@
 * ISO built with Debian's live-build (`live-build/build.sh`), with Debian's
   signed shim and GRUB for Secure Boot; installs with Calamares (replaces
   Ubiquity)
-* Encryption tools (GPA, PFTE, VeraCrypt, steghide, guides) are opt-in: an
+* Encryption tools (GPA, PFTE, steghide, guides) are opt-in: an
   unchecked "Optional software" page in the installer, installed offline
 * OpenJDK 20 replaced by OpenJDK 17; Python 2 removed (mbutil runs on Python 3)
 

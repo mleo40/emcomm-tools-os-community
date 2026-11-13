@@ -1,27 +1,29 @@
 #!/bin/bash
 #
 # Date    : 11 November 2026
-# Purpose : Record the EmComm Tools release name in /etc/emcomm-tools/release.
+# Updated : 12 November 2026
+# Purpose : Record the EmComm Tools release name where r7 had it: as
+#           DISTRIB_DESCRIPTION in /etc/lsb-release (Cubic wrote it there; Debian
+#           doesn't), so r7's 'et-system-info release' reads it unchanged. It is
+#           shown in the conky panel and sent as JS8Call's MyInfo.
 #
-# Cubic used to write it into /etc/lsb-release (DISTRIB_DESCRIPTION). Debian
-# has no /etc/lsb-release, so 'et-system-info release' reads this file instead.
-# It is shown in the conky panel and sent as JS8Call's MyInfo, so it is a
-# single word.
-#
-# Name: ETC-<release>-debian12, where <release> comes from the last ETC tag in
-# this repository (e.g. emcomm-tools-os-community-20261027-r7-build34 gives
-# ETC-r7-build34-debian12). Set ET_RELEASE to override it.
+# Name: ETC_<RELEASE>, like r7's disk names, from the last ETC tag in this
+# repository (e.g. emcomm-tools-os-community-20261111-r7-build37 gives
+# ETC_R7_BUILD37). Set ET_RELEASE to override it.
 
 . ./env.sh
 
-RELEASE_FILE=/etc/emcomm-tools/release
-
 if [[ -z "${ET_RELEASE}" ]]; then
   TAG=$(git -c safe.directory='*' describe --tags --abbrev=0 --match 'emcomm-tools-os-community-*' 2>/dev/null)
-  BASE=$(echo "${TAG}" | sed 's/^emcomm-tools-os-community-[0-9]*-//')
-  ET_RELEASE="ETC${BASE:+-${BASE}}-debian12"
+  BASE=$(echo "${TAG}" | sed 's/^emcomm-tools-os-community-[0-9]*-//' | tr 'a-z-' 'A-Z_')
+  ET_RELEASE="ETC${BASE:+_${BASE}}"
 fi
 
-mkdir -p "$(dirname "${RELEASE_FILE}")"
-echo "${ET_RELEASE}" > "${RELEASE_FILE}"
-et-log "EmComm Tools release: ${ET_RELEASE} (${RELEASE_FILE})"
+. /etc/os-release
+cat > /etc/lsb-release <<EOF
+DISTRIB_ID=Debian
+DISTRIB_RELEASE=${VERSION_ID}
+DISTRIB_CODENAME=${VERSION_CODENAME}
+DISTRIB_DESCRIPTION="${ET_RELEASE}"
+EOF
+et-log "EmComm Tools release: ${ET_RELEASE} (/etc/lsb-release)"

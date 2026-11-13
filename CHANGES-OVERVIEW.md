@@ -50,17 +50,6 @@ OpenJDK 17 (Debian security updates). ETC's Java apps need at most Java 11
 is a non-Debian JDK 20+ (for example Eclipse Temurin), with its own downloads
 and updates. Revisit if et-api or YAAC ever needs Java 18 or later.
 
-**Sound server: PipeWire instead of PulseAudio.** Debian 12's GNOME uses PipeWire (with `pipewire-pulse` and WirePlumber); r7 on
-Ubuntu 22.04 uses PulseAudio. This branch doesn't change either: it's the
-desktop default each distribution ships. ETC's radio apps mostly open the
-radio's sound card directly through ALSA (for example JS8Call's
-`sysdefault:CARD=ET_AUDIO`, Direwolf's `ADEVICE`), which works under either.
-Apps that go through the sound server (WINE/VARA, the desktop's own sounds)
-now go through PipeWire. Checked in a VM with a DigiRig Lite and a built-in
-card and on a laptop with a DigiRig Lite: JS8Call, WSJT-X, Winlink Ardop all operated as expected.
-
-Still to check on hardware: VARA under WINE.
-
 r7's install process asked the ISO builder certain questions. The new ISO build
 asks none, so each is handled differently now:
 
@@ -71,16 +60,16 @@ asks none, so each is handled differently now:
 | Wikipedia file (`ET_EXPERT`) | `download-wikipedia.sh` | No `.zim` files ship with the ISO; the Kiwix reader is installed. **Decision needed:** how users add `.zim` files after install, for example copying them in, or running `download-wikipedia.sh` (needs internet; it saves into `/etc/skel`) |
 | VARA/WINE notes (`ET_EXPERT`) | `install-wine.sh`, `wine.txt` | WINE, winetricks and the VARA add-on scripts (`~/add-ons/wine`) are in the ISO; VARA itself isn't. Users install it after install, with internet or by restoring a WINE backup made with `05-backup-wine-install.sh` (`cd ~ && tar -xzf etc-wine-backup-*.tar.gz`). `~/add-ons/wine/README.md` covers both |
 | xara modem | `install-xara.sh`, `scripts/xara.md` | Built in r7 only when the builder supplies the source tarball; not in this ISO (Rust is). **For the ETC developer to review:** suggested post-install scripting, so users build xara from their own source with `install-xara.sh` |
-| Encryption tools | `install-crypto.sh` | Installed without asking in r7. Now asked by the installer's **Optional software** page (**Skip encryption tools** or **Install encryption tools**); not selected by default. The page (and `install.sh`'s prompt) says not to install them where encryption is illegal |
+| Encryption tools | `install-crypto.sh` | Installed without asking in r7 (GPA, PFTE, steghide, guides; gpg stays in the base install as in r7). Now asked by the installer's **Optional software** page (**Skip encryption tools** or **Install encryption tools**); not selected by default. The page (and `install.sh`'s prompt) says not to install them where encryption is illegal. VeraCrypt stays out, as in r7 (its install line is commented out there) |
 
 ## Version parity with r7
 
-**Applications ETC downloads or builds itself keep r7's pinned versions.** The
+**Any applications ETC downloads or builds itself keep r7's pinned versions.** The
 `VERSION` in each install script is unchanged, for example JS8Call 2.2.0, WSJT-X
 2.7.0, fldigi 4.2.09, flmsg 4.0.24, flamp 2.2.14, Hamlib 4.5, Direwolf 1.7, Pat
-1.0.0, Mercury 1.9.22, Reticulum 1.6.0 and et-api 1.3.0. Only two download
-names changed, to the Debian build of the same release: VeraCrypt 1.26.29 and
-SDR++ (nightly, unpinned in r7 too). Apps built from source install to
+1.0.0, Mercury 1.9.22, Reticulum 1.6.0 and et-api 1.3.0. Only one download
+name changed, to the Debian build of the same release: SDR++ (nightly,
+unpinned in r7 too). Apps built from source install to
 `/usr/local`, outside apt's reach.
 
 **New: JS8Call and WSJT-X are held** (`apt-mark hold`). Debian's archive has
@@ -100,6 +89,7 @@ holds. None of ETC's other `.deb`s have a newer version in Debian's archive.
 | Zim | 0.74 | 0.75 |
 | osmium-tool | 1.14 | 1.15 |
 | chrony | 4.2 | 4.3 |
+| Linux kernel | 5.19 | 6.1, with Debian's non-free firmware in the ISO |
 
 All other user-facing archive apps (Audacity, VLC, QGIS, gpsd, GPSBabel,
 Navit, minimodem, sox, SPLAT!, espeak, dict, ax25-apps) are the same major and
@@ -109,14 +99,14 @@ Debian 12 install. To watch in hardware testing: VARA under WINE 8.0.
 ## Size/Scope of this migration
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
-(`emcomm-tools-os-community-20261111-r7-build37`, merged in): **97 files,
-+1,936 / −341 lines** (not counting this document).
+(`emcomm-tools-os-community-20261111-r7-build37`, merged in): **96 files,
++1,741 / −330 lines** (not counting this document).
 
 It's less than it looks:
 
 - 17 files are the install guide's screenshots, plus the guide itself.
-- 23 files are moves or deletions with no new logic: 12 renames (slideshow
-  images, encryption guide files, the GNOME settings file) and 11 deleted
+- 22 files are moves or deletions with no new logic: 11 renames (slideshow
+  images, encryption guide files) and 11 deleted
   Ubuntu/Cubic files.
 - Most edits to existing scripts are 1–10 lines.
 - The branch combines three separate efforts: the Debian port, the new ISO
@@ -126,25 +116,25 @@ It's less than it looks:
 
 | # | Category | Files | Lines +/− | Why |
 |---|---|---|---|---|
-| 1 | Installer: Ubiquity → Calamares | 23 | +344 / −209 | Ubuntu's installer doesn't exist on Debian. The 8 slideshow images only moved. The 9 Ubiquity HTML slides were deleted, and the same 8 slides were ported to one Calamares `show.qml` (264 lines). |
+| 1 | Installer: Ubiquity → Calamares | 24 | +190 / −209 | Ubuntu's installer doesn't exist on Debian. The 8 slideshow images only moved. The 9 Ubiquity HTML slides were deleted, and the same 8 slides were ported to a Calamares `show.qml` and one shared slide layout, `EtcSlide.qml` (110 lines). |
 | 2 | Docs | 20 | +310 | Release notes; developer build guide; end-user install guide. |
-| 3 | New ISO build (live-build) | 17 | +723 | Replaces Cubic. All new files; nothing existing changed. |
-| 4 | Debian package and OS differences | 16 | +115 / −74 | A small edit in each script that named an Ubuntu package, version or URL. |
-| 5 | Encryption tools opt-in | 11 | +221 / −23 | Distribution requirement, not Debian's. `install-crypto.sh` is most of it. The guide files (`gpg-cheatsheet.md`, `steghide.md`, `steghide.jpg`) were moved unchanged, so only users who choose the tools get them. |
-| 6 | Desktop parity with r7 | 6 | +77 / −20 | Ubuntu builds in its dock, theme and tray icons; Debian needs them added. No automatic update checks, as in r7. |
+| 3 | New ISO build (live-build) | 17 | +716 | Replaces Cubic. All new files; nothing existing changed. |
+| 4 | Debian package and OS differences | 15 | +100 / −72 | A small edit in each script that named an Ubuntu package, version or URL. |
+| 5 | Encryption tools opt-in | 10 | +203 / −14 | Distribution requirement, not Debian's. `install-crypto.sh` is most of it. The guide files (`gpg-cheatsheet.md`, `steghide.md`, `steghide.jpg`) were moved unchanged, so only users who choose the tools get them. |
+| 6 | Desktop parity with r7 | 6 | +77 / −20 | Ubuntu builds in its dock, theme and tray icons; Debian needs them added. GNOME Software's update checks are off, as r7 removed Ubuntu's update notifier; apt's daily timers stay on, as in r7. |
 | 7 | Users | 2 | +92 | Users created by the installer get ETC's `et-data` group as primary. |
-| 8 | Build mode | 2 | +54 / −15 | `install.sh` asks nothing during the image build. |
+| 8 | Build mode | 2 | +53 / −15 | `install.sh` asks nothing during the image build. |
 
 ## Beyond the minimum
 
 Changes mostly needed to address goal #6, but aren't strictly needed, and why they're in. Together they're
-about 45% of the added lines; dropping them gives the smallest possible
+about half of the added lines; dropping them gives the smallest possible
 migration, at the cost of r7's look and some live-session usability:
 
 | Change | Why it's here | Could drop? |
 |---|---|---|
 | GNOME parity: Yaru theme, dock, desktop icons, tray icons, window buttons | Look and version parity with r7 | Yes, if r7's look isn't required |
-| Calamares slideshow ported from Ubiquity (`show.qml`) | Branding parity | Yes; Calamares works without it |
+| Calamares slideshow ported from Ubiquity (`show.qml`, `EtcSlide.qml`) | Branding parity | Yes; Calamares works without it |
 | Installer stylesheet (`stylesheet.qss`): the encryption choices drawn as buttons | Encryption is legally restricted in some jurisdictions, so installing the tools must be a clear, deliberate choice | Yes; the page works without it |
 | GRUB menus branded: ETC background on the live ISO's boot menu; "EmComm Tools" and the same background on installed systems | Branding parity | Yes; the stock Debian menus work |
 | ETC boot splash watermark: Debian's logo diverted (Debian's plymouth puts its own in) | Branding parity | Yes; Debian's logo shows instead |
@@ -152,8 +142,10 @@ migration, at the cost of r7's look and some live-session usability:
 | `et-fix-primary-group` (installer step) | ETC shares files through the `et-data` group, and Calamares can't set a primary group | Only by changing ETC's group design |
 | `configure-existing-user.sh` | Only for running `install.sh` on an existing Debian system; the ISO doesn't use it | Yes, if only the ISO is supported |
 | `configure-user.sh` doesn't fail if `et-data` exists | Lets `install.sh` run twice on the same system | Yes; the ISO build runs it once |
-| Update checks off: GNOME Software settings and login service, apt's daily timers | r7 removed Ubuntu's update-notifier; an offline system shouldn't try | No (requested) |
+| GNOME Software update checks off: its settings and login service | r7 removed Ubuntu's update-notifier | No (requested) |
 | `build.sh` keeps live-build's download cache | Faster rebuilds | Yes |
+| `tests/validate-install.sh` | One command to check an installed system or the live session before publishing; caught real problems in testing | Yes; the build guide's checklist and r7's `run-test-suite.sh` remain |
+| et-api's NWS forecast zone file (build hook) | Fixes an r7 et-api bug (fails at first start; hangs with a GPS connected) | Yes, once et-api publishes the file; until then et-predict and et-aircraft fail on every live boot with a GPS |
 | Read-only repository copy in `/opt/emcomm-tools-os-community` | ETC's scripts and test suite on every system, matching the ISO; r7's Cubic steps leave their extracted copy in the image (Cubic's terminal starts in `/root`), out of users' reach | Yes; the test suite would be copied in instead |
 | End-user install guide with screenshots ([INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md)): checking the download, Ventoy stick, booting, the live system, installing | The installer and boot steps changed from r7; users need current instructions | Yes; it's documentation only |
 
@@ -164,14 +156,15 @@ were on real hardware:
 
 | Test | Result |
 |---|---|
-| Build (`live-build/build.sh`) | Completes; `install.sh` 0 failed steps (last completed build: 4353008, with build37 merged) |
+| Build (`live-build/build.sh`) | Completes; `install.sh` 0 failed steps (last completed build: the audit fixes on top of 08bb546, with build37 merged) |
 | ISO contents | No build files, logs, SSH host keys or machine-id; encryption tools prepared, not installed; WINE (32- and 64-bit), winetricks and the VARA add-on scripts included; read-only repository copy in `/opt/emcomm-tools-os-community` (12 MB); installer `stylesheet.qss` in the branding; et-api's `weather-forecast-zone.csv` (NWS, checksum verified) in its data folder |
 | UEFI, Secure Boot on: live session | ETC boot menu, splash, desktop and dock; installer starts without a password; Optional software page text, including the encryption legal notice; slideshow advances; installer sidebar steps readable (ISO from c1a32a6); Optional software page's Skip/Install buttons (applied by hand in the live session, then committed in 7191f84) |
 | UEFI, Secure Boot on: install with encryption tools | Tools and guides installed from the ISO |
 | UEFI, Secure Boot on: install without encryption tools | No tools, guides or marker; add-on still available |
-| UEFI, Secure Boot on: installed system | Boots; GRUB menu shows "EmComm Tools" with the ETC background; ETC splash, dock, wallpaper; `et-data` primary group; SSH server running; apt sources include `contrib` and `non-free`; update checks off; ETC test suite passes except xara (no source package) |
+| UEFI, Secure Boot on: installed system | Boots; GRUB menu shows "EmComm Tools GNU/Linux" with the ETC background; ETC splash, dock, wallpaper; `et-data` primary group; SSH server running; apt sources include `contrib` and `non-free`; update checks off; ETC test suite passes except xara (no source package) |
 | BIOS (no UEFI): live boot and install | Boots and installs; BIOS GRUB installed from the ISO (tested before GRUB branding was added) |
 | UEFI, Secure Boot on: live settings carry-over | Callsign and grid saved in the live session are in the installed user's `user.json`, with the `first-login-complete` marker, owned by the new user; setup doesn't open at first login. Passed in the ISO built from 180a991. The same ISO failed the **Cancel** case: Cancel also writes the marker, so the default settings were copied and setup didn't open. Fixed by also checking that `user.json` differs from the `/etc/skel` default; the check passed on the installed system, the fix is in the ISO built from 22beb66 |
+| UEFI, Secure Boot on: install after the audit fixes, encryption tools selected | `validate-install.sh`: 94 passed, 0 failed (warnings: setup not yet run, installer left installed). Release name `ETC_R7_BUILD37` in `/etc/lsb-release` and the conky panel; GPA, PFTE and steghide installed, no VeraCrypt; gpg present (base install, as in r7); apt's daily timers on; one read-only repository copy; slideshow (`EtcSlide.qml`) shows and advances |
 | Ventoy 1.1.10, UEFI, Secure Boot off | ISO boots from a Ventoy stick to the ETC boot menu and live desktop |
 | Laptop, live session (ISO from 4353008, UEFI, Secure Boot off), GPS, DigiRig Mobile and SDR connected | `validate-install.sh`: 92 passed, 0 failed. et-api starts once with no restart; et-predict and et-aircraft work without restarting it; aircraft received by the SDR are identified from et-api's FAA data (US-registered; others, such as Canadian, have no entry). The et-api hang was reproduced on an earlier ISO, before the NWS file was included |
 | Laptop, live session, DigiRig Lite | JS8Call, WSJT-X and Winlink over ARDOP use the DigiRig for audio input and output |
@@ -185,7 +178,7 @@ were on real hardware:
 | `overlay/usr/share/ubiquity-slideshow/slides/*.html` (9) | Deleted |
 | `overlay/usr/share/ubiquity/pixmaps/ubuntu_installed.png` | Deleted |
 | `overlay/etc/calamares/branding/emcomm-tools/screenshots/*.png` (7), `background.png` | Moved from the Ubiquity slideshow, unchanged |
-| `overlay/etc/calamares/branding/emcomm-tools/show.qml` | New: the same 8 slides, as Calamares QML |
+| `overlay/etc/calamares/branding/emcomm-tools/show.qml`, `EtcSlide.qml` | New: the same 8 slides, as Calamares QML (`EtcSlide.qml` is the shared slide layout) |
 | `overlay/etc/calamares/branding/emcomm-tools/branding.desc`, `logo.png` | New: installer name, logo and sidebar colors |
 | `overlay/etc/calamares/branding/emcomm-tools/stylesheet.qss` | New: the Optional software page's choices shown as buttons |
 | `scripts/debrand.sh` | Installs the Calamares branding instead of Ubiquity's; drops the Cubic kernel reinstall |
@@ -227,14 +220,14 @@ were on real hardware:
 | `overlay/etc/apt/sources.list` | Debian 12 sources |
 | `overlay/etc/crontab` | Remove the Cubic-only `@reboot` copy |
 | `overlay/etc/profile.d/emcomm-tools.sh` | New: `PATH` for ETC commands (Debian's `/etc/profile` resets it) |
-| `scripts/install-base.sh` | OpenJDK 20 → 17 (Debian 12 has no 20); `gpg` and `steghide` moved to the encryption add-on |
-| `scripts/install-python.sh` | Python 2 removed (not in Debian 12) |
-| `scripts/install-wsjtx.sh`, `install-sdrpp.sh` | Debian package names and Debian build |
+| `scripts/install-base.sh` | OpenJDK 20 → 17 (Debian 12 has no 20); `steghide` moved to the encryption add-on; installs the PATH profile |
+| `scripts/install-python.sh` | Python 2 removed (not in Debian 12); `python` now runs Python 3 (`python-is-python3`) |
+| `scripts/install-wsjtx.sh`, `install-sdrpp.sh` | WSJT-X: drops the `libqcustomplot2.0` dependency (not in Debian 12). SDR++: Debian 12 build |
 | `scripts/install-js8call.sh`, `install-wsjtx.sh` | Hold ETC's builds; Debian's newer-looking `js8call` would replace them and conflict with ETC's WSJT-X |
-| `scripts/remove-packages.sh` | Remove Debian's extra apps and first-login wizard; keep GNOME; disable apt's daily update timers |
+| `scripts/remove-packages.sh` | Also purges Firefox ESR (r7 had no Firefox) and GNOME's first-login wizard; keeps GNOME (on Debian, purging LibreOffice would remove it) |
 | `scripts/install-dev-tools.sh` | Cubic PPA removed |
 | `scripts/install-ubuntu-image-tools-only.sh` | Deleted (Cubic tooling) |
-| `scripts/install-release.sh`, `overlay/opt/emcomm-tools/bin/et-system-info` | Release name; Cubic wrote it to `/etc/lsb-release` |
+| `scripts/install-release.sh` | New: writes the release name to `/etc/lsb-release` as `DISTRIB_DESCRIPTION`, where Cubic put it in r7, so r7's `et-system-info` reads it unchanged. Name like r7's: `ETC_R7_BUILD37`, from the last ETC tag |
 | `scripts/configure-user.sh` | Don't fail if `et-data` already exists |
 | `tests/test-java.sh`, `test-python.sh` | Expect Java 17 and Python 3 |
 
@@ -242,18 +235,18 @@ were on real hardware:
 
 | File | Change |
 |---|---|
-| `scripts/install-crypto.sh` | New: installs GPA, PFTE, VeraCrypt, steghide, gpg and guides; or prepares them for the installer and installs them offline |
+| `scripts/install-crypto.sh` | New: installs GPA, PFTE, steghide and guides; or prepares them for the installer and installs them offline |
 | `scripts/crypto-docs/gpg-cheatsheet.md`, `steghide.md`, `steghide.jpg` | Moved unchanged from `overlay/etc/skel/Desktop/offline/crypto/` (which every user got), so they're only installed with the tools |
 | `scripts/install-offline-lib-crypto.json`, `install-offline-lib.json` | AmRRON key and GPG guide moved to the crypto list |
 | `scripts/install-offline-lib.sh` | Takes a file list and destination |
-| `scripts/install-pfte.sh`, `install-veracrypt.sh` | Download-only mode, for the offline install |
+| `scripts/install-pfte.sh` | Download-only mode, for the offline install |
 | `tests/test-gpa.sh`, `test-pfte.sh` | Pass when the tools weren't chosen |
 
 ### 6. Desktop parity with r7
 
 | File | Change |
 |---|---|
-| `overlay/usr/share/glib-2.0/schemas/90_emcomm-tools.gschema.override` | Renamed from `90_ubuntu-settings`; dock, extensions, window buttons, dark-style wallpaper, update notifications off |
+| `overlay/usr/share/glib-2.0/schemas/90_emcomm-tools.gschema.override` | Renamed from `90_ubuntu-settings` and edited: dock, extensions, window buttons, dark-style wallpaper; GNOME Software's update checks off |
 | `scripts/configure-gnome.sh` | Install Yaru theme and the dock, desktop-icon and tray-icon extensions |
 | `scripts/install-branding.sh` | Boot splash and wallpaper on Debian; ETC watermark instead of Debian's logo (Debian's plymouth swaps it in); GRUB menu name and background |
 | `logos/emcomm-tools-boot-800x600.png`, `-640x480.png` | New: GRUB menu background for the live ISO (via `live-build/build.sh`) and installed systems |
@@ -264,11 +257,11 @@ were on real hardware:
 | File | Change |
 |---|---|
 | `overlay/opt/emcomm-tools/bin/et-fix-primary-group` | New: `et-data` as primary group for users the installer creates |
-| `scripts/configure-existing-user.sh` | New: sets up the user when `install.sh` runs on an existing Debian system (not used by the ISO) |
+| `scripts/configure-existing-user.sh` | New: when `install.sh` runs on an existing Debian system (not the ISO), makes `et-data` the user's primary group, replaces their `.bashrc`, `.bash_profile` and `.inputrc` (backed up as `*.pre-emcomm-tools`) and gives their home folder the `et-data` group |
 
 ### 8. Build mode
 
 | File | Change |
 |---|---|
-| `scripts/install.sh` | `ET_BUILD=1`: no prompts; only the world map; encryption tools prepared, not asked |
+| `scripts/install.sh` | `ET_BUILD=1`: no prompts; only the world map; encryption tools prepared, not asked. Also: runs `install-release.sh`; GPA and PFTE moved into the encryption add-on; `ET_CRYPTO=yes\|no` answers the encryption prompt (skipped with no terminal); outside the ISO, runs `configure-existing-user.sh` last |
 | `scripts/download-et-maps.sh` | Country can be passed instead of asked |

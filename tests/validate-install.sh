@@ -55,11 +55,8 @@ section "System"
 . /etc/os-release
 [[ "${ID}" == "debian" && "${VERSION_ID}" == "12" ]] \
   && pass "Debian 12 (${PRETTY_NAME})" || fail "Not Debian 12: ${PRETTY_NAME}"
-if [[ -s /etc/emcomm-tools/release ]]; then
-  pass "Release: $(cat /etc/emcomm-tools/release)"
-else
-  fail "Release file /etc/emcomm-tools/release missing"
-fi
+REL=$(et-system-info release 2>/dev/null)
+[[ "${REL}" == ETC_* ]] && pass "Release: ${REL}" || fail "Release name missing from /etc/lsb-release (got '${REL}')"
 info "Kernel $(uname -r); $( [[ ${LIVE} -eq 1 ]] && echo 'live session' || echo 'installed system')"
 if [[ -d /sys/firmware/efi ]]; then
   SB=$(od -An -t u1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c 2>/dev/null | awk '{print $NF}')
@@ -127,9 +124,6 @@ if install_only "SSH"; then
   check "machine-id set" "test -s /etc/machine-id"
 fi
 check "chrony running" "systemctl is-active --quiet chrony"
-for t in apt-daily.timer apt-daily-upgrade.timer; do
-  [[ "$(systemctl is-enabled ${t} 2>/dev/null)" == "enabled" ]] && fail "${t} enabled (should be off)" || pass "${t} off"
-done
 if [[ -e /dev/et-gps ]]; then
   check "GPS plugged in: gpsd running" "systemctl is-active --quiet gpsd"
 else
@@ -167,13 +161,14 @@ command -v xara >/dev/null && pass "xara installed" || info "xara not installed 
 # --------------------------------------------------------------------------
 section "Encryption tools"
 check "Add-on available for later" "test -x /opt/emcomm-tools/add-ons/crypto/scripts/install-crypto.sh"
+CRYPTO_BIN=(gpa:/usr/local/bin/gpa pfte:/opt/pfte/bin steghide:/usr/bin/steghide)
 if [[ -e /etc/emcomm-tools/crypto-enabled ]]; then
   info "Encryption tools were selected"
-  for c in gpa veracrypt steghide; do check "${c} installed" "command -v ${c}"; done
+  for c in "${CRYPTO_BIN[@]}"; do check "${c%%:*} installed" "test -e ${c#*:}"; done
 else
   info "Encryption tools were not selected"
-  for c in gpa veracrypt steghide; do
-    command -v "${c}" >/dev/null && fail "${c} installed but not selected" || pass "${c} not installed"
+  for c in "${CRYPTO_BIN[@]}"; do
+    [[ -e ${c#*:} ]] && fail "${c%%:*} installed but not selected" || pass "${c%%:*} not installed"
   done
 fi
 

@@ -61,12 +61,11 @@ apt-get update -qq
 if [[ -n "$(git -C "${REPO}" status --porcelain --untracked-files=no)" ]]; then
   echo "WARNING: ${REPO} has uncommitted changes; they will be in the ISO."
 fi
-# xara isn't built into the ISO: users add it after install (see
-# docs/INSTALL-GUIDE.md), so a xara-*.tar.gz in scripts/ is not copied.
-mkdir -p "${WORK}/config/includes.chroot/root/etc-build"
+# xara isn't built into the ISO, so a xara-*.tar.gz in scripts/ is not copied.
+mkdir -p "${WORK}/config/includes.chroot/opt/emcomm-tools-os-community"
 { git -C "${REPO}" ls-files -z; printf '.git\0'; } \
   | tar -C "${REPO}" --null -T - -cf - \
-  | tar -C "${WORK}/config/includes.chroot/root/etc-build" -xf -
+  | tar -C "${WORK}/config/includes.chroot/opt/emcomm-tools-os-community" -xf -
 chmod 755 "${WORK}"/config/hooks/normal/*.hook.* \
           "${WORK}"/config/includes.chroot/usr/local/bin/* \
           "${WORK}"/config/includes.chroot/usr/local/sbin/* \

@@ -6,8 +6,7 @@
 # Installs:
 #   - GNU Privacy Assistant (install-gpa.sh)
 #   - Paranoia File & Text Encryption (install-pfte.sh)
-#   - VeraCrypt (install-veracrypt.sh)
-#   - steghide, gpg
+#   - steghide
 #   - offline guides (gpg, steghide) and the AmRRON public key / GPG guide
 #
 # Usage:
@@ -47,7 +46,6 @@ stage_addon() {
     install-crypto.sh \
     install-gpa.sh \
     install-pfte.sh \
-    install-veracrypt.sh \
     install-offline-lib.sh \
     install-offline-lib-crypto.json \
     env.sh \
@@ -69,12 +67,11 @@ prepare_offline() {
   # Debian packages and the dependencies this image doesn't already have.
   apt-get install -y --download-only \
     -o Dir::Cache::archives="${PAYLOAD_DIR}/debs" \
-    steghide pcscd
+    steghide
   rm -rf "${PAYLOAD_DIR}/debs/partial" "${PAYLOAD_DIR}/debs/lock"
 
-  # PFTE and VeraCrypt .debs.
+  # PFTE .deb.
   ET_DOWNLOAD_ONLY="${PAYLOAD_DIR}/debs" ./install-pfte.sh
-  ET_DOWNLOAD_ONLY="${PAYLOAD_DIR}/debs" ./install-veracrypt.sh
 
   # GPA is built from source: build it, pack it, then take it out of the image.
   ./install-gpa.sh
@@ -126,7 +123,7 @@ fi
 
 if [[ "$1" != "--yes" ]]; then
   echo "This installs optional encryption tools: GNU Privacy Assistant,"
-  echo "Paranoia File & Text Encryption, VeraCrypt, steghide, gpg and guides."
+  echo "Paranoia File & Text Encryption, steghide and guides."
   echo
   echo "Encryption laws differ by country: do not install these tools where"
   echo "possessing or using them is illegal. You are responsible for following"
@@ -144,13 +141,11 @@ et-log "Installing optional encryption tools..."
 mkdir -p "${ET_DIST_DIR}" "${ET_SRC_DIR}"
 
 apt install \
-  gpg \
   steghide \
   -y
 
 ./install-gpa.sh
 ./install-pfte.sh
-./install-veracrypt.sh
 
 et-log "Installing encryption guides..."
 mkdir -p "/etc/skel/${OFFLINE_DIR}/crypto"

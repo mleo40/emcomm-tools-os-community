@@ -55,7 +55,7 @@ publishing.
 
 | Option | How | Default |
 |---|---|---|
-| Release name (shown in the conky panel, sent as JS8Call's MyInfo) | `sudo ET_RELEASE=ETC-r8-debian12 ./build.sh` | From the last ETC tag, e.g. `ETC-r7-build37-debian12` |
+| Release name (shown in the conky panel, sent as JS8Call's MyInfo) | `sudo ET_RELEASE=ETC_R8_BUILD1 ./build.sh` | From the last ETC tag, e.g. `ETC_R7_BUILD37` |
 | Build folder | `sudo ET_WORK_DIR=/path ./build.sh` | `/var/tmp/etc-live-build` (emptied at the start of each build; the download cache is kept) |
 
 To change what's in the image beyond these, edit the repository, the same as
@@ -71,11 +71,11 @@ it asks which file to download, and the build runs without prompts.
 |---|---|
 | Debian 12, GNOME, EmComm Tools | Installed |
 | Maps | The global map (80 MB). How users add other maps after install is still to be decided (see [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md)) |
-| Encryption tools (GPA, PFTE, VeraCrypt, steghide, gpg, guides) | Carried, not installed. The person installing chooses them on the installer's **Optional software** page (not selected by default); they install from the ISO, no internet needed. They can also be added later from `/opt/emcomm-tools/add-ons/crypto` |
+| Encryption tools (GPA, PFTE, steghide, guides) | Carried, not installed. The person installing chooses them on the installer's **Optional software** page (not selected by default); they install from the ISO, no internet needed. They can also be added later from `/opt/emcomm-tools/add-ons/crypto` |
 | GRUB for UEFI and BIOS | Carried, so installs work offline |
 | xara modem | Not included (its source was withdrawn; a `xara-*.tar.gz` in `scripts/` isn't copied). Rust is installed. How users add xara after install is still to be decided (see [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md)) |
 | Live session login | Debian's defaults: user `user`, password `live`. Only in the live session; installed systems have only the account created in the installer |
-| This repository | A read-only copy in `/opt/emcomm-tools-os-community` (about 10 MB, no git history): ETC's scripts and test suite, matching the ISO |
+| This repository | A read-only copy in `/opt/emcomm-tools-os-community` (about 12 MB, no git history): ETC's scripts and test suite, matching the ISO |
 | Accounts, home folders, SSH host keys, machine-id, logs, build files | None. Each installed system gets its own SSH host keys and machine-id |
 
 ## How the build works
@@ -91,10 +91,10 @@ it asks which file to download, and the build runs without prompts.
    `/opt/emcomm-tools-api/data/weather-forecast-zone.csv`: et-api 1.3.0 needs
    it but its release doesn't include it (see
    [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md)); if the download fails, it
-   counts as a failed step. It keeps a read-only copy of
-   the repository (tracked files, no git history) in
-   `/opt/emcomm-tools-os-community`, and removes the build copy and the
-   build's downloads. live-build's own cleanup hooks run after it and remove
+   counts as a failed step. The build runs from the repository copy in
+   `/opt/emcomm-tools-os-community`, which then stays in the image read-only,
+   without the build's leftovers or git history; the build's downloads are
+   removed. live-build's own cleanup hooks run after it and remove
    logs, SSH host keys and machine-id.
 4. The binary stage adds Debian's signed shim and GRUB (Secure Boot), the GRUB
    packages the installer needs (the `0910-grub-pc-pool` hook adds BIOS GRUB),

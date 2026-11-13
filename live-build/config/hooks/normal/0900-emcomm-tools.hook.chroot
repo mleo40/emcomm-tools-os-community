@@ -3,17 +3,18 @@
 # Date    : 11 November 2026
 # Purpose : Install EmComm Tools into the image (live-build chroot hook).
 #
-# build.sh copies the repository to /root/etc-build (config/includes.chroot).
-# This runs install.sh in build mode (no prompts), reports failed steps, keeps
-# a read-only copy at /opt/emcomm-tools-os-community, and removes the build
-# copy and the logs.
+# build.sh copies the repository to /opt/emcomm-tools-os-community
+# (config/includes.chroot). This runs install.sh from it in build mode (no
+# prompts), reports failed steps, then leaves it as a read-only copy of the
+# repository the ISO was built from (ETC's scripts and test suite), without the
+# build's leftovers or git history.
 #
 # Numbered 0900 so it runs before live-build's cleanup hooks (8000-8110), which
 # then remove logs, SSH host keys, machine-id and temporary files from the image.
 
 set -u
 
-BUILD_DIR=/root/etc-build
+BUILD_DIR=/opt/emcomm-tools-os-community
 LOG=/tmp/et/et.log
 
 cd "${BUILD_DIR}/scripts" || exit 1
@@ -52,7 +53,8 @@ fi
 sed -i 's/^Name=.*/Name=Install EmComm Tools/' /usr/share/applications/install-debian.desktop
 
 # Live session dock: Debian's live settings (96_calamares-settings-debian,
-# removed with Calamares at install) override ETC's dock with Debian's apps.
+# from calamares-settings-debian, which the installer removes) override ETC's dock
+# with Debian's apps.
 # Use the installer plus ETC's launchers instead.
 SCHEMAS=/usr/share/glib-2.0/schemas
 ETC_FAV=$(sed -n 's/^favorite-apps *= *\[\(.*\)\]/\1/p' "${SCHEMAS}/90_emcomm-tools.gschema.override")
@@ -62,18 +64,15 @@ if [[ -n "${ETC_FAV}" && -f "${SCHEMAS}/96_calamares-settings-debian.gschema.ove
   glib-compile-schemas "${SCHEMAS}"
 fi
 
-# A read-only copy of the repository the ISO was built from (tracked files, no
-# git history), for scripts users run after install: maps, Wikipedia, xara,
-# the test suite. See docs/INSTALL-GUIDE.md.
-REPO_COPY=/opt/emcomm-tools-os-community
-rm -rf "${REPO_COPY}" && mkdir -p "${REPO_COPY}"
-(cd "${BUILD_DIR}" && git -c safe.directory='*' ls-files -z \
-  | xargs -0 cp --parents -t "${REPO_COPY}")
-chown -R root:root "${REPO_COPY}"
-chmod -R u+rwX,go+rX,go-w "${REPO_COPY}"
+# Keep the repository as a read-only copy: drop what the build added to it
+# and the git history.
+git -c safe.directory='*' -C "${BUILD_DIR}" clean -fdxq
+rm -rf "${BUILD_DIR}/.git"
+chown -R root:root "${BUILD_DIR}"
+chmod -R u+rwX,go+rX,go-w "${BUILD_DIR}"
 
 # Nothing else from the build stays in the image.
-rm -rf "${BUILD_DIR}" /tmp/et /opt/dist /opt/src 2>/dev/null
+rm -rf /tmp/et /opt/dist /opt/src 2>/dev/null
 apt-get clean
 
 exit 0

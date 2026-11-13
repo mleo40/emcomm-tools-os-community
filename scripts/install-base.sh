@@ -24,6 +24,7 @@ apt install \
   build-essential \
   cmake \
   curl \
+  gpg \
   imagemagick \
   jq \
   net-tools \

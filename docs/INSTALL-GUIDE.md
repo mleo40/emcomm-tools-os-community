@@ -118,7 +118,7 @@ tick **Encrypt system** and set a passphrase; it's asked for at every start.
 ![Users](install-guide/images/11-users.png)
 
 **Optional software:** the encryption tools (GNU Privacy Assistant, Paranoia
-File & Text Encryption, VeraCrypt, steghide, gpg and guides) are installed only
+File & Text Encryption, steghide and guides) are installed only
 if you click **Install encryption tools** (it turns dark when selected).
 Encryption laws differ by country: don't select them where possessing or using
 them is illegal. To skip them, click **Skip encryption tools** or just
