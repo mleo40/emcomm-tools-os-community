@@ -1,24 +1,13 @@
 # Building EmComm Tools ISO images
 
-How the ETC developer builds an EmComm Tools ISO for distribution. The ISO is
-Debian 12 with EmComm Tools installed, built with Debian/live-build. Users boot it, try it live,
-and install it with the installer (Calamares). Building the image needs internet; the
-finished ISO boots, installs and runs without it.
-
-Why the project moved to this method, and what changed to get here, is in
-[CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md).
+How to build the EmComm Tools ISO: Debian 12 with ETC installed, built with
+Debian/live-build, installed with Calamares. The build needs internet; the ISO
+doesn't. Why and what changed: [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md).
 
 ## What you need
 
-- A Debian 12 machine to build on. A VM is fine: 4 CPUs, 6 GB RAM, 100 GB disk.
-- About 60 GB free, internet, and root (`sudo`).
-- `git` 
-- `build.sh` (from this repo) installs `live-build` if it's missing.
-
-The build happens in a fresh, separate system (a chroot), so nothing from the
-build machine's accounts, files or settings ends up in the ISO. A
-general-purpose machine is fine, but don't build on a machine whose packages
-you've changed by hand.
+- Debian 12 (a VM is fine: 4 CPUs, 6 GB RAM, 100 GB disk), about 60 GB free,
+  internet, `sudo` and `git`. `build.sh` installs `live-build` if missing.
 
 ## Build
 
@@ -30,103 +19,69 @@ cd live-build
 sudo ./build.sh
 ```
 
-Build from a clean checkout. `build.sh` copies only files git tracks, and
-warns if tracked files have uncommitted changes, because those go into the
-ISO.
-
-It takes about 45 minutes, mostly `install.sh` compiling and downloading. The
-ISO and `build.log` are written to `/var/tmp/etc-live-build/`:
-
-```
-emcomm-tools-os-community-<date>-amd64.hybrid.iso    about 4.8 GB
-```
-
-At the end, `build.sh` prints the `install.sh` summary from the build:
-
-```
-=== EmComm Tools build: install.sh exit code 0 ===
-=== Failed steps: 0 ===
-```
-
-Any failed step is listed underneath. Check them in `build.log` before
-publishing.
+About 45 minutes. Only git-tracked files are used; uncommitted changes to them
+go into the ISO (`build.sh` warns). Output in `/var/tmp/etc-live-build/`:
+`emcomm-tools-os-community-<date>-amd64.hybrid.iso` (about 4.8 GB) and
+`build.log`. `build.sh` ends with the `install.sh` exit code and failed steps;
+check any in `build.log` before publishing.
 
 ## Build options
 
 | Option | How | Default |
 |---|---|---|
-| Release name (shown in the conky panel, sent as JS8Call's MyInfo) | `sudo ET_RELEASE=ETC_R8_BUILD1 ./build.sh` | From the last ETC tag, e.g. `ETC_R7_BUILD37` |
-| Build folder | `sudo ET_WORK_DIR=/path ./build.sh` | `/var/tmp/etc-live-build` (emptied at the start of each build; the download cache is kept) |
+| Release name (conky panel, JS8Call MyInfo) | `sudo ET_RELEASE=ETC_R8_BUILD1 ./build.sh` | From the last ETC tag, e.g. `ETC_R7_BUILD37` |
+| Build folder | `sudo ET_WORK_DIR=/path ./build.sh` | `/var/tmp/etc-live-build` (emptied each build; download cache kept) |
 
-To change what's in the image beyond these, edit the repository, the same as
-for any ETC change: `scripts/install.sh` and its scripts, `overlay/`, or
-`live-build/config/package-lists/`.
+**Download cache.** The Debian packages live-build downloads (a few GB) are kept
+in `<build folder>/cache` between builds, so rebuilds don't fetch them again.
+Useful when rebuilding often (testing changes) or on a slow or metered
+connection. apt still uses Debian's current package index, so the ISO is the
+same with or without it. `install.sh`'s own downloads aren't cached. For a
+fully fresh download, delete the `cache` folder.
 
-The `ET_EXPERT` offline Wikipedia download isn't available in an ISO build:
-it asks which file to download, and the build runs without prompts.
+`ET_EXPERT` (r7's offline Wikipedia download) doesn't work in an ISO build: it
+asks which file to download, and the build can't answer.
 
 ## What's in the ISO
 
 | Item | In the ISO |
 |---|---|
 | Debian 12, GNOME, EmComm Tools | Installed |
-| Maps | The global map (80 MB). How users add other maps after install is still to be decided (see [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md)) |
-| Encryption tools (GPA, PFTE, steghide, guides) | Carried, not installed. The person installing chooses them on the installer's **Optional software** page (not selected by default); they install from the ISO, no internet needed. They can also be added later, offline: `sudo /opt/emcomm-tools-os-community/scripts/install-crypto.sh --offline` |
-| GRUB for UEFI and BIOS | Carried, so installs work offline |
-| xara modem | Not included (its source was withdrawn; a `xara-*.tar.gz` in `scripts/` isn't copied). Rust is installed. How users add xara after install is still to be decided (see [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md)) |
-| Live session login | Debian's defaults: user `user`, password `live`. Only in the live session; installed systems have only the account created in the installer |
-| This repository | A read-only copy in `/opt/emcomm-tools-os-community` (about 12 MB, no git history): ETC's scripts and test suite, matching the ISO. `scripts/install.sh` there isn't executable, so it isn't run over an installed system by accident (`sudo bash install.sh` runs it on purpose) |
-| Accounts, home folders, SSH host keys, machine-id, logs, build files | None. Each installed system gets its own SSH host keys and machine-id |
+| Maps | Global map only (80 MB). Adding other maps: to be decided |
+| Encryption tools | Carried, not installed. Opt-in on the installer's **Optional software** page, or later: `sudo /opt/emcomm-tools-os-community/scripts/install-crypto.sh --offline` |
+| GRUB for UEFI and BIOS | Carried, for offline installs |
+| Live session login | `user` / `live` (Debian's default), live session only |
+| This repository | Read-only copy in `/opt/emcomm-tools-os-community`, no git history; `install.sh` not executable |
+| Accounts, SSH host keys, machine-id, logs | None; generated per install |
 
-## How the build works
+## Where things are
 
-1. `build.sh` copies the repository into live-build's config and runs
-   `lb config` and `lb build`.
-2. live-build creates a Debian 12 chroot with the packages in
-   `live-build/config/package-lists/emcomm-tools.list.chroot`.
-3. The `0900-emcomm-tools` chroot hook runs `install.sh` with `ET_BUILD=1`
-   from the repository copy in `/opt/emcomm-tools-os-community` (no prompts,
-   only the global map, encryption tools prepared but not installed). It adds
-   et-api's NWS forecast zone file (see [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md);
-   a failed download counts as a failed step), then leaves the repository copy
-   read-only, without the build's leftovers or git history. live-build's own
-   cleanup hooks then remove logs, SSH host keys and machine-id.
-4. The binary stage adds Debian's signed shim and GRUB (Secure Boot), the GRUB
-   packages the installer needs (the `0910-grub-pc-pool` hook adds BIOS GRUB),
-   and writes the hybrid ISO (USB or DVD, BIOS or UEFI).
-
-The installer settings are in
-`live-build/config/includes.chroot/etc/calamares/`: Debian's, with ETC's
-branding, the Optional software page and ETC's steps (see
-[CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md)).
+- `live-build/build.sh`: sets up and runs `lb config` / `lb build`.
+- `live-build/config/package-lists/emcomm-tools.list.chroot`: base packages.
+- `live-build/config/hooks/normal/0900-emcomm-tools.hook.chroot`: runs
+  `install.sh` with `ET_BUILD=1`, adds et-api's NWS zone file, cleans up.
+- `live-build/config/hooks/normal/0910-grub-pc-pool.hook.binary`: BIOS GRUB
+  for offline installs.
+- `live-build/config/includes.chroot/etc/calamares/`: installer settings.
 
 ## Test before publishing
 
-In a VM with UEFI and Secure Boot on, and with no network:
+In a VM with UEFI, Secure Boot on and no network:
 
-1. The ISO boots to the live desktop, and **Install EmComm Tools** starts the
-   installer without a password.
-2. Install twice: once with **Install encryption tools**, after saving a
-   callsign in the live session's setup; once with **Skip encryption tools**,
-   after clicking **Cancel** there.
-3. Each installed system boots with Secure Boot on to the "EmComm Tools
-   GNU/Linux" menu. Setup opens at first login only after the install where
-   **Cancel** was clicked.
-4. Log in, then check: `id` shows `et-data` as the primary group,
-   `systemctl is-active ssh` is `active`, and the encryption tools are there
-   only if they were selected.
-5. Run ETC's test suite:
-   `cd /opt/emcomm-tools-os-community/tests && ./run-test-suite.sh`.
-   `test-xara` fails: xara isn't in the ISO.
+1. The ISO boots live; **Install EmComm Tools** starts without a password.
+2. Install twice: **Install encryption tools** after saving a callsign live;
+   **Skip encryption tools** after clicking **Cancel** in setup.
+3. Each install boots with Secure Boot to the "EmComm Tools GNU/Linux" menu.
+   Setup opens at first login only after the **Cancel** install.
+4. `id` shows `et-data` as primary group, `systemctl is-active ssh` is
+   `active`, encryption tools present only if selected.
+5. `cd /opt/emcomm-tools-os-community/tests && ./run-test-suite.sh`
+   (`test-xara` fails, as expected).
 
-Also boot it once on a BIOS (non-UEFI) machine or VM.
+Also boot once on BIOS.
 
 ## Publish
 
 ```bash
 sha256sum emcomm-tools-os-community-<date>-amd64.hybrid.iso > emcomm-tools-os-community-<date>-amd64.hybrid.iso.sha256
 ```
-
-Publish the ISO with its `.sha256` file, and point users to
-[docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md): it covers checking the
-download, a Ventoy USB stick, the live system and installing.

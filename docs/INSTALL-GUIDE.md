@@ -9,8 +9,8 @@ You need:
 
 - The ETC ISO file and its `.sha256` file.
 - A USB stick of 16 GB or more.
-- A 64-bit computer with 4 GB of RAM or more. For installing: 64 GB of disk
-  or more. The installer erases the disk you choose.
+- A 64-bit computer with 8 GB of RAM. For installing: a 128 GB SSD (256 GB
+  recommended). The installer erases the disk you choose.
 
 ## 1. Check the download
 

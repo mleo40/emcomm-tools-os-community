@@ -24,6 +24,8 @@ gnome-sudoku
 remmina
 deja-dup
 gnome-power-manager
+# USB Image Writer and Stick Formatter, in place of Ubuntu's USB Creator.
+mintstick
 calamares
 calamares-settings-debian
 sudo
