@@ -112,9 +112,12 @@ In a VM with UEFI and Secure Boot on, and with no network:
 3. Each installed system boots with Secure Boot on to the "EmComm Tools
    GNU/Linux" menu. Setup opens at first login only after the install where
    **Cancel** was clicked.
-4. Log in and run `/opt/emcomm-tools-os-community/tests/validate-install.sh`
-   (plug in the radio interface and GPS first to include them). It checks the
-   rest, including ETC's app tests, and exits with the number of failures.
+4. Log in, then check: `id` shows `et-data` as the primary group,
+   `systemctl is-active ssh` is `active`, and the encryption tools are there
+   only if they were selected.
+5. Run ETC's test suite:
+   `cd /opt/emcomm-tools-os-community/tests && ./run-test-suite.sh`.
+   `test-xara` fails: xara isn't in the ISO.
 
 Also boot it once on a BIOS (non-UEFI) machine or VM.
 
