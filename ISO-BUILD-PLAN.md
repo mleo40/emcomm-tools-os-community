@@ -2,7 +2,7 @@
 
 How to build the EmComm Tools ISO: Debian 12 with ETC installed, built with
 Debian/live-build, installed with Calamares. The build needs internet; the ISO
-doesn't. Why and what changed: [CHANGES-OVERVIEW.md](CHANGES-OVERVIEW.md).
+doesn't.
 
 ## What you need
 
@@ -50,7 +50,7 @@ asks which file to download, and the build can't answer.
 | Maps | Global map only (80 MB). Adding other maps: to be decided |
 | Encryption tools install files | Carried, not installed. Opt-in on the installer's **Optional software** page, or later: `sudo /opt/emcomm-tools-os-community/scripts/install-crypto.sh --offline` |
 | GRUB for UEFI and BIOS | Carried, for offline installs |
-| Live session login | `user` / `live` (Debian's default), live session only |
+| Live session login | `user` / `live` (Debian's default), live session only; SSH off in the live session |
 | This repository | Read-only copy in `/opt/emcomm-tools-os-community`, no git history; `install.sh` not executable |
 | Accounts, SSH host keys, machine-id, logs | None; generated per install |
 
