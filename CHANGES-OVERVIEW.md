@@ -81,8 +81,8 @@ VARA under WINE 8.0 still needs testing.
 ## Size/Scope of this migration
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
-(`emcomm-tools-os-community-20261111-r7-build37`, merged in): **96 files,
-+1,283 / −380 lines** (not counting this document).
+(`emcomm-tools-os-community-20261111-r7-build37`, merged in): **97 files,
++1,288 / −380 lines** (not counting this document).
 
 It's less than it looks:
 
@@ -97,10 +97,10 @@ It's less than it looks:
 
 | # | Commit | Files | Lines | Share | Why |
 |---|---|---|---|---|---|
-| 1 | `debian - Debian 12 base, live-build ISO and Calamares installer` | 42 | +602 / −166 | 47% | live-build replaces Cubic's manual steps (all new files)<br>Small edits where scripts named Ubuntu packages, versions or URLs<br>`install.sh` asks nothing during the build<br>Installer-created users get `et-data` as primary group<br>Read-only repo copy in `/opt/emcomm-tools-os-community`: users can add the encryption tools or xara later and run ETC's test suite (r7's copy sat in `/root`, out of reach)<br>`build.sh` keeps live-build's download cache for faster rebuilds (optional) |
-| 2 | `debian - Desktop and boot branding parity with r7` | 16 | +159 / −200 | 12% | Branding parity: GNOME look (Yaru theme and top bar, dock, desktop and tray icons, window buttons)<br>Calamares slideshow ported from Ubiquity<br>ETC GRUB menus and background (live ISO and installed)<br>ETC boot splash<br>Ubuntu builds these in; Debian needs them added |
-| 3 | `debian - Encryption tools opt-in at install` | 13 | +174 / −14 | 14% | Distribution requirement: encryption is legally restricted in some jurisdictions, so installing the tools must be a deliberate choice the user makes<br>Installer page with Skip/Install buttons (`stylesheet.qss`)<br>Guides move unchanged, so only users who choose the tools get them |
-| 4 | `debian - Live-session polish` | 5 | +107 | 8% | Branding parity and live-session usability<br>Installer launcher with ETC's name and logo, starting without a password<br>ETC's dock<br>Settings saved live carry into the install |
-| 5 | `docs - ISO build guide, install guide, release notes` | 20 | +239 | 19% | Release notes<br>Developer build guide<br>End-user install guide with screenshots (installer and boot steps changed from r7) |
+| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 42 | +602 / −166 | 47% | live-build replaces Cubic's manual steps (all new files)<br>Small edits where scripts named Ubuntu packages, versions or URLs<br>`install.sh` asks nothing during the build<br>Installer-created users get `et-data` as primary group<br>Read-only repo copy in `/opt/emcomm-tools-os-community`: users can add the encryption tools or xara later and run ETC's test suite (r7's copy sat in `/root`, out of reach)<br>`build.sh` keeps live-build's download cache for faster rebuilds (optional) |
+| 2 | `Desktop and boot branding parity with r7` | 16 | +159 / −200 | 12% | Branding parity: GNOME look (Yaru theme and top bar, dock, desktop and tray icons, window buttons)<br>Calamares slideshow ported from Ubiquity<br>ETC GRUB menus and background (live ISO and installed)<br>ETC boot splash<br>Ubuntu builds these in; Debian needs them added |
+| 3 | `Encryption tools opt-in at install` | 13 | +174 / −14 | 14% | Distribution requirement: encryption is legally restricted in some jurisdictions, so installing the tools must be a deliberate choice the user makes<br>Installer page with Skip/Install buttons (`stylesheet.qss`)<br>Guides move unchanged, so only users who choose the tools get them |
+| 4 | `Live-session polish` | 6 | +112 | 9% | Branding parity and live-session usability<br>Installer launcher with ETC's name and logo, starting without a password<br>ETC's dock<br>Settings saved live carry into the install<br>SSH off in the live session (public login) |
+| 5 | `docs - ISO build guide, install guide, release notes` | 20 | +239 | 19% | Release notes<br>ISO build guide (`ISO-BUILD-PLAN.md`)<br>End-user install guide with screenshots (installer and boot steps changed from r7) |
 
 <br><br><br><br><br><br>
