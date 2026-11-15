@@ -1,8 +1,8 @@
 # Moving EmComm Tools from Ubuntu/Cubic to Debian/live-build
 
 What changes, and why. For review only; remove this document once merged.
-Building ISOs from now on: [ISO-BUILD-PLAN.md](ISO-BUILD-PLAN.md). Installing:
-[docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
+Building ISOs from now on: [docs/BUILD-GUIDE.md](docs/BUILD-GUIDE.md).
+Installing: [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
 
 ## Goals
 
@@ -15,11 +15,14 @@ Building ISOs from now on: [ISO-BUILD-PLAN.md](ISO-BUILD-PLAN.md). Installing:
 ## Key changes for the ETC developer
 
 - **Build:** live-build replaces Cubic. `sudo ./build.sh` places users in the
-  build's root shell to install ETC (`./install.sh`) and any extras; on `exit`,
+  build's root shell to install ETC and any extras; on `exit`,
   live-build builds the ISO.
 - **Installer:** Calamares replaces Ubiquity, and is new for ETC to maintain:
   its settings are in `live-build/config/includes.chroot/etc/calamares/`, its
   branding and slideshow in `overlay/etc/calamares/branding/`.
+- **Release tags:** the build names the ISO, boot menu and installer after
+  the ETC release tag the user checked out.
+- **Security:** SSH is disabled by default.
 - **Java:** OpenJDK 17 instead of 20, which Debian 12 doesn't have. ETC's Java
   apps need at most Java 11 (et-api) and 9 (YAAC); et-api runs on 17 in
   testing. Alternative: a non-Debian JDK 20+ (e.g. Eclipse Temurin) with its
@@ -31,25 +34,26 @@ Building ISOs from now on: [ISO-BUILD-PLAN.md](ISO-BUILD-PLAN.md). Installing:
 
 - **Fewer tools to set up:** a minimal Debian 12 with git. No Cubic to install,
   and no `install-ubuntu-image-tools-only.sh` to maintain or run.
+- **Smaller, faster build machine:** a minimal Debian 12 from a 650 MB
+  netinst image, instead of a full Ubuntu 22.10 desktop from a 3.8 GB ISO that
+  users also had to keep for Cubic.
 - **Nothing to type:** the release name, ISO file name, volume ID, boot menu
-  and installer version all come from the newest ETC release tag. A build from
-  newer commits also shows the commit, plus "modified" if there are
-  uncommitted changes.
+  and installer version all come from the checked-out ETC release tag.
 - **One command, no wizard:** no Cubic screens (packages, kernel,
   compression). The build runs on a machine without a desktop, or even over
   SSH.
-- **Your checkout is the source:** no tarball to download inside the build and
-  no scripts to patch by hand: edits to the repository's files go into the
-  ISO.
+- **Your checkout is the source:** users pick the ETC version to build with
+  a `git checkout`, and there's no tarball to download inside the build; the
+  repository's files go into the ISO.
 - **Build summary:** `install.sh` ends with what to do next, and the build
-  ends with the ISO's location and any failed `install.sh` steps, with the
-  full log saved.
+  ends with the ISO's location, along with any failed `install.sh` steps and
+  the full log.
 
 ## Size/Scope
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
 (`emcomm-tools-os-community-20261111-r7-build37`, merged in): **82 files,
-+1,186 / −354 lines**, plus this document (97 lines).
++1,188 / −354 lines**, plus this document (121 lines).
 
 It's less than it looks:
 
@@ -60,16 +64,16 @@ It's less than it looks:
 - Edits to existing scripts are small: most are 1–10 lines; the largest is 41,
   `install-branding.sh` (goal 3). `install.sh` changes 10 lines.
 - The main new code is the live-build and installer setup: 17 new files,
-  +537 lines (goals 1–2).
+  +538 lines (goals 1–2).
 
 It's planned as one PR with three commits, each reviewable on its own. The core
 comes first; the others build on it in any order.
 
 | # | Commit | Files | Lines | Share | Why |
 |---|---|---|---|---|---|
-| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 30 | +560 / −148 | 47% | live-build replaces Cubic; users install ETC in the build's root shell<br>Release names come from the newest ETC release tag<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
+| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 30 | +561 / −148 | 47% | live-build replaces Cubic; users install ETC in the build's root shell<br>Release names come from the checked-out ETC release tag<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>SSH off by default on installed systems<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
 | 2 | `Look and feel parity with r7` | 35 | +349 / −206 | 29% | GNOME look (Yaru theme and top bar, dock, desktop and tray icons, window buttons)<br>Calamares slideshow ported from Ubiquity<br>ETC GRUB menus, background and boot splash (live ISO and installed)<br>Live session boots straight into the installer, launched with ETC's name and logo, without a password<br>Settings saved live carry into the install<br>SSH off in the live session |
-| 3 | `ISO build guide, install guide, release notes` | 17 | +277 | 24% | Release notes<br>ISO build guide<br>This overview (counted separately; remove after the merge)<br>End-user install guide with screenshots |
+| 3 | `ISO build guide, install guide, release notes` | 17 | +278 | 24% | Release notes<br>ISO build guide<br>This overview (counted separately; remove after the merge)<br>End-user install guide with screenshots |
 
 ## Version parity with r7
 
@@ -95,3 +99,23 @@ upgrade would replace ETC's build and conflict with its WSJT-X.
 | chrony | 4.2 | 4.3 |
 | Python | 3.10 | 3.11 |
 | Linux kernel | 5.19 | 6.1, with Debian's non-free firmware in the ISO |
+
+## Where the new code lives
+
+The new code only replaces Cubic and wraps ETC: it prepares a Debian system,
+opens a shell for r7's own `install.sh` (which still does all of ETC's
+installing), and packs the result into an ISO.
+
+- **`live-build/build.sh`:** the driver. Prepares the build folder, copies the
+  repository into the ISO, names the release from the checked-out tag, runs
+  live-build and prints the summary.
+- **`live-build/config/package-lists/`:** the ISO's base packages.
+- **`live-build/config/hooks/normal/`:**
+  - `0900-emcomm-tools.hook.chroot`: the build's root shell for `install.sh`,
+    then cleanup.
+  - `0910-grub-pc-pool.hook.binary`: BIOS GRUB for offline installs.
+  - `0920-boot-menu.hook.binary`: ETC's name and release in the boot menus.
+- **`live-build/config/includes.chroot/`:** files copied into the ISO: the
+  installer's settings (`etc/calamares/`) and live-session setup
+  (`usr/lib/live/config/`).
+- **`overlay/etc/calamares/branding/`:** the installer's look and slideshow.

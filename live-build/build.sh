@@ -14,7 +14,7 @@
 #   ET_WORK_DIR  build folder (default /var/tmp/etc-live-build), emptied first
 #
 # The release name, ISO file name, volume ID and installer version come from
-# the newest ETC tag on the checkout.
+# the ETC release tag of the checkout (git describe).
 #
 # Output: emcomm-tools-os-community-<tag date>-<release>-amd64.hybrid.iso and
 # build.log in ET_WORK_DIR.
@@ -74,7 +74,7 @@ chmod 755 "${WORK}"/config/hooks/normal/*.hook.* \
           "${WORK}"/config/includes.chroot/usr/local/sbin/* \
           "${WORK}"/config/includes.chroot/usr/lib/live/config/*
 
-# Release values from the newest ETC tag, e.g.
+# Release values from the checkout's ETC release tag, e.g.
 # emcomm-tools-os-community-20261111-r7-build37: release ETC_R7_BUILD37,
 # installer version "R7 Build37". A checkout past the tag adds its commit, and
 # uncommitted changes add "modified", so test ISOs can't pass for the release.

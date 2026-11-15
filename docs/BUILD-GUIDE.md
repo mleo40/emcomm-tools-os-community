@@ -53,7 +53,7 @@ exit
 
 xara is no longer distributed by its developer, so the build can't download
 it. To include it, bring your own copy of its source code, packaged as described
-in [scripts/xara.md](scripts/xara.md):
+in [scripts/xara.md](../scripts/xara.md):
 
 1. Package the source as `xara-VERSION.tar.gz` (e.g. `xara-0.1.3.tar.gz`),
    with a single top-level folder named `xara`
@@ -114,7 +114,7 @@ steps failed, if any. Both the ISO and the full log (`build.log`) are in
 `/var/tmp/etc-live-build/`. If any steps failed, check them in `build.log`
 before using the ISO.
 
-To install the ISO, see [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
+To install the ISO, see [INSTALL-GUIDE.md](INSTALL-GUIDE.md).
 
 ## What's in your ISO
 

@@ -7,7 +7,7 @@ set -e
 
 LABEL="Try or Install EmComm Tools (@ET_RELEASE@)"
 
-sed -i -e "s/Live system (amd64 fail-safe mode)/${LABEL} (fail-safe mode)/" \
+sed -i -e "s/Live system (amd64 fail-safe mode)/Try or Install EmComm Tools (fail-safe)/" \
        -e "s/Live system (amd64)/${LABEL}/" \
        -e "s/--hotkey=l/--hotkey=t/" \
   boot/grub/grub.cfg isolinux/live.cfg
