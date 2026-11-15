@@ -1,8 +1,8 @@
 # Building the EmComm Tools ISO
 
 How to build your own EmComm Tools (ETC) ISO with Debian's live-build. The
-result is Debian 12 with ETC installed, ready to install with Calamares.
-Building needs internet; the ISO doesn't.
+result is Debian 12 with ETC installed, ready to install. Building needs
+internet; the ISO doesn't.
 
 In short: install Debian 12, clone this repository and run `sudo ./build.sh`,
 run `ET_EXPERT=1 ./install.sh` and answer its questions, customize, then
@@ -10,13 +10,17 @@ run `ET_EXPERT=1 ./install.sh` and answer its questions, customize, then
 
 ## Setup
 
-You need a build machine or VM (4+ CPUs, 6 GB RAM, 100 GB disk) with internet.
+You need a build machine or VM (4+ CPUs, 4 GB RAM, 100 GB disk) with internet.
 
-1. **Install Debian 12**, minimal: under Software selection, untick both
-   **Debian desktop environment** and **GNOME**. Installer images:
-   [debian.org/releases/bookworm/debian-installer](https://www.debian.org/releases/bookworm/debian-installer/)
-   (the small `netinst` image is enough). **Leave the root password empty**:
-   the build needs your user to have `sudo`, and Debian gives it only then.
+1. **Install Debian 12**, minimal:
+   - Installer images:
+     [debian.org/releases/bookworm/debian-installer](https://www.debian.org/releases/bookworm/debian-installer/)
+     (the small `netinst` image is enough).
+   - Under Software selection, untick both **Debian desktop environment** and
+     **GNOME**: they aren't needed, and leaving them out makes the Debian
+     install much faster.
+   - **Leave the root password empty**: the build needs your user to have
+     `sudo`, and this is how you get it.
 
 2. **Get the repository:** once Debian is installed, log in to your build
    machine (at its console, in a terminal, or over SSH) and run:
@@ -86,44 +90,31 @@ in [scripts/xara.md](scripts/xara.md):
    shows how to add VARA after install. When it's done, it will show the next
    steps.
 
-3. **Optional: check the install.** When it's done, you can run ETC's test
-   suite by typing the following:
+   A successful install ends like this:
 
-   ```bash
-   cd ../tests && ./run-test-suite.sh
+   ```text
+   === EmComm Tools installed ===
+   Optional: cd ../tests && ./run-test-suite.sh
+   Then type exit to make the ISO.
+
+   (live)root@debian:/opt/emcomm-tools-os-community/scripts#
    ```
 
-4. **Optional: customize.** In the build's root shell, install extra packages
+3. **Optional: customize.** In the build's root shell, install extra packages
    with `apt install`, add files, or change settings. Everything done there
    ends up in the ISO.
 
-5. **Type `exit`.** This leaves the shell and automatically starts making the
+4. **Type `exit`.** This leaves the shell and automatically starts making the
    ISO. The whole build takes about 45 minutes.
 
 ## Output
 
 When the build finishes, it shows where the ISO is and how many `install.sh`
-steps failed. Both the ISO and the full log (`build.log`) are in
+steps failed, if any. Both the ISO and the full log (`build.log`) are in
 `/var/tmp/etc-live-build/`. If any steps failed, check them in `build.log`
 before using the ISO.
 
 To install the ISO, see [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
-
-The release name comes from the newest ETC release tag on your checkout. It
-names the ISO, its volume ID, the boot menu, the installer and the conky panel.
-For tag `emcomm-tools-os-community-20261111-r7-build37`:
-
-| Checkout | Release | ISO |
-|---|---|---|
-| The tag itself | `ETC_R7_BUILD37` | `emcomm-tools-os-community-20261111-r7-build37-amd64.hybrid.iso` |
-| Newer commits | `ETC_R7_BUILD37-<commit>` | `...-r7-build37-<commit>-amd64.hybrid.iso` |
-| Uncommitted changes | `...-modified` added | `...-modified-amd64.hybrid.iso` |
-
-## Build options
-
-| Option | How | Default |
-|---|---|---|
-| Build folder | `sudo ET_WORK_DIR=/path ./build.sh` | `/var/tmp/etc-live-build` (emptied each build) |
 
 ## What's in your ISO
 
@@ -139,17 +130,3 @@ Your ISO is your own build, with the choices you made while building it:
 | Live session | Starts the installer; closing it leaves the desktop. Login `user` / `live` (Debian's default); SSH off |
 | This repository | Read-only copy in `/opt/emcomm-tools-os-community` |
 | Accounts, SSH host keys, machine-id, logs | None; generated during the install |
-
-## Where things are
-
-- `live-build/build.sh`: sets up and runs `lb config` / `lb build`.
-- `live-build/config/package-lists/emcomm-tools.list.chroot`: base packages.
-- `live-build/config/hooks/normal/0900-emcomm-tools.hook.chroot`: the build's
-  root shell for `install.sh`, then cleanup.
-- `live-build/config/hooks/normal/0910-grub-pc-pool.hook.binary`: BIOS GRUB
-  for offline installs.
-- `live-build/config/hooks/normal/0920-boot-menu.hook.binary`: ETC's name and
-  release in the boot menus.
-- `live-build/config/includes.chroot/etc/calamares/`: installer settings.
-- `live-build/config/includes.chroot/usr/lib/live/config/`: live-session-only
-  setup (installer without a password, installer at startup).

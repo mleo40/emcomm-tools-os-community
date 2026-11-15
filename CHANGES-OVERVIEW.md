@@ -49,7 +49,7 @@ Building ISOs from now on: [ISO-BUILD-PLAN.md](ISO-BUILD-PLAN.md). Installing:
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
 (`emcomm-tools-os-community-20261111-r7-build37`, merged in): **82 files,
-+1,209 / −354 lines**, plus this document (97 lines).
++1,186 / −354 lines**, plus this document (97 lines).
 
 It's less than it looks:
 
@@ -67,9 +67,9 @@ comes first; the others build on it in any order.
 
 | # | Commit | Files | Lines | Share | Why |
 |---|---|---|---|---|---|
-| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 30 | +560 / −148 | 46% | live-build replaces Cubic; users install ETC in the build's root shell<br>Release names come from the newest ETC release tag<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
+| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 30 | +560 / −148 | 47% | live-build replaces Cubic; users install ETC in the build's root shell<br>Release names come from the newest ETC release tag<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
 | 2 | `Look and feel parity with r7` | 35 | +349 / −206 | 29% | GNOME look (Yaru theme and top bar, dock, desktop and tray icons, window buttons)<br>Calamares slideshow ported from Ubiquity<br>ETC GRUB menus, background and boot splash (live ISO and installed)<br>Live session boots straight into the installer, launched with ETC's name and logo, without a password<br>Settings saved live carry into the install<br>SSH off in the live session |
-| 3 | `ISO build guide, install guide, release notes` | 17 | +300 | 25% | Release notes<br>ISO build guide<br>This overview (counted separately; remove after the merge)<br>End-user install guide with screenshots |
+| 3 | `ISO build guide, install guide, release notes` | 17 | +277 | 24% | Release notes<br>ISO build guide<br>This overview (counted separately; remove after the merge)<br>End-user install guide with screenshots |
 
 ## Version parity with r7
 
