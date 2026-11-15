@@ -1,7 +1,7 @@
 # Moving EmComm Tools from Ubuntu/Cubic to Debian/live-build
 
 What changes, and why. For review only; remove this document once merged.
-Building ISOs from now on: [docs/BUILD-GUIDE.md](docs/BUILD-GUIDE.md).
+Building ISOs from now on: [docs/ISO-BUILD-GUIDE.md](docs/ISO-BUILD-GUIDE.md).
 Installing: [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
 
 ## Goals
@@ -52,8 +52,8 @@ Installing: [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
 ## Size/Scope
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
-(`emcomm-tools-os-community-20261111-r7-build37`, merged in): **82 files,
-+1,188 / −354 lines**, plus this document (121 lines).
+(`emcomm-tools-os-community-20261111-r7-build37`, merged in): **83 files,
++1,192 / −354 lines**, plus this document (119 lines).
 
 It's less than it looks:
 
@@ -61,8 +61,8 @@ It's less than it looks:
   (goal 4).
 - 20 files are moves or deletions with no new logic: 9 renames (slideshow
   images, GNOME settings) and 11 deleted Ubuntu/Cubic files (goals 1–3).
-- Edits to existing scripts are small: most are 1–10 lines; the largest is 41,
-  `install-branding.sh` (goal 3). `install.sh` changes 10 lines.
+- Edits to existing scripts are small: most are 1–10 lines; the largest
+  (`install-branding.sh`) is 41 and `install.sh` changes 10 (goal 3).
 - The main new code is the live-build and installer setup: 17 new files,
   +538 lines (goals 1–2).
 
@@ -71,26 +71,24 @@ comes first; the others build on it in any order.
 
 | # | Commit | Files | Lines | Share | Why |
 |---|---|---|---|---|---|
-| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 30 | +561 / −148 | 47% | live-build replaces Cubic; users install ETC in the build's root shell<br>Release names come from the checked-out ETC release tag<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>SSH off by default on installed systems<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
+| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 31 | +565 / −148 | 48% | live-build replaces Cubic; users install ETC in the build's root shell<br>Release names come from the checked-out ETC release tag<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>SSH off by default on installed systems<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
 | 2 | `Look and feel parity with r7` | 35 | +349 / −206 | 29% | GNOME look (Yaru theme and top bar, dock, desktop and tray icons, window buttons)<br>Calamares slideshow ported from Ubiquity<br>ETC GRUB menus, background and boot splash (live ISO and installed)<br>Live session boots straight into the installer, launched with ETC's name and logo, without a password<br>Settings saved live carry into the install<br>SSH off in the live session |
-| 3 | `ISO build guide, install guide, release notes` | 17 | +278 | 24% | Release notes<br>ISO build guide<br>This overview (counted separately; remove after the merge)<br>End-user install guide with screenshots |
+| 3 | `ISO build guide, install guide, release notes` | 17 | +278 | 23% | Release notes<br>ISO build guide<br>End-user install guide with screenshots<br>This overview (counted separately; remove after the merge) |
 
 ## Version parity with r7
 
 **Apps ETC downloads or builds itself keep r7's pinned versions.** Each
-install script's `VERSION` is unchanged. Only SDR++ (nightly, unpinned in r7
+install script's `VERSION` is *unchanged*. Only SDR++ (nightly, unpinned in r7
 too) now downloads the Debian build.
 
-**New: JS8Call and WSJT-X are held** (`apt-mark hold`). Debian's
-`js8call 2.2.0+ds` counts as newer than ETC's 2.2.0, so without the hold an
-upgrade would replace ETC's build and conflict with its WSJT-X.
+**New: JS8Call and WSJT-X are pinned** (`/etc/apt/preferences.d/emcomm-tools`).
 
 **Apps from the distribution's archive follow Debian 12.** These have no Debian
 12 package at r7's version, so they can't be pinned to it:
 
 | App | r7 (Ubuntu 22.10) | Debian 12 |
 |---|---|---|
-| WINE / winetricks | 7.0 / 20220411 | 8.0 / 20230212 |
+| **WINE / winetricks** | **7.0 / 20220411** | **8.0 / 20230212** (VARA still to be tested) |
 | Thunderbird | 102 | 153 ESR |
 | conky | 1.12 | 1.18 |
 | Kiwix | 2.2 | 2.3 |

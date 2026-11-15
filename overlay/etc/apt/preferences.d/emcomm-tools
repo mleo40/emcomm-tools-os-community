@@ -1,0 +1,6 @@
+# ETC installs its own JS8Call and WSJT-X builds. Debian's js8call (2.2.0+ds)
+# counts as newer than ETC's 2.2.0 and would replace it on upgrade, pulling in
+# Debian's wsjtx-data, which conflicts with ETC's WSJT-X. Never take Debian's.
+Package: js8call wsjtx
+Pin: release o=Debian*
+Pin-Priority: -1

@@ -1,7 +1,7 @@
 # Installing EmComm Tools
 
 The EmComm Tools (ETC) ISO is Debian 12 with EmComm Tools installed, built
-with [BUILD-GUIDE.md](BUILD-GUIDE.md). You can run it from a USB
+with [ISO-BUILD-GUIDE.md](ISO-BUILD-GUIDE.md). You can run it from a USB
 stick without installing anything (a live session, which starts fresh each
 time), and install it to a computer's disk when you're ready. No internet is
 needed to boot, install or run it.
