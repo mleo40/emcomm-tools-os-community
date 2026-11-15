@@ -9,6 +9,8 @@
   Ubiquity)
 * The build pauses in a root shell inside the ISO's system, like Cubic's
   terminal: run `install.sh` there, as in r7
+* Release name, ISO file name, volume ID, boot menu and installer version
+  come from the newest ETC release tag
 * The installer removes itself from the installed system, as in r7
 * Yaru top bar, as in r7; time servers are Debian's NTP pool
 * OpenJDK 20 replaced by OpenJDK 17; Python 2 removed (mbutil runs on Python 3)

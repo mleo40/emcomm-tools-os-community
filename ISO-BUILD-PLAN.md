@@ -1,15 +1,16 @@
 # Building the EmComm Tools ISO
 
-How to build the EmComm Tools (ETC) ISO: Debian 12 with ETC installed, built
-with Debian/live-build, installed with Calamares. The build needs internet; the
-ISO doesn't.
+How to build your own EmComm Tools (ETC) ISO with Debian's live-build. The
+result is Debian 12 with ETC installed, ready to install with Calamares.
+Building needs internet; the ISO doesn't.
 
-In short: install Debian 12, clone this repository, run `sudo ./build.sh`, run
-`./install.sh` in the build's root shell, then `exit` to make the ISO.
+In short: install Debian 12, clone this repository and run `sudo ./build.sh`,
+run `ET_EXPERT=1 ./install.sh` and answer its questions, customize, then
+`exit`.
 
 ## Setup
 
-You need a machine or VM (4+ CPUs, 6 GB RAM, 100 GB disk) with internet.
+You need a build machine or VM (4+ CPUs, 6 GB RAM, 100 GB disk) with internet.
 
 1. **Install Debian 12**, minimal: under Software selection, untick both
    **Debian desktop environment** and **GNOME**. Installer images:
@@ -17,7 +18,8 @@ You need a machine or VM (4+ CPUs, 6 GB RAM, 100 GB disk) with internet.
    (the small `netinst` image is enough). **Leave the root password empty**:
    the build needs your user to have `sudo`, and Debian gives it only then.
 
-2. **Get the repository:**
+2. **Get the repository:** once Debian is installed, log in to your build
+   machine (at its console, in a terminal, or over SSH) and run:
 
    ```bash
    sudo apt install -y git
@@ -51,11 +53,11 @@ in [scripts/xara.md](scripts/xara.md):
 
 1. Package the source as `xara-VERSION.tar.gz` (e.g. `xara-0.1.3.tar.gz`),
    with a single top-level folder named `xara`
-2. Copy the tarball into `scripts/`:
+2. Copy the tarball into the repository's `scripts/` folder:
 
    ```bash
    tar -czf ~/src/xara-0.1.3.tar.gz -C ~/src xara
-   cp ~/src/xara-0.1.3.tar.gz scripts/
+   cp ~/src/xara-0.1.3.tar.gz ~/emcomm-tools-os-community/scripts/
    ```
 
 ## Build
@@ -63,26 +65,29 @@ in [scripts/xara.md](scripts/xara.md):
 1. **Start the build:**
 
    ```bash
-   cd live-build
+   cd ~/emcomm-tools-os-community/live-build
    sudo ./build.sh
    ```
 
    First, `build.sh` uses Debian's live-build to create a fresh Debian 12
    system in a folder, downloading and installing its packages. This takes
-   15 minutes or more; then it opens the build's root shell inside that system.
+   15 minutes or more; then the build's root shell is ready, in the same
+   terminal.
 
-2. **Install EmComm Tools:** when the build's root shell opens, type this and
-   answer the ETC questions (map tiles and Navit map):
+2. **Install EmComm Tools:** when the build's root shell is ready, type the
+   following and answer the ETC questions (Navit map, Wikipedia `.zim` file,
+   map tiles):
 
    ```bash
-   ./install.sh
+   ET_EXPERT=1 ./install.sh
    ```
 
-   When it's done, it shows what to do next. To also be asked for a Wikipedia
-   (`.zim`) file and shown the WINE notes, run `ET_EXPERT=1 ./install.sh`
-   instead.
+   `ET_EXPERT=1` turns on ETC's expert mode: it adds the Wikipedia question and
+   shows how to add VARA after install. When it's done, it will show the next
+   steps.
 
-3. **Optional: check the install** with ETC's test suite:
+3. **Optional: check the install.** When it's done, you can run ETC's test
+   suite by typing the following:
 
    ```bash
    cd ../tests && ./run-test-suite.sh
@@ -106,8 +111,7 @@ To install the ISO, see [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
 
 The release name comes from the newest ETC release tag on your checkout. It
 names the ISO, its volume ID, the boot menu, the installer and the conky panel.
-For tag
-`emcomm-tools-os-community-20261111-r7-build37`:
+For tag `emcomm-tools-os-community-20261111-r7-build37`:
 
 | Checkout | Release | ISO |
 |---|---|---|
