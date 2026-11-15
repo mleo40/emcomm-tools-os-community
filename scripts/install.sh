@@ -4,11 +4,6 @@
 # Date    : 16 March 2024
 # Updated : 11 November 2026
 # Purpose : Main installer for EmComm Tools Community (ETC)
-#
-# ET_BUILD=1: image build (live-build chroot, see live-build/). Nothing is
-# asked: only the global map is included, and there is no user to set up (the
-# installer creates it). The encryption tools are always prepared for the
-# installer's Optional software page, not installed.
 
 . ./env.sh
 . ./functions.sh
@@ -62,11 +57,7 @@ exitIfNotRoot
 ./install-wikipedia.sh
 
 # Add user-specific data
-if [[ -n "${ET_BUILD}" ]]; then
-  et-log "Build mode: no OSM state map is included."
-else
-  ./download-osm-maps.sh
-fi
+./download-osm-maps.sh
 [ ! -z "${ET_EXPERT}" ] && ./download-wikipedia.sh
 
 ./install-wine.sh
@@ -86,11 +77,7 @@ fi
 ./install-sdrpp.sh
 
 # Install ETC custom maps
-if [[ -n "${ET_BUILD}" ]]; then
-  ./download-et-maps.sh world
-else
-  ./download-et-maps.sh
-fi
+./download-et-maps.sh
 
 # Install ETC applications
 ./install-et-api.sh
@@ -112,6 +99,10 @@ fi
 
 # Instal SIGINT tools
 ./install-minimodem.sh
+
+# Install security tools
+./install-gpa.sh
+./install-pfte.sh
 
 # Install ISO tools
 ./install-ventoy.sh
@@ -157,7 +148,3 @@ fi
 
 # Install Veracrypt
 #./install-veracrypt.sh
-
-# Optional encryption tools: prepared for the installer's Optional software
-# page, installed only if selected there.
-./install-crypto.sh --prepare

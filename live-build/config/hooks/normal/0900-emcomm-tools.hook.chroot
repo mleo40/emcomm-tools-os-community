@@ -3,9 +3,10 @@
 # Date    : 11 November 2026
 # Purpose : Install EmComm Tools into the image (live-build chroot hook).
 #
-# Runs install.sh (build mode) from the repository copy build.sh puts in
-# /opt/emcomm-tools-os-community, then leaves that copy read-only. Numbered
-# 0900 to run before live-build's cleanup hooks (8000-8110).
+# Opens a root shell in the repository copy build.sh puts in
+# /opt/emcomm-tools-os-community, like Cubic's terminal, for install.sh and any
+# extras. Then leaves that copy read-only. Numbered 0900 to run before
+# live-build's cleanup hooks.
 
 set -u
 
@@ -13,17 +14,24 @@ BUILD_DIR=/opt/emcomm-tools-os-community
 LOG=/tmp/et/et.log
 
 cd "${BUILD_DIR}/scripts" || exit 1
-export ET_BUILD=1
 
-./install.sh
-RC=$?
+echo
+echo "=== EmComm Tools build: root shell inside the ISO's system ==="
+echo "Run ./install.sh, answer its questions, add any extras."
+echo "Type exit when done; the ISO is then made."
+echo
+HISTFILE= bash -i
 
-echo "=== EmComm Tools build: install.sh exit code ${RC} ==="
 if [[ -f "${LOG}" ]]; then
   FAILED=$(grep -c 'failed with exit code' "${LOG}" || true)
   echo "=== Failed steps: ${FAILED} ==="
   grep 'failed with exit code' "${LOG}" || true
 fi
+
+# Installer and slideshow: the release (from build.sh) instead of "R7".
+sed -i -e "s/\"R7\"/\"${ET_RELEASE_NAME}\"/" -e "s/ R7\"/ ${ET_RELEASE_NAME}\"/" \
+  /etc/calamares/branding/emcomm-tools/branding.desc \
+  /etc/calamares/branding/emcomm-tools/show.qml
 
 # Live installer launcher: ETC's name and logo instead of Debian's.
 sed -i -e 's/^Name=.*/Name=Install EmComm Tools/' \

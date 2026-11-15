@@ -19,6 +19,12 @@ apt install \
   gnome-shell-extension-appindicator \
   -y
 
+# Yaru's top bar uses switch and checkbox images that Debian's GNOME Shell
+# doesn't include; point it at the copies Yaru ships.
+YARU_SHELL=/usr/share/themes/Yaru-dark/gnome-shell
+sed -i "s#resource:///org/gnome/shell/theme/\(toggle-\|checkbox-\)#file://${YARU_SHELL}/\1#g" \
+  "${YARU_SHELL}/gnome-shell.css"
+
 cp ../overlay/usr/share/glib-2.0/schemas/90_emcomm-tools.gschema.override \
   /usr/share/glib-2.0/schemas/
 

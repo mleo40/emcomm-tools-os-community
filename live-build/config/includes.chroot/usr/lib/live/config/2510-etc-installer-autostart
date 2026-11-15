@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Date    : 14 November 2026
+# Purpose : Live session only: open the installer when the desktop starts.
+
+cat > /etc/xdg/autostart/et-live-installer.desktop <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Install EmComm Tools
+Exec=gio launch /usr/share/applications/install-debian.desktop
+NoDisplay=true
+OnlyShowIn=GNOME;
+X-GNOME-Autostart-Phase=Application
+EOF
+
+# Live session: ETC user setup stays in the app menu.
+if [ -f /etc/xdg/autostart/et-user-first-login.desktop ]; then
+  echo "Hidden=true" >> /etc/xdg/autostart/et-user-first-login.desktop
+fi

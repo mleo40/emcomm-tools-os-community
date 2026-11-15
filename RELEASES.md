@@ -7,8 +7,8 @@
 * ISO built with Debian's live-build (`live-build/build.sh`), with Debian's
   signed shim and GRUB for Secure Boot; installs with Calamares (replaces
   Ubiquity)
-* Encryption tools (GPA, PFTE, steghide, guides) are opt-in: an "Optional
-  software" page in the installer, not selected by default, installed offline
+* The build pauses in a root shell inside the ISO's system, like Cubic's
+  terminal: run `install.sh` there, as in r7
 * The installer removes itself from the installed system, as in r7
 * Yaru top bar, as in r7; time servers are Debian's NTP pool
 * OpenJDK 20 replaced by OpenJDK 17; Python 2 removed (mbutil runs on Python 3)

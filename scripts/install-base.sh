@@ -32,6 +32,7 @@ apt install \
   openssh-server \
   screen \
   socat \
+  steghide \
   stow \
   xsel \
   tree \

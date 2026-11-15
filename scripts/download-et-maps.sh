@@ -23,15 +23,11 @@ FILES=(
   ["world"]="osm-world-zoom0to7-20251121.mbtiles"
 )
 
-# Country from the first argument (us, ca, world), or ask.
-if [[ -n "$1" ]]; then
-  SELECTED_COUNTRY="$1"
-  EXIT_STATUS=0
-else
-  SELECTED_COUNTRY=$(dialog --clear --menu "Select a country" 10 40 5 "${OPTIONS[@]}" 2>&1 >/dev/tty)
-  EXIT_STATUS=$?
-  tput sgr0 && clear
-fi
+# Show dialog
+SELECTED_COUNTRY=$(dialog --clear --menu "Select a country" 10 40 5 "${OPTIONS[@]}" 2>&1 >/dev/tty)
+EXIT_STATUS=$?
+
+tput sgr0 && clear
 
 if [[ $EXIT_STATUS -eq 0 ]]; then
   DOWNLOAD_FILE="${FILES[$SELECTED_COUNTRY]}"

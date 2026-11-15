@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Date    : 15 November 2026
+# Purpose : ETC's name and release in the ISO's boot menus (UEFI and BIOS).
+
+set -e
+
+LABEL="Try or Install EmComm Tools (@ET_RELEASE@)"
+
+sed -i -e "s/Live system (amd64 fail-safe mode)/${LABEL} (fail-safe mode)/" \
+       -e "s/Live system (amd64)/${LABEL}/" \
+       -e "s/--hotkey=l/--hotkey=t/" \
+  boot/grub/grub.cfg isolinux/live.cfg
