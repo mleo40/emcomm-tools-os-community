@@ -2,7 +2,7 @@
 
 The EmComm Tools (ETC) ISO is Debian 12 with EmComm Tools installed, built
 with [ISO-BUILD-PLAN.md](../ISO-BUILD-PLAN.md). You can run it from a USB
-stick without installing anything (a "live" system, which starts fresh each
+stick without installing anything (a live session, which starts fresh each
 time), and install it to a computer's disk when you're ready. No internet is
 needed to boot, install or run it.
 
@@ -62,13 +62,14 @@ Choose **Boot in normal mode**:
 
 ![Ventoy boot mode](install-guide/images/02-ventoy-boot-mode.png)
 
-The ETC boot menu appears. Press **Enter** for **Try or Install EmComm Tools**:
+The ETC boot menu appears. Press **Enter** for **Try or Install EmComm Tools**
+(followed by the release, e.g. `ETC_R7_BUILD37`):
 
 ![ETC boot menu](install-guide/images/03-boot-menu.png)
 
 ![Boot splash](install-guide/images/04-splash.png)
 
-## 3. The live system
+## 3. The live session
 
 ETC starts and opens the installer. To try EmComm Tools first, close it; to
 install later, double-click **Install EmComm Tools** on the desktop. Your
@@ -117,13 +118,13 @@ computer restarts.
 
 ![Boot menu](install-guide/images/16-installed-boot-menu.png)
 
-Log in. If you didn't save your callsign and grid square in the live system,
+Log in. If you didn't save your callsign and grid square in the live session,
 **EmComm Tools User Configuration** opens; enter them there:
 
 ![First login](install-guide/images/17-first-login.png)
 
 ## 6. After installing
 
-Maps, Wikipedia (`.zim`) files and xara are those chosen when the ISO was
-built. VARA is added after install: see
+Map tiles, the Navit map, Wikipedia (`.zim`) files and xara are those chosen
+when the ISO was built. VARA is added after install: see
 `/opt/emcomm-tools-os-community/scripts/wine.txt`.

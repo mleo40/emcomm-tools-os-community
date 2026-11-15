@@ -148,3 +148,8 @@ exitIfNotRoot
 
 # Install Veracrypt
 #./install-veracrypt.sh
+
+# In the ISO build's shell (live-build/), say what's next.
+if [[ -n "${ET_BUILD_SHELL:-}" ]]; then
+  echo -e "\n=== EmComm Tools installed ===\nOptional: cd ../tests && ./run-test-suite.sh\nThen type exit to make the ISO.\n"
+fi

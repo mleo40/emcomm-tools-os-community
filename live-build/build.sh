@@ -127,6 +127,6 @@ if [[ -z "${ISO}" ]]; then
 fi
 
 echo
-grep -E '^=== (EmComm Tools build|Failed steps)' build.log || true
+grep '^=== Failed steps' build.log || true
 echo "ISO: ${ISO}"
 ls -lh "${ISO}"

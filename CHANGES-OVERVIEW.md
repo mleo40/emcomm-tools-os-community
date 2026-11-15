@@ -1,21 +1,25 @@
 # Moving EmComm Tools from Ubuntu/Cubic to Debian/live-build
 
 What changes, and why. For review only; remove this document once merged.
-Building ISOs from now on: [ISO-BUILD-PLAN.md](ISO-BUILD-PLAN.md).
+Building ISOs from now on: [ISO-BUILD-PLAN.md](ISO-BUILD-PLAN.md). Installing:
+[docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
 
 ## Goals
 
 1. **Move ETC from Ubuntu/Cubic to Debian 12/live-build.**
-2. **Stay as close to r7 as possible:** the same build steps, look, style and
-   functionality. Users build their own ISO, as with r7.
-3. **Docs:** an ISO build guide and an end-user install guide.
+2. **Stay as close to r7's install process as possible:** users still run
+   `install.sh` to install ETC and build their own ISO.
+3. **Maintain r7's look, style and functionality.**
+4. **Docs:** an ISO build guide, an end-user install guide and release notes.
 
 ## Key changes for the ETC developer
 
-- **Build:** live-build replaces Cubic, with the same steps. `sudo ./build.sh`
-  places you in a shell to install ETC (`./install.sh`, r7's questions) and any
-  extras; on `exit`, live-build builds the ISO.
-- **Installer:** Calamares replaces Ubiquity; r7's slideshow is ported.
+- **Build:** live-build replaces Cubic. `sudo ./build.sh` places users in the
+  build's root shell to install ETC (`./install.sh`) and any extras; on `exit`,
+  live-build builds the ISO.
+- **Installer:** Calamares replaces Ubiquity, and is new for ETC to maintain:
+  its settings are in `live-build/config/includes.chroot/etc/calamares/`, its
+  branding and slideshow in `overlay/etc/calamares/branding/`.
 - **Java:** OpenJDK 17 instead of 20, which Debian 12 doesn't have. ETC's Java
   apps need at most Java 11 (et-api) and 9 (YAAC); et-api runs on 17 in
   testing. Alternative: a non-Debian JDK 20+ (e.g. Eclipse Temurin) with its
@@ -23,32 +27,49 @@ Building ISOs from now on: [ISO-BUILD-PLAN.md](ISO-BUILD-PLAN.md).
 - **VARA** under WINE 8.0 still needs testing. Debian 12 has WINE 8.0; r7 has
   7.0 (see [Version parity with r7](#version-parity-with-r7)).
 
+## Improvements for users
+
+- **Fewer tools to set up:** a minimal Debian 12 with git. No Cubic to install,
+  and no `install-ubuntu-image-tools-only.sh` to maintain or run.
+- **Nothing to type:** the release name, ISO file name, volume ID, boot menu
+  and installer version all come from the newest ETC release tag. A build from
+  newer commits also shows the commit, plus "modified" if there are
+  uncommitted changes.
+- **One command, no wizard:** no Cubic screens (packages, kernel,
+  compression). The build runs on a machine without a desktop, or even over
+  SSH.
+- **Your checkout is the source:** no tarball to download inside the build and
+  no scripts to patch by hand: edits to the repository's files go into the
+  ISO.
+- **Build summary:** `install.sh` ends with what to do next, and the build
+  ends with the ISO's location and any failed `install.sh` steps, with the
+  full log saved.
+
 ## Size/Scope
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
 (`emcomm-tools-os-community-20261111-r7-build37`, merged in): **82 files,
-+1,152 / −354 lines**, plus this document (76 lines).
++1,203 / −354 lines**, plus this document (97 lines).
 
 It's less than it looks:
 
 - 14 files are the install guide's screenshots, plus the guide itself
-  (goal 3).
+  (goal 4).
 - 20 files are moves or deletions with no new logic: 9 renames (slideshow
-  images, GNOME settings) and 11 deleted Ubuntu/Cubic files (goals 1–2).
+  images, GNOME settings) and 11 deleted Ubuntu/Cubic files (goals 1–3).
 - Edits to existing scripts are small: most are 1–10 lines; the largest is 41,
-  `install-branding.sh` (goal 2). `install.sh` changes 5 lines.
+  `install-branding.sh` (goal 3). `install.sh` changes 10 lines.
 - The main new code is the live-build and installer setup: 17 new files,
-  +537 lines (goal 1).
+  +537 lines (goals 1–2).
 
-It's planned as one PR with four commits, each reviewable on its own. The core
+It's planned as one PR with three commits, each reviewable on its own. The core
 comes first; the others build on it in any order.
 
 | # | Commit | Files | Lines | Share | Why |
 |---|---|---|---|---|---|
-| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 30 | +555 / −148 | 48% | live-build replaces Cubic, with the same steps: the build pauses in a root shell for `install.sh`<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
-| 2 | `Desktop and boot branding parity with r7` | 28 | +232 / −206 | 20% | GNOME look (Yaru theme and top bar, dock, desktop and tray icons, window buttons)<br>Calamares slideshow ported from Ubiquity<br>ETC GRUB menus, background and boot splash (live ISO and installed) |
-| 3 | `Live-session polish` | 7 | +117 | 10% | Boots straight into the installer<br>Installer launcher with ETC's name and logo, starting without a password<br>Settings saved live carry into the install<br>SSH off in the live session |
-| 4 | `ISO build guide, install guide, release notes` | 17 | +248 | 22% | Release notes<br>ISO build guide<br>This overview (counted separately; remove after the merge)<br>End-user install guide with screenshots |
+| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 30 | +560 / −148 | 47% | live-build replaces Cubic; users install ETC in the build's root shell<br>Release names come from the newest ETC release tag<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
+| 2 | `Look and feel parity with r7` | 35 | +349 / −206 | 29% | GNOME look (Yaru theme and top bar, dock, desktop and tray icons, window buttons)<br>Calamares slideshow ported from Ubiquity<br>ETC GRUB menus, background and boot splash (live ISO and installed)<br>Live session boots straight into the installer, launched with ETC's name and logo, without a password<br>Settings saved live carry into the install<br>SSH off in the live session |
+| 3 | `ISO build guide, install guide, release notes` | 17 | +294 | 24% | Release notes<br>ISO build guide<br>This overview (counted separately; remove after the merge)<br>End-user install guide with screenshots |
 
 ## Version parity with r7
 

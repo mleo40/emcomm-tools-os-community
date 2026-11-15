@@ -20,7 +20,7 @@ echo "=== EmComm Tools build: root shell inside the ISO's system ==="
 echo "Run ./install.sh, answer its questions, add any extras."
 echo "Type exit when done; the ISO is then made."
 echo
-HISTFILE= bash -i
+HISTFILE= ET_BUILD_SHELL=1 bash -i
 
 if [[ -f "${LOG}" ]]; then
   FAILED=$(grep -c 'failed with exit code' "${LOG}" || true)
