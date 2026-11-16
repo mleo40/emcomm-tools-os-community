@@ -4,25 +4,18 @@ How to build your own EmComm Tools (ETC) ISO with Debian's live-build. The
 result is Debian 12 with ETC, ready to use. Building needs internet; the ISO
 doesn't.
 
-In short: install Debian 12, clone this repository and run `sudo ./build.sh`,
-run `ET_EXPERT=1 ./install.sh` and answer its questions, customize, then
-`exit`.
-
 ## Setup
 
-You need a build machine or VM (4+ CPUs, 4 GB RAM, 100 GB disk) with internet.
-
-1. **Install Debian 12**, minimal:
+1. **Install Debian 12** on a build machine or VM (4+ CPUs, 4 GB RAM, 100 GB
+   disk) with internet, minimal:
    - Download an installer image from
      [debian.org/releases/bookworm/debian-installer](https://www.debian.org/releases/bookworm/debian-installer/)
      (the small `netinst` image is enough).
    - Boot your build machine or VM from it and start the install.
-   - **Leave the root password empty**: the build needs your user to have
-     `sudo`, and this is how you get it.
-   - Under Software selection, **untick** both **Debian desktop environment**
-     and **GNOME**: they aren't needed, and leaving them out makes the Debian
-     install much faster. **Tick SSH server**, in case you need to log in or
-     copy files from another computer.
+   - **Leave the root password empty**, so your user gets `sudo`.
+   - Under Software selection, **untick** **Debian desktop environment** and
+     **GNOME** (not needed, and faster). **Tick SSH server** (for copying
+     files later).
    - When the install finishes, reboot your build machine into Debian.
 
 2. **Get the repository:** log in to your build machine (at its console, or
@@ -32,16 +25,13 @@ You need a build machine or VM (4+ CPUs, 4 GB RAM, 100 GB disk) with internet.
    sudo apt install -y git
    git clone https://github.com/thetechprepper/emcomm-tools-os-community.git
    cd emcomm-tools-os-community
-   git checkout <release tag or branch you want to build>
+   git checkout <release tag or branch you want to build>   # skip to build main
    ```
-
-   To build the main branch, skip the `git checkout` line.
 
 <details>
 <summary>Only if <code>sudo</code> says you're not in the sudoers file</summary>
 
-A root password was set during install. Fix it as root, using the root
-password and your login name:
+A root password was set during install. Fix it as root:
 
 ```bash
 su -
@@ -88,24 +78,18 @@ Then, on the build machine:
    sudo ./build.sh
    ```
 
-   First, `build.sh` uses Debian's live-build to create a fresh Debian 12
-   system in a folder, downloading and installing its packages. This takes a
-   while, so be patient; then the build's root shell is ready, in the same
-   terminal.
+   It sets up a fresh Debian 12 system (this takes a while; be patient), then
+   opens the build's root shell in the same terminal.
 
-2. **Install EmComm Tools:** when the build's root shell is ready, type the
-   following and answer the ETC questions (Navit map, Wikipedia `.zim` file,
-   map tiles):
+2. **Install EmComm Tools:** in the build's root shell, type the following and
+   answer the ETC questions (Navit map, Wikipedia `.zim` file, map tiles).
+   `ET_EXPERT=1` adds the Wikipedia question and the VARA notes.
 
    ```bash
    ET_EXPERT=1 ./install.sh
    ```
 
-   `ET_EXPERT=1` turns on ETC's expert mode: it adds the Wikipedia question and
-   shows how to add VARA after install. When it's done, it will show the next
-   steps.
-
-   A successful install ends like this:
+   A successful install ends with the next steps:
 
    ```text
    === EmComm Tools installed ===
@@ -124,31 +108,28 @@ Then, on the build machine:
 
 ## Output
 
-When the process finishes, it shows where the ISO is and how many `install.sh`
-steps failed, if any. Both the ISO and the full log (`build.log`) are in
-`/var/tmp/etc-live-build/`. If any steps failed, check them in `build.log`
-before using the ISO.
+The ISO and the full log (`build.log`) are in `/var/tmp/etc-live-build/`. If
+the build reports failed `install.sh` steps, check them in `build.log` before
+using the ISO.
 
 ### Copy the ISO off the build machine
 
-One way to get the ISO off the build machine is `scp`: from another computer,
-in the folder where you want the ISO, run this with your login name and the
-build machine's IP address (shown by `ip -4 addr` on the build machine):
+From another computer, use your login name and the build machine's IP address
+(shown by `ip -4 addr` on the build machine). Either copy it with `scp`, in the
+folder where you want the ISO:
 
 ```bash
 scp youruser@192.168.1.50:/var/tmp/etc-live-build/*.iso .
 ```
 
-Or download it with a web browser. On the build machine, start Python's
-built-in web server:
+Or download it with a web browser: on the build machine, run
 
 ```bash
 cd /var/tmp/etc-live-build && python3 -m http.server 8000
 ```
 
-Then, on another computer, open `http://192.168.1.50:8000` in a browser and
-click the ISO to download it. Press Ctrl+C on the build machine to stop the
-server when you're done.
+then open `http://192.168.1.50:8000` on the other computer and click the ISO.
+Press Ctrl+C on the build machine when you're done.
 
 To install the ISO, see [INSTALL-GUIDE.md](INSTALL-GUIDE.md).
 
@@ -162,7 +143,4 @@ Your ISO is your own build, with the choices you made while building it:
 | Map tiles, Navit map, Wikipedia (`.zim`) files, xara | Those chosen while building |
 | Any additional customizations you've made | Included |
 | VARA | Scripts and docs; added after install (see `scripts/wine.txt`) |
-| GRUB for UEFI and BIOS | Carried, for offline installs |
 | Live session | Starts the installer; closing it leaves the desktop. Login `user` / `live` (Debian's default); SSH off |
-| This repository | Read-only copy in `/opt/emcomm-tools-os-community` |
-| Accounts, SSH host keys, machine-id, logs | None; generated during the install |

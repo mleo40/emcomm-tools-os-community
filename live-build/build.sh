@@ -29,22 +29,43 @@ HERE="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 REPO="$(cd "${HERE}/.." && pwd)"
 WORK="${ET_WORK_DIR:-/var/tmp/etc-live-build}"
 
+# Debian packages come from this dated snapshot of Debian's archive, so every
+# build of a release gets the same package versions. Move it forward on purpose,
+# per release, after testing.
+DEBIAN_SNAPSHOT=20261115T120000Z
+SNAPSHOT_DEBIAN="http://snapshot.debian.org/archive/debian/${DEBIAN_SNAPSHOT}"
+SNAPSHOT_SECURITY="http://snapshot.debian.org/archive/debian-security/${DEBIAN_SNAPSHOT}"
+
 command -v lb >/dev/null || { apt-get update && apt-get install -y live-build; }
 
 [[ -t 0 ]] || { echo "build.sh needs a terminal: it pauses for you to run install.sh."; exit 1; }
 
 # Fresh build folder with this repo's live-build config. live-build's download
-# cache is kept between builds to save time.
+# cache is kept between builds of the same snapshot to save time.
 CACHE_KEEP="${WORK}.cache"
 if [[ -d "${WORK}" ]]; then
   (cd "${WORK}" && lb clean >/dev/null 2>&1 || true)
   rm -rf "${CACHE_KEEP}"
-  [[ -d "${WORK}/cache" ]] && mv "${WORK}/cache" "${CACHE_KEEP}"
+  [[ "$(cat "${WORK}/cache/.snapshot" 2>/dev/null)" == "${DEBIAN_SNAPSHOT}" ]] \
+    && mv "${WORK}/cache" "${CACHE_KEEP}"
   rm -rf "${WORK}"
 fi
 mkdir -p "${WORK}"
 cp -a "${HERE}/config" "${WORK}/"
 [[ -d "${CACHE_KEEP}" ]] && mv "${CACHE_KEEP}" "${WORK}/cache"
+mkdir -p "${WORK}/cache" && echo "${DEBIAN_SNAPSHOT}" > "${WORK}/cache/.snapshot"
+
+# Apt settings for the snapshot (it's older than its Release files' expiry).
+SNAPSHOT_APT="${WORK}/snapshot-apt"
+mkdir -p "${SNAPSHOT_APT}/lists/partial"
+cat > "${SNAPSHOT_APT}/sources.list" <<EOF
+deb ${SNAPSHOT_DEBIAN} bookworm main contrib non-free non-free-firmware
+deb ${SNAPSHOT_DEBIAN} bookworm-updates main contrib non-free non-free-firmware
+deb ${SNAPSHOT_SECURITY} bookworm-security main contrib non-free non-free-firmware
+EOF
+SNAPSHOT_APT_OPTS=(-o Dir::Etc::SourceList="${SNAPSHOT_APT}/sources.list"
+  -o Dir::Etc::SourceParts=- -o Dir::State::Lists="${SNAPSHOT_APT}/lists"
+  -o Acquire::Check-Valid-Until=false)
 
 # Live ISO boot menu: ETC's background instead of live-build's splash.
 mkdir -p "${WORK}/config/bootloaders/syslinux_common"
@@ -53,8 +74,8 @@ cp "${REPO}/logos/emcomm-tools-boot-800x600.png" "${WORK}/config/bootloaders/sys
 
 # BIOS GRUB for offline installs (added to the pool by the 0910 hook).
 mkdir -p "${WORK}/config/grub-pc"
-apt-get update -qq
-(cd "${WORK}/config/grub-pc" && apt-get download grub-pc grub-pc-bin)
+apt-get "${SNAPSHOT_APT_OPTS[@]}" update -qq
+(cd "${WORK}/config/grub-pc" && apt-get "${SNAPSHOT_APT_OPTS[@]}" download grub-pc grub-pc-bin)
 
 # The repository for the chroot hook, which keeps it as a read-only copy.
 # Only tracked files (plus .git, for the hook's cleanup); uncommitted edits to
@@ -96,6 +117,7 @@ echo "Release: ${ET_RELEASE} (${ISO_NAME})"
 
 sed -i "s/^set -u$/set -u\nexport ET_RELEASE='${ET_RELEASE}' ET_RELEASE_NAME='${ET_RELEASE_NAME}'/" \
   "${WORK}/config/hooks/normal/0900-emcomm-tools.hook.chroot"
+cp "${SNAPSHOT_APT}/sources.list" "${WORK}/config/snapshot-sources.list"
 sed -i "s/@ET_RELEASE@/${ET_RELEASE}/" "${WORK}/config/hooks/normal/0920-boot-menu.hook.binary"
 
 cd "${WORK}"
@@ -106,6 +128,12 @@ lb config \
   --security true \
   --updates true \
   --debian-installer none \
+  --mirror-bootstrap "${SNAPSHOT_DEBIAN}/" \
+  --mirror-chroot "${SNAPSHOT_DEBIAN}/" \
+  --mirror-chroot-security "${SNAPSHOT_SECURITY}/" \
+  --mirror-binary "http://deb.debian.org/debian/" \
+  --mirror-binary-security "http://security.debian.org/debian-security/" \
+  --apt-options "--yes -o Acquire::Check-Valid-Until=false" \
   --binary-images iso-hybrid \
   --uefi-secure-boot enable \
   --memtest none \

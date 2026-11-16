@@ -15,12 +15,25 @@ LOG=/tmp/et/et.log
 
 cd "${BUILD_DIR}/scripts" || exit 1
 
+# install.sh's apt also uses build.sh's Debian snapshot (update-apt.sh writes
+# the regular sources.list, which the installed system keeps).
+SNAPSHOT_APT=/etc/apt/etc-build
+mkdir -p "${SNAPSHOT_APT}"
+cp /live-build/config/snapshot-sources.list "${SNAPSHOT_APT}/sources.list"
+cat > "${SNAPSHOT_APT}/apt.conf" <<EOF
+Dir::Etc::SourceList "${SNAPSHOT_APT}/sources.list";
+Acquire::Check-Valid-Until "false";
+EOF
+export APT_CONFIG="${SNAPSHOT_APT}/apt.conf"
+
 echo
 echo "=== EmComm Tools build: root shell inside the ISO's system ==="
 echo "Run ET_EXPERT=1 ./install.sh, answer its questions, add any extras."
 echo "Type exit when done; the ISO is then made."
 echo
 HISTFILE= ET_BUILD_SHELL=1 bash -i
+unset APT_CONFIG
+rm -rf "${SNAPSHOT_APT}"
 
 if [[ -f "${LOG}" ]]; then
   FAILED=$(grep -c 'failed with exit code' "${LOG}" || true)

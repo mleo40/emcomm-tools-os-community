@@ -22,7 +22,10 @@ Installing: [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
   branding and slideshow in `overlay/etc/calamares/branding/`.
 - **Release tags:** the build names the ISO, boot menu and installer after
   the ETC release tag the user checked out.
-- **Security:** SSH is disabled by default.
+- **Debian snapshot:** builds use Debian's archive as of `DEBIAN_SNAPSHOT` in
+  `live-build/build.sh`; move it forward per release, after testing.
+- **Security:** Debian packages carry security fixes up to the snapshot date;
+  SSH is disabled by default.
 - **Java:** OpenJDK 17 instead of 20, which Debian 12 doesn't have. ETC's Java
   apps need at most Java 11 (et-api) and 9 (YAAC); et-api runs on 17 in
   testing. Alternative: a non-Debian JDK 20+ (e.g. Eclipse Temurin) with its
@@ -53,7 +56,7 @@ Installing: [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
 (`emcomm-tools-os-community-20261111-r7-build37`, merged in): **83 files,
-+1,229 / −354 lines**, plus this document (119 lines).
++1,250 / −354 lines**, plus this document (127 lines).
 
 It's less than it looks:
 
@@ -64,16 +67,16 @@ It's less than it looks:
 - Edits to existing scripts are small: most are 1–10 lines; the largest
   (`install-branding.sh`) is 41 and `install.sh` changes 10 (goal 3).
 - The main new code is the live-build and installer setup: 17 new files,
-  +538 lines (goals 1–2).
+  +579 lines (goals 1–2).
 
 It's planned as one PR with three commits, each reviewable on its own. The core
 comes first; the others build on it in any order.
 
 | # | Commit | Files | Lines | Share | Why |
 |---|---|---|---|---|---|
-| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 31 | +565 / −148 | 46% | live-build replaces Cubic; users install ETC in the build's root shell<br>Release names come from the checked-out ETC release tag<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>SSH off by default on installed systems<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
+| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 31 | +606 / −148 | 48% | live-build replaces Cubic; users install ETC in the build's root shell<br>Release names come from the checked-out ETC release tag<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>SSH off by default on installed systems<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
 | 2 | `Look and feel parity with r7` | 35 | +349 / −206 | 28% | GNOME look (Yaru theme and top bar, dock, desktop and tray icons, window buttons)<br>Calamares slideshow ported from Ubiquity<br>ETC GRUB menus, background and boot splash (live ISO and installed)<br>Live session boots straight into the installer, launched with ETC's name and logo, without a password<br>Settings saved live carry into the install<br>SSH off in the live session |
-| 3 | `ISO build guide, install guide, release notes` | 17 | +315 | 26% | Release notes<br>ISO build guide<br>End-user install guide with screenshots<br>This overview (counted separately; remove after the merge) |
+| 3 | `ISO build guide, install guide, release notes` | 17 | +295 | 24% | Release notes<br>ISO build guide<br>End-user install guide with screenshots<br>This overview (counted separately; remove after the merge) |
 
 ## Version parity with r7
 
@@ -82,6 +85,11 @@ install script's `VERSION` is *unchanged*. Only SDR++ (nightly, unpinned in r7
 too) now downloads the Debian build.
 
 **New: JS8Call and WSJT-X are pinned** (`/etc/apt/preferences.d/emcomm-tools`).
+
+**New: Debian packages are pinned to a dated snapshot** of Debian's archive
+(`DEBIAN_SNAPSHOT` in `live-build/build.sh`, now 15 Nov 2026), so every build
+of a release gets the same versions. Move the date forward per release, after
+testing.
 
 **Apps from the distribution's archive follow Debian 12.** These have no Debian
 12 package at r7's version, so they can't be pinned to it:

@@ -13,6 +13,8 @@
   come from the checked-out ETC release tag
 * The installer removes itself from the installed system, as in r7
 * SSH is off by default; turn it on with `sudo systemctl enable --now ssh`
+* Debian packages come from a dated snapshot of Debian's archive
+  (`DEBIAN_SNAPSHOT` in `live-build/build.sh`), so builds don't drift
 * Yaru top bar, as in r7; time servers are Debian's NTP pool
 * OpenJDK 20 replaced by OpenJDK 17; Python 2 removed (mbutil runs on Python 3)
 
