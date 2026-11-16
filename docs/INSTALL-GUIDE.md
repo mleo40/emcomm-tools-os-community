@@ -1,7 +1,7 @@
 # Installing EmComm Tools
 
 The EmComm Tools (ETC) ISO is Debian 12 with EmComm Tools installed, built
-with [ISO-BUILD-GUIDE.md](ISO-BUILD-GUIDE.md). You can run it from a USB
+with the [ISO build guide](ISO-BUILD-GUIDE.md). You can run it from a USB
 stick without installing anything (a live session, which starts fresh each
 time), and install it to a computer's disk when you're ready. No internet is
 needed to boot, install or run it.
@@ -37,10 +37,11 @@ This erases the USB stick.
 The stick now has a large partition named **Ventoy** (exFAT), which Windows,
 macOS and Linux can all open.
 
-### Copy ETC onto the stick
+### Copy the ISO onto the stick
 
 Copy the ISO file onto the **Ventoy** partition. You can rename it, for example
-to `emcomm-tools.iso`.
+to `emcomm-tools.iso`. To get the ISO off your build machine first, see
+[Copy the ISO off the build machine](ISO-BUILD-GUIDE.md#copy-the-iso-off-the-build-machine).
 
 ### Secure Boot
 
@@ -105,7 +106,7 @@ tick **Encrypt system** and set a passphrase; it's asked for at every start.
 
 ![Summary](install-guide/images/13-summary.png)
 
-The installation takes about 15 minutes.
+The installation takes a while; be patient.
 
 ![Installing](install-guide/images/14-installing.png)
 

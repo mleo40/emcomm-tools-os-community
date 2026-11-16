@@ -15,8 +15,8 @@ Installing: [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
 ## Key changes for the ETC developer
 
 - **Build:** live-build replaces Cubic. `sudo ./build.sh` places users in the
-  build's root shell to install ETC and any extras; on `exit`,
-  live-build builds the ISO.
+  build's root shell to install ETC and any extras; on `exit`, live-build
+  builds the ISO.
 - **Installer:** Calamares replaces Ubiquity, and is new for ETC to maintain:
   its settings are in `live-build/config/includes.chroot/etc/calamares/`, its
   branding and slideshow in `overlay/etc/calamares/branding/`.
@@ -53,7 +53,7 @@ Installing: [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md).
 
 Branch `feature/debian-live-iso` against `release/r7` at build37
 (`emcomm-tools-os-community-20261111-r7-build37`, merged in): **83 files,
-+1,192 / −354 lines**, plus this document (119 lines).
++1,229 / −354 lines**, plus this document (119 lines).
 
 It's less than it looks:
 
@@ -71,9 +71,9 @@ comes first; the others build on it in any order.
 
 | # | Commit | Files | Lines | Share | Why |
 |---|---|---|---|---|---|
-| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 31 | +565 / −148 | 48% | live-build replaces Cubic; users install ETC in the build's root shell<br>Release names come from the checked-out ETC release tag<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>SSH off by default on installed systems<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
-| 2 | `Look and feel parity with r7` | 35 | +349 / −206 | 29% | GNOME look (Yaru theme and top bar, dock, desktop and tray icons, window buttons)<br>Calamares slideshow ported from Ubiquity<br>ETC GRUB menus, background and boot splash (live ISO and installed)<br>Live session boots straight into the installer, launched with ETC's name and logo, without a password<br>Settings saved live carry into the install<br>SSH off in the live session |
-| 3 | `ISO build guide, install guide, release notes` | 17 | +278 | 23% | Release notes<br>ISO build guide<br>End-user install guide with screenshots<br>This overview (counted separately; remove after the merge) |
+| 1 | `Debian 12 base, live-build ISO and Calamares installer` | 31 | +565 / −148 | 46% | live-build replaces Cubic; users install ETC in the build's root shell<br>Release names come from the checked-out ETC release tag<br>Desktop: Debian's `gnome-core` plus r7's desktop apps<br>Small edits where scripts named specific Ubuntu packages, versions or URLs<br>Installer-created users get `et-data` as primary group<br>SSH off by default on installed systems<br>Read-only copy of this repository on the installed system (`/opt/emcomm-tools-os-community`) |
+| 2 | `Look and feel parity with r7` | 35 | +349 / −206 | 28% | GNOME look (Yaru theme and top bar, dock, desktop and tray icons, window buttons)<br>Calamares slideshow ported from Ubiquity<br>ETC GRUB menus, background and boot splash (live ISO and installed)<br>Live session boots straight into the installer, launched with ETC's name and logo, without a password<br>Settings saved live carry into the install<br>SSH off in the live session |
+| 3 | `ISO build guide, install guide, release notes` | 17 | +315 | 26% | Release notes<br>ISO build guide<br>End-user install guide with screenshots<br>This overview (counted separately; remove after the merge) |
 
 ## Version parity with r7
 
